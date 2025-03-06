@@ -1,11 +1,9 @@
 package com.yupi.yurpc.constant;
 
 /**
- * RPC 相关常量
+ * RPC constants
  *
- * @author <a href="https://github.com/liyupi">程序员鱼皮</a>
- * @learn <a href="https://codefather.cn">鱼皮的编程宝典</a>
- * @from <a href="https://yupi.icu">编程导航学习圈</a>
+ * @author <a href="https://github.com/aaronbychen">Aaron Chen</a>
  */
 public interface RpcConstant {
 
