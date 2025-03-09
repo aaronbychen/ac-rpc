@@ -4,11 +4,9 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.setting.dialect.Props;
 
 /**
- * 配置工具类
+ * Setup utils
  *
- * @author <a href="https://github.com/liyupi">程序员鱼皮</a>
- * @learn <a href="https://codefather.cn">程序员鱼皮的编程宝典</a>
- * @from <a href="https://yupi.icu">编程导航知识星球</a>
+ * @author <a href="https://github.com/aaronbychen">Aaron Chen</a>
  */
 public class ConfigUtils {
 
