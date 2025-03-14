@@ -4,37 +4,35 @@ import com.yupi.yurpc.registry.RegistryKeys;
 import lombok.Data;
 
 /**
- * RPC 框架注册中心配置
+ * RPC framework registrtion center config
  *
- * @author <a href="https://github.com/liyupi">程序员鱼皮</a>
- * @learn <a href="https://codefather.cn">鱼皮的编程宝典</a>
- * @from <a href="https://yupi.icu">编程导航学习圈</a>
+ * @author <a href="https://github.com/aaronbychen">Aaron Chen</a>
  */
 @Data
 public class RegistryConfig {
 
     /**
-     * 注册中心类别
+     * Registrtion center type
      */
     private String registry = RegistryKeys.ETCD;
 
     /**
-     * 注册中心地址
+     * Registrtion center address
      */
     private String address = "http://localhost:2380";
 
     /**
-     * 用户名
+     * Username
      */
     private String username;
 
     /**
-     * 密码
+     * Password
      */
     private String password;
 
     /**
-     * 超时时间（单位毫秒）
+     * Timeout（ms）
      */
     private Long timeout = 10000L;
 }
