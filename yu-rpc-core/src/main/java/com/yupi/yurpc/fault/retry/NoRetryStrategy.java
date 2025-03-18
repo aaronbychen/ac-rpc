@@ -6,17 +6,15 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.concurrent.Callable;
 
 /**
- * 不重试 - 重试策略
+ * No retry - retry strategy
  *
- * @author <a href="https://github.com/liyupi">程序员鱼皮</a>
- * @learn <a href="https://codefather.cn">鱼皮的编程宝典</a>
- * @from <a href="https://yupi.icu">编程导航学习圈</a>
+ * @author <a href="https://github.com/aaronbychen">Aaron Chen</a>
  */
 @Slf4j
 public class NoRetryStrategy implements RetryStrategy {
 
     /**
-     * 重试
+     * Retry
      *
      * @param callable
      * @return
