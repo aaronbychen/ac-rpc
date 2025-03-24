@@ -1,9 +1,11 @@
-package main.java.com.ac.example.common.model;
+package com.ac.example.common.model;
 
 import java.io.Serializable;
 
 /**
- * User
+ * 用户
+ *
+ * @author <a href="https://github.com/aaronbychen">Aaron Chen</a>
  */
 public class User implements Serializable {
 

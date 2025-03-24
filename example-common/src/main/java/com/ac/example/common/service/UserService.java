@@ -1,17 +1,28 @@
-package main.java.com.ac.example.common.service;
+package com.ac.example.common.service;
 
-import main.java.com.ac.example.common.model.User;
+import com.ac.example.common.model.User;
 
 /**
- * User service
+ * 用户服务
+ *
+ * @author <a href="https://github.com/aaronbychen">Aaron Chen</a>
  */
 public interface UserService {
 
     /**
-     * Get user
+     * 获取用户
      *
      * @param user
      * @return
      */
     User getUser(User user);
+
+    /**
+     * 用于测试 mock 接口返回值
+     *
+     * @return
+     */
+    default short getNumber() {
+        return 1;
+    }
 }

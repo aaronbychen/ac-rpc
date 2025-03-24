@@ -1,0 +1,4 @@
+jdk=serializer.com.ac.acrpc.JdkSerializer
+hessian=serializer.com.ac.acrpc.HessianSerializer
+json=serializer.com.ac.acrpc.JsonSerializer
+kryo=serializer.com.ac.acrpc.KryoSerializer

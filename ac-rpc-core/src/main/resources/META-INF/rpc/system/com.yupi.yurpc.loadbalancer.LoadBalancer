@@ -1,0 +1,3 @@
+roundRobin=loadbalancer.com.ac.acrpc.RoundRobinLoadBalancer
+random=loadbalancer.com.ac.acrpc.RandomLoadBalancer
+consistentHash=loadbalancer.com.ac.acrpc.ConsistentHashLoadBalancer
