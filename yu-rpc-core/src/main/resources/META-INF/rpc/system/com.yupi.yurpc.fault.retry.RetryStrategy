@@ -1,0 +1,2 @@
+no=com.ac.acrpc.fault.retry.NoRetryStrategy
+fixedInterval=com.ac.acrpc.fault.retry.FixedIntervalRetryStrategy

@@ -1,0 +1,4 @@
+failBack=com.ac.acrpc.fault.tolerant.FailBackTolerantStrategy
+failFast=com.ac.acrpc.fault.tolerant.FailFastTolerantStrategy
+failOver=com.ac.acrpc.fault.tolerant.FailOverTolerantStrategy
+failSafe=com.ac.acrpc.fault.tolerant.FailSafeTolerantStrategy

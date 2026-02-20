@@ -1,8 +1,8 @@
-package com.yupi.example.provider;
+package com.ac.example.provider;
 
-import com.yupi.example.common.service.UserService;
-import com.yupi.yurpc.bootstrap.ProviderBootstrap;
-import com.yupi.yurpc.model.ServiceRegisterInfo;
+import com.ac.example.common.service.UserService;
+import com.ac.acrpc.bootstrap.ProviderBootstrap;
+import com.ac.acrpc.model.ServiceRegisterInfo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,9 +10,7 @@ import java.util.List;
 /**
  * 服务提供者示例
  *
- * @author <a href="https://github.com/liyupi">程序员鱼皮</a>
- * @learn <a href="https://codefather.cn">编程宝典</a>
- * @from <a href="https://yupi.icu">编程导航知识星球</a>
+ * @author <a href="https://github.com/aaronbychen">Aaron Chen</a>
  */
 public class ProviderExample {
 

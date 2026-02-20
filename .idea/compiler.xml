@@ -6,13 +6,13 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="example-springboot-provider" />
         <module name="ac-rpc" />
+        <module name="example-springboot-consumer" />
+        <module name="example-provider" />
+        <module name="example-common" />
+        <module name="example-consumer" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="example-common" target="1.8" />
-      <module name="example-consumer" target="1.8" />
-      <module name="example-provider" target="1.8" />
-    </bytecodeTargetLevel>
   </component>
 </project>
