@@ -16,7 +16,7 @@
     <dependencies>
         <dependency>
             <groupId>com.ac</groupId>
-            <artifactId>yu-rpc-spring-boot-starter</artifactId>
+            <artifactId>ac-rpc-spring-boot-starter</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
         <dependency>

@@ -5,19 +5,15 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.ac</groupId>
-    <artifactId>example-provider</artifactId>
+    <artifactId>ac-rpc-easy</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <dependencies>
+        <!-- https://mvnrepository.com/artifact/io.vertx/vertx-core -->
         <dependency>
-            <groupId>com.ac</groupId>
-            <artifactId>ac-rpc-core</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>com.ac</groupId>
-            <artifactId>example-common</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-core</artifactId>
+            <version>4.5.1</version>
         </dependency>
         <!-- https://doc.hutool.cn/ -->
         <dependency>
@@ -46,5 +42,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>
