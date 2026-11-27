@@ -2,6 +2,16 @@
 
 A distributed RPC framework in Java, built on Vert.x TCP networking with etcd-based service discovery.
 
+## Highlights
+
+All numbers are measured with the open-loop harness in `ac-rpc-bench` on a single laptop (client and server share the CPU); every table links to its raw data.
+
+- **Transport rewrite.** The original client leaked three threads per call and completed no requests at 80 rps. The rewrite sustains 250k rps with p99 under 5 ms, and 130k rps on a single connection where gRPC-java saturates at 65–80k ([details](#transport-rewrite), [gRPC comparison](#comparison-with-grpc-java)).
+- **Virtual-thread client.** A blocking-socket client with a batching writer reaches 120k rps on one connection at 1.0 ms p99, against 3.2 ms for the Vert.x client and about 37k rps for a lock-per-write design ([details](#virtual-thread-blocking-client)).
+- **A JDK bug.** Lost wakeups between virtual threads reading and writing the same socket on Windows, reduced to a [standalone reproducer](bench/repro/PollerStall.java) and matched to JDK-8334574; the upstream fix, adapted to a local JDK 25u build, removed the stall (6/6 runs to 0/6).
+- **Failure handling.** With a provider killed at 2,000 rps, callers saw 14,645 errors over 22 s (until its etcd lease expired) without outlier ejection, and none with ejection plus failover, at 0.6 ms p99 ([details](#killing-a-provider-under-load)).
+- **Bugs found by tests.** Among them: Kryo cannot serialize exceptions under the JDK module system, so a throwing service left callers waiting for their deadline; the discovery cache was shared by all services; the default registry address pointed at etcd's peer port.
+
 ## Features
 
 - Custom binary protocol with TCP framing (Vert.x `RecordParser`) for sticky/half packets
@@ -209,6 +219,7 @@ The p99 of calls to the *healthy* providers also rose to about 11 ms without eje
 
 ## Roadmap
 
-- Benchmarks: multi-host runs
-- Resilience: fault-injection suite on Kubernetes (network partitions, slow and flapping providers), latency-based ejection
+- Benchmarks: multi-host runs (separate client, provider and etcd machines, e.g. cloud VMs) to remove the shared-CPU caveat and add real network latency; repeat the transport, gRPC and failover experiments there
+- Resilience: fault-injection suite on Kubernetes (kind or a small cluster): network partitions between consumer, provider and etcd, slow and flapping providers, etcd member loss; measure errors and recovery time per fault as in the provider-kill experiment
+- Resilience: latency-based ejection, per-method idempotency opt-in for `failOver`
 - Observability: OpenTelemetry tracing, Prometheus metrics
