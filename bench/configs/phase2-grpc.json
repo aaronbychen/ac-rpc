@@ -1,0 +1,67 @@
+{
+  "name": "phase2-grpc",
+  "targets": [
+    {
+      "label": "acrpc",
+      "ref": "WORKTREE",
+      "java": "D:/jdk-25",
+      "args": [
+        "--connections",
+        "1"
+      ]
+    },
+    {
+      "label": "grpc-vt",
+      "ref": "WORKTREE",
+      "java": "D:/jdk-25",
+      "args": [
+        "--system",
+        "grpc",
+        "--connections",
+        "1",
+        "--grpc-executor",
+        "virtual"
+      ]
+    },
+    {
+      "label": "grpc-direct",
+      "ref": "WORKTREE",
+      "java": "D:/jdk-25",
+      "args": [
+        "--system",
+        "grpc",
+        "--connections",
+        "1",
+        "--grpc-executor",
+        "direct"
+      ]
+    }
+  ],
+  "rates": [
+    10000,
+    40000,
+    70000,
+    100000,
+    130000
+  ],
+  "payloadBytes": [
+    64,
+    4096
+  ],
+  "serializer": "kryo",
+  "rounds": 3,
+  "warmupSec": 10,
+  "durationSec": 15,
+  "timeoutSec": 5,
+  "settleSec": 2,
+  "seed": 1,
+  "port": 18080,
+  "registry": "http://localhost:2379",
+  "jvmArgs": [
+    "-Xms1g",
+    "-Xmx1g",
+    "--sun-misc-unsafe-memory-access=allow"
+  ],
+  "maxThreads": 2000,
+  "minFreeMemoryMb": 2048
+}

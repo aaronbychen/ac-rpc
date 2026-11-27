@@ -20,17 +20,24 @@ final class BenchProvider {
         switch (Main.system(options)) {
             case "acrpc" -> ProviderBootstrap.init(Main.rpcConfig(options),
                     List.of(new ServiceRegisterInfo<>(EchoService.class.getName(), EchoServiceImpl.class)));
-            case "grpc" -> startGrpc(options.getInt("port", 8080));
+            case "grpc" -> startGrpc(options.getInt("port", 8080), options.get("grpc-executor", "virtual"));
             default -> throw new IllegalArgumentException("Unknown --system " + Main.system(options));
         }
     }
 
     /**
-     * Plaintext gRPC server. Handlers run on virtual threads, matching ac-rpc's dispatch.
+     * Plaintext gRPC server. With {@code virtual}, handlers run on virtual threads, matching
+     * ac-rpc's dispatch. With {@code direct}, they run on the Netty event loop, gRPC's
+     * recommended setting for non-blocking handlers.
      */
-    private static void startGrpc(int port) throws Exception {
-        Server server = NettyServerBuilder.forPort(port)
-                .executor(Executors.newVirtualThreadPerTaskExecutor())
+    private static void startGrpc(int port, String executor) throws Exception {
+        NettyServerBuilder builder = NettyServerBuilder.forPort(port);
+        switch (executor) {
+            case "virtual" -> builder.executor(Executors.newVirtualThreadPerTaskExecutor());
+            case "direct" -> builder.directExecutor();
+            default -> throw new IllegalArgumentException("Unknown --grpc-executor " + executor);
+        }
+        Server server = builder
                 .addService(new EchoGrpc.EchoImplBase() {
                     @Override
                     public void echo(EchoMessage request, StreamObserver<EchoMessage> responseObserver) {
