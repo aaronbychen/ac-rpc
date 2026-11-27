@@ -1,0 +1,297 @@
+{
+  "config": {
+    "name": "failover",
+    "java": "D:/jdk-25",
+    "jvmArgs": [
+      "-Xms512m",
+      "-Xmx512m",
+      "--sun-misc-unsafe-memory-access=allow"
+    ],
+    "registry": "http://localhost:2379",
+    "etcdContainer": "ac-rpc-etcd",
+    "serializer": "kryo",
+    "providers": 3,
+    "basePort": 18081,
+    "leaseTtlSec": 30,
+    "rate": 2000,
+    "payload": 64,
+    "warmupSec": 5,
+    "durationSec": 50,
+    "killAtSec": 10,
+    "timeoutSec": 5,
+    "settleSec": 2,
+    "rounds": 3,
+    "scenarios": [
+      {
+        "label": "failFast",
+        "args": [
+          "--tolerant",
+          "failFast",
+          "--outlier-ejection",
+          "false"
+        ]
+      },
+      {
+        "label": "failOver",
+        "args": [
+          "--tolerant",
+          "failOver",
+          "--outlier-ejection",
+          "false"
+        ]
+      },
+      {
+        "label": "failFast+ejection",
+        "args": [
+          "--tolerant",
+          "failFast",
+          "--outlier-ejection",
+          "true"
+        ]
+      },
+      {
+        "label": "failOver+ejection",
+        "args": [
+          "--tolerant",
+          "failOver",
+          "--outlier-ejection",
+          "true"
+        ]
+      }
+    ]
+  },
+  "sha": "eba40cb77ebab5b7d4ca423b8c00f1bf71564131",
+  "dirty": false,
+  "host": {
+    "platform": "Windows-11-10.0.26200-SP0",
+    "machine": "AMD64",
+    "processor": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+    "cpuCount": 32,
+    "cpuModel": "13th Gen Intel(R) Core(TM) i9-13980HX",
+    "memoryGb": 16
+  },
+  "javaVersion": [
+    "openjdk version \"25.0.5.1\" 2026-11-17 LTS",
+    "OpenJDK Runtime Environment Temurin-25.0.5.1+2 (build 25.0.5.1+2-LTS)",
+    "OpenJDK 64-Bit Server VM Temurin-25.0.5.1+2 (build 25.0.5.1+2-LTS, mixed mode, sharing)"
+  ],
+  "results": [
+    {
+      "scenario": "failFast",
+      "round": 0,
+      "file": "runs/failFast_r0.json",
+      "freeMemoryMbBefore": 4478,
+      "lowMemory": false,
+      "status": "ok",
+      "summary": {
+        "killedAtSec": 10.002,
+        "baselineP99Ms": 0.4595,
+        "failedAfterKill": 14642,
+        "failedPctAfterKill": 18.302,
+        "lastErrorSecAfterKill": 22,
+        "peakP99Ms": 11.248,
+        "recoveredSecAfterKill": 22,
+        "firstError": "java.lang.RuntimeException: Service call failed"
+      }
+    },
+    {
+      "scenario": "failOver",
+      "round": 0,
+      "file": "runs/failOver_r0.json",
+      "freeMemoryMbBefore": 3796,
+      "lowMemory": false,
+      "status": "ok",
+      "summary": {
+        "killedAtSec": 10.001,
+        "baselineP99Ms": 0.4255,
+        "failedAfterKill": 0,
+        "failedPctAfterKill": 0.0,
+        "lastErrorSecAfterKill": 0,
+        "peakP99Ms": 14.893,
+        "recoveredSecAfterKill": 23,
+        "firstError": null
+      }
+    },
+    {
+      "scenario": "failFast+ejection",
+      "round": 0,
+      "file": "runs/failFast+ejection_r0.json",
+      "freeMemoryMbBefore": 4683,
+      "lowMemory": false,
+      "status": "ok",
+      "summary": {
+        "killedAtSec": 10.001,
+        "baselineP99Ms": 0.4275,
+        "failedAfterKill": 17,
+        "failedPctAfterKill": 0.021,
+        "lastErrorSecAfterKill": 16,
+        "peakP99Ms": 0.519,
+        "recoveredSecAfterKill": 16,
+        "firstError": "java.lang.RuntimeException: Service call failed"
+      }
+    },
+    {
+      "scenario": "failOver+ejection",
+      "round": 0,
+      "file": "runs/failOver+ejection_r0.json",
+      "freeMemoryMbBefore": 4513,
+      "lowMemory": false,
+      "status": "ok",
+      "summary": {
+        "killedAtSec": 10.001,
+        "baselineP99Ms": 0.4885,
+        "failedAfterKill": 0,
+        "failedPctAfterKill": 0.0,
+        "lastErrorSecAfterKill": 0,
+        "peakP99Ms": 0.583,
+        "recoveredSecAfterKill": 0,
+        "firstError": null
+      }
+    },
+    {
+      "scenario": "failOver+ejection",
+      "round": 1,
+      "file": "runs/failOver+ejection_r1.json",
+      "freeMemoryMbBefore": 4934,
+      "lowMemory": false,
+      "status": "ok",
+      "summary": {
+        "killedAtSec": 10.002,
+        "baselineP99Ms": 0.4145,
+        "failedAfterKill": 0,
+        "failedPctAfterKill": 0.0,
+        "lastErrorSecAfterKill": 0,
+        "peakP99Ms": 0.525,
+        "recoveredSecAfterKill": 0,
+        "firstError": null
+      }
+    },
+    {
+      "scenario": "failFast+ejection",
+      "round": 1,
+      "file": "runs/failFast+ejection_r1.json",
+      "freeMemoryMbBefore": 5116,
+      "lowMemory": false,
+      "status": "ok",
+      "summary": {
+        "killedAtSec": 10.001,
+        "baselineP99Ms": 0.4405,
+        "failedAfterKill": 18,
+        "failedPctAfterKill": 0.022,
+        "lastErrorSecAfterKill": 16,
+        "peakP99Ms": 0.507,
+        "recoveredSecAfterKill": 16,
+        "firstError": "java.lang.RuntimeException: Service call failed"
+      }
+    },
+    {
+      "scenario": "failOver",
+      "round": 1,
+      "file": "runs/failOver_r1.json",
+      "freeMemoryMbBefore": 5078,
+      "lowMemory": false,
+      "status": "ok",
+      "summary": {
+        "killedAtSec": 10.002,
+        "baselineP99Ms": 0.4535,
+        "failedAfterKill": 0,
+        "failedPctAfterKill": 0.0,
+        "lastErrorSecAfterKill": 0,
+        "peakP99Ms": 15.581,
+        "recoveredSecAfterKill": 23,
+        "firstError": null
+      }
+    },
+    {
+      "scenario": "failFast",
+      "round": 1,
+      "file": "runs/failFast_r1.json",
+      "freeMemoryMbBefore": 5115,
+      "lowMemory": false,
+      "status": "ok",
+      "summary": {
+        "killedAtSec": 10.003,
+        "baselineP99Ms": 0.451,
+        "failedAfterKill": 14827,
+        "failedPctAfterKill": 18.534,
+        "lastErrorSecAfterKill": 23,
+        "peakP99Ms": 12.165,
+        "recoveredSecAfterKill": 23,
+        "firstError": "java.lang.RuntimeException: Service call failed"
+      }
+    },
+    {
+      "scenario": "failFast",
+      "round": 2,
+      "file": "runs/failFast_r2.json",
+      "freeMemoryMbBefore": 5233,
+      "lowMemory": false,
+      "status": "ok",
+      "summary": {
+        "killedAtSec": 10.003,
+        "baselineP99Ms": 0.4485,
+        "failedAfterKill": 14645,
+        "failedPctAfterKill": 18.306,
+        "lastErrorSecAfterKill": 22,
+        "peakP99Ms": 11.166,
+        "recoveredSecAfterKill": 22,
+        "firstError": "java.lang.RuntimeException: Service call failed"
+      }
+    },
+    {
+      "scenario": "failOver",
+      "round": 2,
+      "file": "runs/failOver_r2.json",
+      "freeMemoryMbBefore": 5210,
+      "lowMemory": false,
+      "status": "ok",
+      "summary": {
+        "killedAtSec": 10.001,
+        "baselineP99Ms": 0.433,
+        "failedAfterKill": 0,
+        "failedPctAfterKill": 0.0,
+        "lastErrorSecAfterKill": 0,
+        "peakP99Ms": 15.204,
+        "recoveredSecAfterKill": 23,
+        "firstError": null
+      }
+    },
+    {
+      "scenario": "failFast+ejection",
+      "round": 2,
+      "file": "runs/failFast+ejection_r2.json",
+      "freeMemoryMbBefore": 5177,
+      "lowMemory": false,
+      "status": "ok",
+      "summary": {
+        "killedAtSec": 10.001,
+        "baselineP99Ms": 0.4105,
+        "failedAfterKill": 16,
+        "failedPctAfterKill": 0.02,
+        "lastErrorSecAfterKill": 16,
+        "peakP99Ms": 0.512,
+        "recoveredSecAfterKill": 16,
+        "firstError": "java.lang.RuntimeException: Service call failed"
+      }
+    },
+    {
+      "scenario": "failOver+ejection",
+      "round": 2,
+      "file": "runs/failOver+ejection_r2.json",
+      "freeMemoryMbBefore": 5217,
+      "lowMemory": false,
+      "status": "ok",
+      "summary": {
+        "killedAtSec": 10.001,
+        "baselineP99Ms": 0.439,
+        "failedAfterKill": 0,
+        "failedPctAfterKill": 0.0,
+        "lastErrorSecAfterKill": 0,
+        "peakP99Ms": 0.514,
+        "recoveredSecAfterKill": 0,
+        "firstError": null
+      }
+    }
+  ],
+  "finishedAt": "2026-11-27T21:06:33.223584+00:00"
+}

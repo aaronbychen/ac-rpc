@@ -1,0 +1,528 @@
+{
+    "labels": {
+        "scenario": "failOver+ejection",
+        "round": "2"
+    },
+    "config": {
+        "rate": 2000,
+        "warmupSec": 5,
+        "durationSec": 50,
+        "timeoutSec": 5,
+        "payloadBytes": 64,
+        "maxInFlight": 10000,
+        "maxThreads": 2000,
+        "system": "acrpc",
+        "serializer": "kryo",
+        "connections": "default",
+        "transport": "vertx",
+        "tolerant": "failOver",
+        "retry": "no",
+        "leaseTtlSec": 30,
+        "outlierEjection": "true"
+    },
+    "environment": {
+        "timestamp": "2026-11-27T21:06:30.648018900Z",
+        "javaVersion": "25.0.5.1",
+        "javaVendor": "Eclipse Adoptium",
+        "vmName": "OpenJDK 64-Bit Server VM",
+        "osName": "Windows 11",
+        "osArch": "amd64",
+        "availableProcessors": 32,
+        "maxHeapMb": 512,
+        "gc": [
+            "G1 Young Generation",
+            "G1 Concurrent GC",
+            "G1 Old Generation"
+        ],
+        "jvmArgs": [
+            "-Xms512m",
+            "-Xmx512m",
+            "--sun-misc-unsafe-memory-access=allow"
+        ]
+    },
+    "counts": {
+        "issued": 100000,
+        "ok": 100000,
+        "slow": 0,
+        "errors": 0,
+        "dropped": 0,
+        "incomplete": 0
+    },
+    "latencyMs": {
+        "count": 100000,
+        "p50": 0.196,
+        "p90": 0.291,
+        "p99": 0.421,
+        "p999": 0.666,
+        "max": 8.114,
+        "mean": 0.214
+    },
+    "throughputOkPerSec": 2000,
+    "errorRate": 0,
+    "percentilesReliable": true,
+    "aborted": false,
+    "abortReason": null,
+    "peakThreads": 34,
+    "peakCommittedMb": 728,
+    "maxSchedulerLagMs": 3.655,
+    "firstError": null,
+    "histogram": "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",
+    "fault": {
+        "type": "kill",
+        "pid": 44356,
+        "plannedAtSec": 10,
+        "killedAtSec": 10.001
+    },
+    "timeline": [
+        {
+            "sec": 0,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "p50": 0.244,
+            "p99": 0.481,
+            "max": 0.722
+        },
+        {
+            "sec": 1,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "p50": 0.22,
+            "p99": 0.518,
+            "max": 1.812
+        },
+        {
+            "sec": 2,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "p50": 0.224,
+            "p99": 0.451,
+            "max": 0.662
+        },
+        {
+            "sec": 3,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "p50": 0.226,
+            "p99": 0.464,
+            "max": 0.667
+        },
+        {
+            "sec": 4,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "p50": 0.235,
+            "p99": 0.427,
+            "max": 0.876
+        },
+        {
+            "sec": 5,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "p50": 0.23,
+            "p99": 0.4,
+            "max": 0.518
+        },
+        {
+            "sec": 6,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "p50": 0.226,
+            "p99": 0.421,
+            "max": 0.687
+        },
+        {
+            "sec": 7,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "p50": 0.213,
+            "p99": 0.453,
+            "max": 4.428
+        },
+        {
+            "sec": 8,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "p50": 0.216,
+            "p99": 0.411,
+            "max": 0.791
+        },
+        {
+            "sec": 9,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "p50": 0.227,
+            "p99": 0.413,
+            "max": 0.577
+        },
+        {
+            "sec": 10,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "p50": 0.241,
+            "p99": 0.462,
+            "max": 7.279
+        },
+        {
+            "sec": 11,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "p50": 0.221,
+            "p99": 0.443,
+            "max": 3.047
+        },
+        {
+            "sec": 12,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "p50": 0.194,
+            "p99": 0.404,
+            "max": 0.565
+        },
+        {
+            "sec": 13,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "p50": 0.187,
+            "p99": 0.454,
+            "max": 2.316
+        },
+        {
+            "sec": 14,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "p50": 0.199,
+            "p99": 0.417,
+            "max": 0.658
+        },
+        {
+            "sec": 15,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "p50": 0.193,
+            "p99": 0.407,
+            "max": 0.795
+        },
+        {
+            "sec": 16,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "p50": 0.189,
+            "p99": 0.422,
+            "max": 0.766
+        },
+        {
+            "sec": 17,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "p50": 0.186,
+            "p99": 0.441,
+            "max": 1.581
+        },
+        {
+            "sec": 18,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "p50": 0.188,
+            "p99": 0.412,
+            "max": 0.652
+        },
+        {
+            "sec": 19,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "p50": 0.185,
+            "p99": 0.409,
+            "max": 0.57
+        },
+        {
+            "sec": 20,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "p50": 0.18,
+            "p99": 0.364,
+            "max": 0.632
+        },
+        {
+            "sec": 21,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "p50": 0.185,
+            "p99": 0.414,
+            "max": 0.699
+        },
+        {
+            "sec": 22,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "p50": 0.187,
+            "p99": 0.457,
+            "max": 4.772
+        },
+        {
+            "sec": 23,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "p50": 0.198,
+            "p99": 0.433,
+            "max": 0.607
+        },
+        {
+            "sec": 24,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "p50": 0.195,
+            "p99": 0.432,
+            "max": 0.776
+        },
+        {
+            "sec": 25,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "p50": 0.201,
+            "p99": 0.458,
+            "max": 1.536
+        },
+        {
+            "sec": 26,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "p50": 0.203,
+            "p99": 0.414,
+            "max": 0.606
+        },
+        {
+            "sec": 27,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "p50": 0.191,
+            "p99": 0.428,
+            "max": 0.776
+        },
+        {
+            "sec": 28,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "p50": 0.188,
+            "p99": 0.426,
+            "max": 0.538
+        },
+        {
+            "sec": 29,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "p50": 0.172,
+            "p99": 0.357,
+            "max": 0.712
+        },
+        {
+            "sec": 30,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "p50": 0.188,
+            "p99": 0.413,
+            "max": 0.775
+        },
+        {
+            "sec": 31,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "p50": 0.184,
+            "p99": 0.421,
+            "max": 0.644
+        },
+        {
+            "sec": 32,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "p50": 0.207,
+            "p99": 0.514,
+            "max": 8.114
+        },
+        {
+            "sec": 33,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "p50": 0.189,
+            "p99": 0.424,
+            "max": 0.578
+        },
+        {
+            "sec": 34,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "p50": 0.185,
+            "p99": 0.373,
+            "max": 0.645
+        },
+        {
+            "sec": 35,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "p50": 0.195,
+            "p99": 0.394,
+            "max": 0.503
+        },
+        {
+            "sec": 36,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "p50": 0.206,
+            "p99": 0.394,
+            "max": 0.58
+        },
+        {
+            "sec": 37,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "p50": 0.191,
+            "p99": 0.407,
+            "max": 0.949
+        },
+        {
+            "sec": 38,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "p50": 0.177,
+            "p99": 0.412,
+            "max": 3.6
+        },
+        {
+            "sec": 39,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "p50": 0.187,
+            "p99": 0.408,
+            "max": 0.639
+        },
+        {
+            "sec": 40,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "p50": 0.18,
+            "p99": 0.392,
+            "max": 0.648
+        },
+        {
+            "sec": 41,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "p50": 0.184,
+            "p99": 0.402,
+            "max": 0.585
+        },
+        {
+            "sec": 42,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "p50": 0.171,
+            "p99": 0.38,
+            "max": 0.602
+        },
+        {
+            "sec": 43,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "p50": 0.171,
+            "p99": 0.384,
+            "max": 0.712
+        },
+        {
+            "sec": 44,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "p50": 0.181,
+            "p99": 0.353,
+            "max": 0.52
+        },
+        {
+            "sec": 45,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "p50": 0.186,
+            "p99": 0.386,
+            "max": 0.585
+        },
+        {
+            "sec": 46,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "p50": 0.193,
+            "p99": 0.426,
+            "max": 0.648
+        },
+        {
+            "sec": 47,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "p50": 0.187,
+            "p99": 0.415,
+            "max": 0.631
+        },
+        {
+            "sec": 48,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "p50": 0.17,
+            "p99": 0.396,
+            "max": 0.755
+        },
+        {
+            "sec": 49,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "p50": 0.186,
+            "p99": 0.384,
+            "max": 0.563
+        }
+    ]
+}
