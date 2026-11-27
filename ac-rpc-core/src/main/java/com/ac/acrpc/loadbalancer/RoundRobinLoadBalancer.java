@@ -14,7 +14,15 @@ public class RoundRobinLoadBalancer implements LoadBalancer {
     /**
      * Current round-robin index
      */
-    private final AtomicInteger currentIndex = new AtomicInteger(0);
+    private final AtomicInteger currentIndex;
+
+    public RoundRobinLoadBalancer() {
+        this(0);
+    }
+
+    RoundRobinLoadBalancer(int start) {
+        currentIndex = new AtomicInteger(start);
+    }
 
     @Override
     public ServiceMetaInfo select(Map<String, Object> requestParams, List<ServiceMetaInfo> serviceMetaInfoList) {
@@ -26,8 +34,8 @@ public class RoundRobinLoadBalancer implements LoadBalancer {
         if (size == 1) {
             return serviceMetaInfoList.get(0);
         }
-        // Rotate via modulo
-        int index = currentIndex.getAndIncrement() % size;
+        // floorMod keeps the index valid after the counter overflows to negative values
+        int index = Math.floorMod(currentIndex.getAndIncrement(), size);
         return serviceMetaInfoList.get(index);
     }
 }
