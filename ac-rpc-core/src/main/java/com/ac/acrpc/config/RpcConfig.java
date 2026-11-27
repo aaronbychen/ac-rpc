@@ -61,4 +61,24 @@ public class RpcConfig {
      * Registry config
      */
     private RegistryConfig registryConfig = new RegistryConfig();
+
+    /**
+     * Per-call deadline in milliseconds
+     */
+    private long requestTimeoutMs = 3000;
+
+    /**
+     * TCP connect timeout in milliseconds
+     */
+    private int connectTimeoutMs = 3000;
+
+    /**
+     * Pooled connections per provider endpoint; requests are multiplexed over each one
+     */
+    private int connectionsPerEndpoint = 2;
+
+    /**
+     * In-flight request cap per connection; calls beyond it fail fast instead of queueing
+     */
+    private int maxPendingPerConnection = 10_000;
 }
