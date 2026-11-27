@@ -1,10 +1,22 @@
 {
   "name": "baseline-local",
   "targets": [
-    {"label": "baseline", "ref": "WORKTREE", "java": "D:/jdk-25"}
+    {
+      "label": "baseline",
+      "ref": "WORKTREE",
+      "java": "D:/jdk-25"
+    }
   ],
-  "rates": [10, 20, 40, 80],
-  "payloadBytes": [64],
+  "rates": [
+    5,
+    10,
+    20,
+    40,
+    80
+  ],
+  "payloadBytes": [
+    64
+  ],
   "serializer": "kryo",
   "rounds": 3,
   "warmupSec": 10,
@@ -14,5 +26,11 @@
   "seed": 1,
   "port": 18080,
   "registry": "http://localhost:2379",
-  "jvmArgs": ["-Xms1g", "-Xmx1g", "--sun-misc-unsafe-memory-access=allow"]
+  "jvmArgs": [
+    "-Xms1g",
+    "-Xmx1g",
+    "--sun-misc-unsafe-memory-access=allow"
+  ],
+  "maxThreads": 2000,
+  "minFreeMemoryMb": 2048
 }

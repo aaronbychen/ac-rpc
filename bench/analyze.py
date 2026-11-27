@@ -52,10 +52,18 @@ def summarize(meta, runs):
                  f"timeout {c['timeoutSec']}s, serializer {c['serializer']}, JVM {' '.join(c.get('jvmArgs', []))}")
     lines.append("- Values are median [min, max] across rounds. Latency is measured from each request's "
                  "intended send time (open loop).")
+    lines.append("- A run is unreliable if it failed, was aborted (thread cap or overrun), left >0.1% of requests "
+                 "incomplete or dropped, or started with low free memory.")
+    aborted = [r for r in runs if r["data"] and r["data"].get("aborted")]
+    if aborted:
+        lines += ["", "Aborted runs:"]
+        for r in aborted:
+            lines.append(f"- {r['target']} rate={r['rate']} round={r['round']}: {r['data']['abortReason']} "
+                         f"after {r['data'].get('abortedAfterSec')}s")
     lines.append("")
 
     header = "| target | payload B | offered rps | achieved rps | " + " | ".join(m[1] for m in METRICS) + \
-             " | error rate | unreliable runs |"
+             " | error rate | peak threads | unreliable runs |"
     lines += [header, "|" + "---|" * (header.count("|") - 1)]
     for (target, payload, rate) in sorted(cells, key=lambda k: (k[0], k[1], k[2])):
         group = cells[(target, payload, rate)]
@@ -65,7 +73,9 @@ def summarize(meta, runs):
         for key, _ in METRICS:
             row.append(spread([d["latencyMs"][key] for d in ok if key in d["latencyMs"]]))
         row.append(spread([d["errorRate"] * 100 for d in ok], "{:.1f}%"))
-        unreliable = sum(1 for d in ok if not d["percentilesReliable"]) + failed
+        row.append(spread([d.get("peakThreads", 0) for d in ok], "{:.0f}"))
+        unreliable = sum(1 for g in group
+                         if not g["data"] or not g["data"]["percentilesReliable"] or g.get("lowMemory"))
         row.append(f"{unreliable}/{len(group)}")
         lines.append("| " + " | ".join(row) + " |")
 

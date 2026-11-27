@@ -1,0 +1,124 @@
+{
+  "config": {
+    "name": "baseline-local",
+    "targets": [
+      {
+        "label": "baseline",
+        "ref": "WORKTREE",
+        "java": "D:/jdk-25"
+      }
+    ],
+    "rates": [
+      10,
+      20,
+      40,
+      80
+    ],
+    "payloadBytes": [
+      64
+    ],
+    "serializer": "kryo",
+    "rounds": 3,
+    "warmupSec": 10,
+    "durationSec": 30,
+    "timeoutSec": 5,
+    "settleSec": 2,
+    "seed": 1,
+    "port": 18080,
+    "registry": "http://localhost:2379",
+    "jvmArgs": [
+      "-Xms1g",
+      "-Xmx1g",
+      "--sun-misc-unsafe-memory-access=allow"
+    ]
+  },
+  "targets": {
+    "baseline": {
+      "label": "baseline",
+      "ref": "WORKTREE",
+      "java": "D:/jdk-25",
+      "sha": "99b7699aee3b986cad59b7dc59d9305b2dd0083e",
+      "dirty": false,
+      "javaVersion": [
+        "openjdk version \"25.0.5.1\" 2026-11-17 LTS",
+        "OpenJDK Runtime Environment Temurin-25.0.5.1+2 (build 25.0.5.1+2-LTS)",
+        "OpenJDK 64-Bit Server VM Temurin-25.0.5.1+2 (build 25.0.5.1+2-LTS, mixed mode, sharing)"
+      ]
+    }
+  },
+  "host": {
+    "platform": "Windows-11-10.0.26200-SP0",
+    "machine": "AMD64",
+    "processor": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+    "cpuCount": 32,
+    "cpuModel": "13th Gen Intel(R) Core(TM) i9-13980HX",
+    "memoryGb": 16
+  },
+  "startedAt": "2026-11-27T05:59:03.314785+00:00",
+  "runs": [
+    {
+      "round": 0,
+      "target": "baseline",
+      "payload": 64,
+      "rate": 80,
+      "file": "baseline_r0_p64_rate80.json",
+      "status": "loadgen-timeout"
+    },
+    {
+      "round": 0,
+      "target": "baseline",
+      "payload": 64,
+      "rate": 10,
+      "file": "baseline_r0_p64_rate10.json",
+      "status": "ok"
+    },
+    {
+      "round": 0,
+      "target": "baseline",
+      "payload": 64,
+      "rate": 40,
+      "file": "baseline_r0_p64_rate40.json",
+      "status": "loadgen-timeout"
+    },
+    {
+      "round": 0,
+      "target": "baseline",
+      "payload": 64,
+      "rate": 20,
+      "file": "baseline_r0_p64_rate20.json",
+      "status": "ok"
+    },
+    {
+      "round": 1,
+      "target": "baseline",
+      "payload": 64,
+      "rate": 80,
+      "file": "baseline_r1_p64_rate80.json",
+      "status": "loadgen-timeout"
+    },
+    {
+      "round": 1,
+      "target": "baseline",
+      "payload": 64,
+      "rate": 20,
+      "file": "baseline_r1_p64_rate20.json",
+      "status": "ok"
+    },
+    {
+      "round": 1,
+      "target": "baseline",
+      "payload": 64,
+      "rate": 10,
+      "file": "baseline_r1_p64_rate10.json",
+      "status": "ok"
+    },
+    {
+      "round": 1,
+      "target": "baseline",
+      "payload": 64,
+      "rate": 40,
+      "file": "baseline_r1_p64_rate40.json",
+      "status": "loadgen-timeout"
+    }
+  ]
+}

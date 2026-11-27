@@ -95,6 +95,30 @@ def schedule(cfg):
     return runs
 
 
+def available_memory_mb():
+    """Free physical memory on the host, or None if unknown."""
+    if os.name == "nt":
+        import ctypes
+
+        class MemoryStatus(ctypes.Structure):
+            _fields_ = [("dwLength", ctypes.c_ulong), ("dwMemoryLoad", ctypes.c_ulong),
+                        ("ullTotalPhys", ctypes.c_ulonglong), ("ullAvailPhys", ctypes.c_ulonglong),
+                        ("ullTotalPageFile", ctypes.c_ulonglong), ("ullAvailPageFile", ctypes.c_ulonglong),
+                        ("ullTotalVirtual", ctypes.c_ulonglong), ("ullAvailVirtual", ctypes.c_ulonglong),
+                        ("ullAvailExtendedVirtual", ctypes.c_ulonglong)]
+
+        status = MemoryStatus(dwLength=ctypes.sizeof(MemoryStatus))
+        ctypes.windll.kernel32.GlobalMemoryStatusEx(ctypes.byref(status))
+        return status.ullAvailPhys // (1024 * 1024)
+    try:
+        for line in Path("/proc/meminfo").read_text().splitlines():
+            if line.startswith("MemAvailable:"):
+                return int(line.split()[1]) // 1024
+    except OSError:
+        pass
+    return None
+
+
 def host_info():
     info = {"platform": platform.platform(), "machine": platform.machine(),
             "processor": platform.processor(), "cpuCount": os.cpu_count()}
@@ -108,7 +132,7 @@ def host_info():
     return info
 
 
-def run_one(cfg, target, jar, run, out_file):
+def run_one(cfg, target, jar, run, out_file, log_file):
     java = java_exe(target["java"])
     jvm = cfg.get("jvmArgs", []) + target.get("jvmArgs", [])
     common = ["--registry", cfg["registry"], "--serializer", cfg["serializer"]]
@@ -123,14 +147,16 @@ def run_one(cfg, target, jar, run, out_file):
                    "--rate", str(run["rate"]), "--payload", str(run["payload"]),
                    "--warmup", str(cfg["warmupSec"]), "--duration", str(cfg["durationSec"]),
                    "--timeout", str(cfg["timeoutSec"]), "--out", str(out_file),
+                   "--max-threads", str(cfg.get("maxThreads", 2000)),
                    "--label.target", run["target"], "--label.round", str(run["round"])]
         budget = cfg["warmupSec"] + cfg["durationSec"] + 2 * cfg["timeoutSec"] + 60
         try:
-            res = subprocess.run(loadgen, capture_output=True, text=True, timeout=budget)
+            with open(log_file, "w") as log:
+                res = subprocess.run(loadgen, stdout=log, stderr=subprocess.STDOUT, timeout=budget)
         except subprocess.TimeoutExpired:
             return {"status": "loadgen-timeout"}
         if res.returncode != 0 or not out_file.exists():
-            return {"status": "loadgen-failed", "stderr": res.stderr[-2000:]}
+            return {"status": "loadgen-failed"}
         return {"status": "ok"}
     finally:
         provider.kill()
@@ -154,6 +180,7 @@ def main():
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     out_dir = ROOT / "bench" / "results" / f"{cfg['name']}-{stamp}"
     (out_dir / "runs").mkdir(parents=True)
+    (out_dir / "logs").mkdir()
 
     targets = {t["label"]: t for t in cfg["targets"]}
     built, target_meta = {}, {}
@@ -166,10 +193,15 @@ def main():
             "startedAt": datetime.now(timezone.utc).isoformat(), "runs": []}
     for i, run in enumerate(runs, 1):
         name = f"{run['target']}_r{run['round']}_p{run['payload']}_rate{run['rate']}.json"
-        status = run_one(cfg, targets[run["target"]], built[run["target"]], run, out_dir / "runs" / name)
-        meta["runs"].append({**run, "file": name, **status})
+        mem_before = available_memory_mb()
+        status = run_one(cfg, targets[run["target"]], built[run["target"]], run,
+                         out_dir / "runs" / name, out_dir / "logs" / name.replace(".json", ".log"))
+        mem_after = available_memory_mb()
+        low = mem_before is not None and mem_before < cfg.get("minFreeMemoryMb", 2048)
+        meta["runs"].append({**run, "file": name, **status, "freeMemoryMbBefore": mem_before,
+                             "freeMemoryMbAfter": mem_after, "lowMemory": low})
         print(f"[{i}/{len(runs)}] {run['target']} round={run['round']} payload={run['payload']} "
-              f"rate={run['rate']} -> {status['status']}", flush=True)
+              f"rate={run['rate']} -> {status['status']} (free {mem_before} -> {mem_after} MB)", flush=True)
         (out_dir / "meta.json").write_text(json.dumps(meta, indent=2))
     meta["finishedAt"] = datetime.now(timezone.utc).isoformat()
     (out_dir / "meta.json").write_text(json.dumps(meta, indent=2))

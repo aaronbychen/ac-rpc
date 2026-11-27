@@ -39,6 +39,10 @@ import java.util.concurrent.locks.LockSupport;
  * <p>Latencies of every completed request are recorded, including ones slower than the
  * timeout. Requests still outstanding after the drain period are reported as incomplete;
  * when they exceed 0.1% of measured requests, the percentiles are flagged as unreliable.
+ *
+ * <p>A monitor samples this JVM's thread count and memory. If the thread count passes
+ * {@code --max-threads}, or the run overruns its schedule, the run is aborted and whatever was
+ * measured so far is reported, so a leaking client cannot take the whole machine down.
  */
 final class LoadGenerator {
 
@@ -56,6 +60,10 @@ final class LoadGenerator {
     private final LongAdder dropped = new LongAdder();
     private final long timeoutNs;
     private volatile String firstError;
+    private volatile String abortReason;
+    private volatile long abortAtNs;
+    private volatile int peakThreads;
+    private volatile long peakCommittedMb;
 
     private LoadGenerator(EchoService service, byte[] payload, long timeoutNs) {
         this.service = service;
@@ -70,6 +78,7 @@ final class LoadGenerator {
         double timeoutSec = options.getDouble("timeout", 5);
         int payloadBytes = options.getInt("payload", 64);
         int maxInFlight = options.getInt("max-in-flight", 10_000);
+        int maxThreads = options.getInt("max-threads", 2_000);
         Path out = Path.of(options.require("out"));
 
         ConsumerBootstrap.init(Main.rpcConfig(options));
@@ -83,7 +92,7 @@ final class LoadGenerator {
         }
 
         LoadGenerator generator = new LoadGenerator(service, payload, secondsToNanos(timeoutSec));
-        Map<String, Object> result = generator.drive(rate, warmupSec, durationSec, timeoutSec, maxInFlight);
+        Map<String, Object> result = generator.drive(rate, warmupSec, durationSec, timeoutSec, maxInFlight, maxThreads);
 
         Map<String, Object> config = new LinkedHashMap<>();
         config.put("rate", rate);
@@ -92,6 +101,7 @@ final class LoadGenerator {
         config.put("timeoutSec", timeoutSec);
         config.put("payloadBytes", payloadBytes);
         config.put("maxInFlight", maxInFlight);
+        config.put("maxThreads", maxThreads);
         config.put("serializer", options.get("serializer", "kryo"));
 
         Map<String, Object> report = new LinkedHashMap<>();
@@ -109,18 +119,20 @@ final class LoadGenerator {
     }
 
     private Map<String, Object> drive(double rate, double warmupSec, double durationSec, double timeoutSec,
-                                      int maxInFlight) throws InterruptedException {
+                                      int maxInFlight, int maxThreads) throws InterruptedException {
         long total = (long) Math.floor(rate * (warmupSec + durationSec));
         long start = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(100);
         long measureStart = start + secondsToNanos(warmupSec);
         long measureEnd = start + secondsToNanos(warmupSec + durationSec);
         long issuedMeasured = 0;
         long maxLagNs = 0;
+        long hardDeadline = measureEnd + secondsToNanos(timeoutSec) + TimeUnit.SECONDS.toNanos(30);
+        Thread monitor = startMonitor(maxThreads, hardDeadline);
 
         // Not closed with try-with-resources: close() would wait forever on requests the client never completes
         ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
         try {
-            for (long i = 0; i < total; i++) {
+            for (long i = 0; i < total && abortReason == null; i++) {
                 long intended = start + (long) (i * 1e9 / rate);
                 long now;
                 while ((now = System.nanoTime()) < intended) {
@@ -151,17 +163,52 @@ final class LoadGenerator {
 
             // Drain: give outstanding requests up to one timeout to finish
             long drainDeadline = System.nanoTime() + secondsToNanos(timeoutSec);
-            while (measuredInFlight.get() > 0 && System.nanoTime() < drainDeadline) {
+            while (abortReason == null && measuredInFlight.get() > 0 && System.nanoTime() < drainDeadline) {
                 Thread.sleep(10);
             }
             Histogram histogram = recorder.getIntervalHistogram();
             int incomplete = measuredInFlight.get();
+            // On abort, only the part of the window that actually ran counts toward throughput
+            long windowEnd = abortReason == null ? measureEnd : Math.max(measureStart, Math.min(measureEnd, abortAtNs));
             Map<String, Object> result = buildResult(histogram, issuedMeasured, incomplete,
-                    (measureEnd - measureStart) / 1e9, maxLagNs);
+                    Math.max(1e-9, (windowEnd - measureStart) / 1e9), maxLagNs);
+            if (abortReason != null) {
+                result.put("abortedAfterSec", round((abortAtNs - start) / 1e9));
+            }
             return result;
         } finally {
+            monitor.interrupt();
             executor.shutdownNow();
         }
+    }
+
+    private Thread startMonitor(int maxThreads, long hardDeadline) {
+        var threads = ManagementFactory.getThreadMXBean();
+        Thread monitor = Thread.ofPlatform().daemon().name("bench-monitor").start(() -> {
+            while (!Thread.currentThread().isInterrupted()) {
+                int count = threads.getThreadCount();
+                peakThreads = Math.max(peakThreads, count);
+                peakCommittedMb = Math.max(peakCommittedMb, ProcessMemory.committedMb());
+                if (abortReason == null) {
+                    if (count > maxThreads) {
+                        abort("thread count " + count + " exceeded --max-threads " + maxThreads);
+                    } else if (System.nanoTime() > hardDeadline) {
+                        abort("run overran its schedule");
+                    }
+                }
+                try {
+                    Thread.sleep(200);
+                } catch (InterruptedException e) {
+                    return;
+                }
+            }
+        });
+        return monitor;
+    }
+
+    private void abort(String reason) {
+        abortAtNs = System.nanoTime();
+        abortReason = reason;
     }
 
     private void call(long intended, boolean measured) {
@@ -226,7 +273,12 @@ final class LoadGenerator {
         result.put("latencyMs", latency);
         result.put("throughputOkPerSec", round(ok.sum() / windowSec));
         result.put("errorRate", issued == 0 ? 0 : round((double) failed / issued));
-        result.put("percentilesReliable", issued > 0 && (double) (incomplete + dropped.sum()) / issued <= 0.001);
+        result.put("percentilesReliable", abortReason == null && issued > 0
+                && (double) (incomplete + dropped.sum()) / issued <= 0.001);
+        result.put("aborted", abortReason != null);
+        result.put("abortReason", abortReason);
+        result.put("peakThreads", peakThreads);
+        result.put("peakCommittedMb", peakCommittedMb);
         result.put("maxSchedulerLagMs", ms(maxLagNs));
         result.put("firstError", firstError);
         result.put("histogram", encode(h));
@@ -237,7 +289,9 @@ final class LoadGenerator {
         return "result " + JSONUtil.toJsonStr(Map.of(
                 "counts", result.get("counts"),
                 "latencyMs", result.get("latencyMs"),
-                "throughputOkPerSec", result.get("throughputOkPerSec")));
+                "throughputOkPerSec", result.get("throughputOkPerSec"),
+                "peakThreads", result.get("peakThreads"),
+                "aborted", result.get("aborted")));
     }
 
     private static Map<String, Object> environment() {
