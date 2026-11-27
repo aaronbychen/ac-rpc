@@ -1,0 +1,39 @@
+{
+  "name": "phase1-compare",
+  "targets": [
+    {
+      "label": "baseline",
+      "ref": "baseline",
+      "java": "D:/jdk-25"
+    },
+    {
+      "label": "pooled",
+      "ref": "WORKTREE",
+      "java": "D:/jdk-25"
+    }
+  ],
+  "rates": [
+    5,
+    10,
+    20
+  ],
+  "payloadBytes": [
+    64
+  ],
+  "serializer": "kryo",
+  "rounds": 3,
+  "warmupSec": 10,
+  "durationSec": 30,
+  "timeoutSec": 5,
+  "settleSec": 2,
+  "seed": 1,
+  "port": 18080,
+  "registry": "http://localhost:2379",
+  "jvmArgs": [
+    "-Xms1g",
+    "-Xmx1g",
+    "--sun-misc-unsafe-memory-access=allow"
+  ],
+  "maxThreads": 2000,
+  "minFreeMemoryMb": 2048
+}
