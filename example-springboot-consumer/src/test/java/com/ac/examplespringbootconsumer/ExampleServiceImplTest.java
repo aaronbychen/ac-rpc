@@ -1,14 +1,16 @@
 package com.ac.examplespringbootconsumer;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import jakarta.annotation.Resource;
 
 /**
- * Unit tests.
+ * End-to-end example: needs etcd and a running example-springboot-provider.
  */
 @SpringBootTest
+@Disabled("needs etcd and a running example-springboot-provider")
 class ExampleServiceImplTest {
 
     @Resource
