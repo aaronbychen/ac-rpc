@@ -5,6 +5,7 @@ A distributed RPC framework in Java, built on Vert.x TCP networking with etcd-ba
 ## Features
 
 - Custom binary protocol with TCP framing (Vert.x `RecordParser`) for sticky/half packets
+- Two interchangeable clients behind one contract: Vert.x event loops, or blocking sockets on virtual threads (`rpc.transport`)
 - JDK dynamic-proxy invocation on the consumer side, reflective dispatch on the provider side
 - Service registry SPI with etcd (lease TTL, heartbeat renewal, watch-driven cache invalidation) and ZooKeeper backends
 - Pluggable serializers: JDK / JSON / Kryo / Hessian
@@ -154,6 +155,35 @@ gRPC-java 1.84 runs as the reference: generated Protobuf stubs, plaintext, and b
 
 At 10k rps the two are close; gRPC's p99 is 1.0–1.2× ac-rpc's (1.2–1.4× for `grpc-vt`). On a single connection, ac-rpc sustains 130k rps at 64 B, where gRPC saturates around 65–80k. At 4 KB, ac-rpc's knee is around 50–60k rps and gRPC's is below 40k. The difference is mostly protocol weight. gRPC does HTTP/2 framing, header encoding, flow control, and per-call stream state, and it provides streaming, deadline propagation, interceptors, and cross-language clients. ac-rpc's binary framing supports only unary calls. Several cells are bimodal across rounds, with one round sustaining the offered rate and the others not, which is consistent with laptop thermal throttling over a long run; per-round pairing keeps the ratios stable despite this.
 
+### Virtual-thread blocking client
+
+`rpc.transport=blocking` swaps the Vert.x client for one built on plain blocking sockets and virtual threads, with the same pooling, request-ID multiplexing, deadlines and in-flight cap. Both clients pass the same contract tests (`RpcClientContractTest`), including one where the peer stops reading and every call must still fail at its deadline. All runs below use one connection, a 64 B payload, and a provider on JDK 25; only the client's JDK changes.
+
+**First version (tag `blocking-v1`): each caller writes its own frame under a lock.** It saturates at about 37–41k rps on one connection, where the Vert.x client sustains 80k with p99 near 1 ms ([data](bench/results/phase2-transport-20261127T091739Z/summary.md)):
+
+| client JDK | write lock | saturation rps | p99 at 50k offered |
+|---|---|---|---|
+| 21 | `ReentrantLock` | ~39–41k | 353 ms |
+| 25 | `ReentrantLock` | ~36–37k | 364 ms |
+| 21 | `synchronized` | ~30–31k | 347 ms |
+| 25 | `synchronized` | ~27–29k | 797 ms |
+
+At saturation, nearly every in-flight call is queued on the write lock, one socket write per call. The deadline also started only after the write, so a stalled socket could hold callers indefinitely. Since JEP 491 (JDK 24), `synchronized` no longer pins the carrier thread, but here it was still the slowest option, and slower on 25 than on 21. This has not been profiled.
+
+**Second version: a writer per connection drains a queue and flushes in batches.** Callers enqueue a frame and wait on a future, so the deadline covers the whole call. The writer writes up to 256 queued frames per flush, so syscalls scale with batches rather than calls. Rounds interleave ABBA; ratios are per round ([data](bench/results/phase2-blocking-v2-20261127T120921Z/summary.md)):
+
+| client JDK | offered rps | v1 p99 ms | v2 p99 ms | Vert.x p99 ms | v2 / Vert.x p99 (paired) |
+|---|---|---|---|---|---|
+| 25 | 40,000 | 354 (saturated) | 0.33 | 0.38 | 0.85 [0.73, 0.91] |
+| 25 | 80,000 | 370 (saturated) | 0.58 | 1.26 | 0.46 [0.44, 0.59] |
+| 25 | 120,000 | 302 (saturated) | 1.02 | 3.21 | 0.27 [0.19, 0.32] |
+| 21 | 80,000 | — | 1.46 [0.99, 30.5] | 1.33 [1.28, 4.04] | 1.14 [0.25, 22.9] |
+| 21 | 120,000 | — | 37.4 [16.2, 107] | 71.6 [9.1, 137] | 0.78 [0.23, 4.13] |
+
+On JDK 25, v2 sustains 120k rps on one connection with a p99 of 1.0 ms, about a quarter of the Vert.x client's at that load. On JDK 21, both clients reach 80k but have unstable tails. At 120k, both shed a few percent of requests and p99 swings by an order of magnitude between rounds. The JDK 21 result is therefore a tie within noise, and what JDK 25 changed for both clients has not been isolated.
+
+**A JDK bug on the way.** With the writer as a virtual thread, v2 occasionally stalled for seconds on Windows and JDK 25. A virtual thread blocked reading and another blocked writing on the same socket could both miss their wakeup. [`bench/repro/PollerStall.java`](bench/repro/PollerStall.java) reproduces it with no RPC code. This is JDK-8334574: Windows' wepoll can lose events when one socket has both a read and a write poll outstanding. It is fixed upstream (JDK-8394217, which removes write pollers on Windows) but not in JDK 25 updates. The writer is now a platform thread, one per connection, so only reads park in the virtual-thread poller. With the upstream fix adapted to a local jdk25u build, the reproducer went from 6/6 stalls to 0/6.
+
 ## Known Limitations
 
 These are tracked and being addressed:
@@ -167,7 +197,6 @@ These are tracked and being addressed:
 
 ## Roadmap
 
-- Transport: virtual-thread blocking client vs. the Vert.x client, across JDK 21 and 25
 - Benchmarks: multi-host runs
 - Resilience: node-exclusion failover, circuit breaking, fault-injection suite on Kubernetes
 - Observability: OpenTelemetry tracing, Prometheus metrics
