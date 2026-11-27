@@ -1,0 +1,105 @@
+{
+  "name": "phase2-blocking-v2",
+  "targets": [
+    {
+      "label": "blocking-v1-jdk25",
+      "ref": "blocking-v1",
+      "java": "D:/jdk-25",
+      "providerJava": "D:/jdk-25",
+      "args": [
+        "--connections",
+        "1",
+        "--transport",
+        "blocking",
+        "--write-lock",
+        "reentrant"
+      ],
+      "jvmArgs": [
+        "--sun-misc-unsafe-memory-access=allow"
+      ]
+    },
+    {
+      "label": "blocking-v2-jdk25",
+      "ref": "WORKTREE",
+      "java": "D:/jdk-25",
+      "providerJava": "D:/jdk-25",
+      "args": [
+        "--connections",
+        "1",
+        "--transport",
+        "blocking"
+      ],
+      "jvmArgs": [
+        "--sun-misc-unsafe-memory-access=allow"
+      ]
+    },
+    {
+      "label": "vertx-jdk25",
+      "ref": "WORKTREE",
+      "java": "D:/jdk-25",
+      "providerJava": "D:/jdk-25",
+      "args": [
+        "--connections",
+        "1",
+        "--transport",
+        "vertx"
+      ],
+      "jvmArgs": [
+        "--sun-misc-unsafe-memory-access=allow"
+      ]
+    },
+    {
+      "label": "blocking-v2-jdk21",
+      "ref": "WORKTREE",
+      "java": "D:/jdk-21-temurin",
+      "providerJava": "D:/jdk-25",
+      "args": [
+        "--connections",
+        "1",
+        "--transport",
+        "blocking"
+      ],
+      "jvmArgs": []
+    },
+    {
+      "label": "vertx-jdk21",
+      "ref": "WORKTREE",
+      "java": "D:/jdk-21-temurin",
+      "providerJava": "D:/jdk-25",
+      "args": [
+        "--connections",
+        "1",
+        "--transport",
+        "vertx"
+      ],
+      "jvmArgs": []
+    }
+  ],
+  "rates": [
+    10000,
+    40000,
+    80000,
+    120000
+  ],
+  "payloadBytes": [
+    64
+  ],
+  "serializer": "kryo",
+  "rounds": 3,
+  "warmupSec": 10,
+  "durationSec": 15,
+  "timeoutSec": 5,
+  "settleSec": 2,
+  "seed": 1,
+  "port": 18080,
+  "registry": "http://localhost:2379",
+  "jvmArgs": [
+    "-Xms1g",
+    "-Xmx1g"
+  ],
+  "maxThreads": 2000,
+  "minFreeMemoryMb": 2048,
+  "providerJvmArgs": [
+    "--sun-misc-unsafe-memory-access=allow"
+  ]
+}
