@@ -222,4 +222,5 @@ The p99 of calls to the *healthy* providers also rose to about 11 ms without eje
 - Benchmarks: multi-host runs (separate client, provider and etcd machines, e.g. cloud VMs) to remove the shared-CPU caveat and add real network latency; repeat the transport, gRPC and failover experiments there
 - Resilience: fault-injection suite on Kubernetes (kind or a small cluster): network partitions between consumer, provider and etcd, slow and flapping providers, etcd member loss; measure errors and recovery time per fault as in the provider-kill experiment
 - Resilience: latency-based ejection, per-method idempotency opt-in for `failOver`
+- Consensus: `ac-kv`, a Raft-replicated key-value store that uses ac-rpc as its transport, checked for linearizability with Porcupine under randomized partitions, crashes and message loss
 - Observability: OpenTelemetry tracing, Prometheus metrics
