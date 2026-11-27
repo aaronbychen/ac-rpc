@@ -1,0 +1,58 @@
+{
+    "labels": {
+        "target": "baseline",
+        "round": "1"
+    },
+    "config": {
+        "rate": 80,
+        "warmupSec": 10,
+        "durationSec": 30,
+        "timeoutSec": 5,
+        "payloadBytes": 64,
+        "maxInFlight": 10000,
+        "maxThreads": 2000,
+        "serializer": "kryo"
+    },
+    "environment": {
+        "timestamp": "2026-11-27T06:17:47.341227600Z",
+        "javaVersion": "25.0.5.1",
+        "javaVendor": "Eclipse Adoptium",
+        "vmName": "OpenJDK 64-Bit Server VM",
+        "osName": "Windows 11",
+        "osArch": "amd64",
+        "availableProcessors": 32,
+        "maxHeapMb": 1024,
+        "gc": [
+            "G1 Young Generation",
+            "G1 Concurrent GC",
+            "G1 Old Generation"
+        ],
+        "jvmArgs": [
+            "-Xms1g",
+            "-Xmx1g",
+            "--sun-misc-unsafe-memory-access=allow"
+        ]
+    },
+    "counts": {
+        "issued": 911,
+        "ok": 0,
+        "slow": 0,
+        "errors": 0,
+        "dropped": 0,
+        "incomplete": 911
+    },
+    "latencyMs": {
+        "count": 0
+    },
+    "throughputOkPerSec": 0,
+    "errorRate": 1,
+    "percentilesReliable": false,
+    "aborted": true,
+    "abortReason": "thread count 2093 exceeded --max-threads 2000",
+    "peakThreads": 2093,
+    "peakCommittedMb": 1828,
+    "maxSchedulerLagMs": 54.427,
+    "firstError": null,
+    "histogram": "HISTFAAAABx4nJNpmSzMwMDAyAABzFAaxmey/wBlAQA8yQJ9",
+    "abortedAfterSec": 21.366
+}

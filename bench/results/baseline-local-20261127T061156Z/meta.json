@@ -1,0 +1,229 @@
+{
+  "config": {
+    "name": "baseline-local",
+    "targets": [
+      {
+        "label": "baseline",
+        "ref": "WORKTREE",
+        "java": "D:/jdk-25"
+      }
+    ],
+    "rates": [
+      5,
+      10,
+      20,
+      40,
+      80
+    ],
+    "payloadBytes": [
+      64
+    ],
+    "serializer": "kryo",
+    "rounds": 3,
+    "warmupSec": 10,
+    "durationSec": 30,
+    "timeoutSec": 5,
+    "settleSec": 2,
+    "seed": 1,
+    "port": 18080,
+    "registry": "http://localhost:2379",
+    "jvmArgs": [
+      "-Xms1g",
+      "-Xmx1g",
+      "--sun-misc-unsafe-memory-access=allow"
+    ],
+    "maxThreads": 2000,
+    "minFreeMemoryMb": 2048
+  },
+  "targets": {
+    "baseline": {
+      "label": "baseline",
+      "ref": "WORKTREE",
+      "java": "D:/jdk-25",
+      "sha": "952068527fc6d5d7e86aee4408dc568908ebcd46",
+      "dirty": false,
+      "javaVersion": [
+        "openjdk version \"25.0.5.1\" 2026-11-17 LTS",
+        "OpenJDK Runtime Environment Temurin-25.0.5.1+2 (build 25.0.5.1+2-LTS)",
+        "OpenJDK 64-Bit Server VM Temurin-25.0.5.1+2 (build 25.0.5.1+2-LTS, mixed mode, sharing)"
+      ]
+    }
+  },
+  "host": {
+    "platform": "Windows-11-10.0.26200-SP0",
+    "machine": "AMD64",
+    "processor": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+    "cpuCount": 32,
+    "cpuModel": "13th Gen Intel(R) Core(TM) i9-13980HX",
+    "memoryGb": 16
+  },
+  "startedAt": "2026-11-27T06:12:27.163447+00:00",
+  "runs": [
+    {
+      "round": 0,
+      "target": "baseline",
+      "payload": 64,
+      "rate": 20,
+      "file": "baseline_r0_p64_rate20.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 3014,
+      "freeMemoryMbAfter": 2787,
+      "lowMemory": false
+    },
+    {
+      "round": 0,
+      "target": "baseline",
+      "payload": 64,
+      "rate": 40,
+      "file": "baseline_r0_p64_rate40.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 2786,
+      "freeMemoryMbAfter": 2708,
+      "lowMemory": false
+    },
+    {
+      "round": 0,
+      "target": "baseline",
+      "payload": 64,
+      "rate": 80,
+      "file": "baseline_r0_p64_rate80.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 2708,
+      "freeMemoryMbAfter": 2839,
+      "lowMemory": false
+    },
+    {
+      "round": 0,
+      "target": "baseline",
+      "payload": 64,
+      "rate": 5,
+      "file": "baseline_r0_p64_rate5.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 2839,
+      "freeMemoryMbAfter": 2903,
+      "lowMemory": false
+    },
+    {
+      "round": 0,
+      "target": "baseline",
+      "payload": 64,
+      "rate": 10,
+      "file": "baseline_r0_p64_rate10.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 2903,
+      "freeMemoryMbAfter": 3012,
+      "lowMemory": false
+    },
+    {
+      "round": 1,
+      "target": "baseline",
+      "payload": 64,
+      "rate": 5,
+      "file": "baseline_r1_p64_rate5.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 3012,
+      "freeMemoryMbAfter": 2555,
+      "lowMemory": false
+    },
+    {
+      "round": 1,
+      "target": "baseline",
+      "payload": 64,
+      "rate": 20,
+      "file": "baseline_r1_p64_rate20.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 2555,
+      "freeMemoryMbAfter": 2108,
+      "lowMemory": false
+    },
+    {
+      "round": 1,
+      "target": "baseline",
+      "payload": 64,
+      "rate": 10,
+      "file": "baseline_r1_p64_rate10.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 2108,
+      "freeMemoryMbAfter": 3147,
+      "lowMemory": false
+    },
+    {
+      "round": 1,
+      "target": "baseline",
+      "payload": 64,
+      "rate": 80,
+      "file": "baseline_r1_p64_rate80.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 3147,
+      "freeMemoryMbAfter": 3100,
+      "lowMemory": false
+    },
+    {
+      "round": 1,
+      "target": "baseline",
+      "payload": 64,
+      "rate": 40,
+      "file": "baseline_r1_p64_rate40.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 3100,
+      "freeMemoryMbAfter": 3023,
+      "lowMemory": false
+    },
+    {
+      "round": 2,
+      "target": "baseline",
+      "payload": 64,
+      "rate": 20,
+      "file": "baseline_r2_p64_rate20.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 3023,
+      "freeMemoryMbAfter": 2740,
+      "lowMemory": false
+    },
+    {
+      "round": 2,
+      "target": "baseline",
+      "payload": 64,
+      "rate": 40,
+      "file": "baseline_r2_p64_rate40.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 2740,
+      "freeMemoryMbAfter": 2760,
+      "lowMemory": false
+    },
+    {
+      "round": 2,
+      "target": "baseline",
+      "payload": 64,
+      "rate": 80,
+      "file": "baseline_r2_p64_rate80.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 2760,
+      "freeMemoryMbAfter": 2749,
+      "lowMemory": false
+    },
+    {
+      "round": 2,
+      "target": "baseline",
+      "payload": 64,
+      "rate": 5,
+      "file": "baseline_r2_p64_rate5.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 2749,
+      "freeMemoryMbAfter": 2965,
+      "lowMemory": false
+    },
+    {
+      "round": 2,
+      "target": "baseline",
+      "payload": 64,
+      "rate": 10,
+      "file": "baseline_r2_p64_rate10.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 2965,
+      "freeMemoryMbAfter": 2819,
+      "lowMemory": false
+    }
+  ],
+  "finishedAt": "2026-11-27T06:20:57.957594+00:00"
+}

@@ -1,0 +1,64 @@
+{
+    "labels": {
+        "target": "baseline",
+        "round": "1"
+    },
+    "config": {
+        "rate": 20,
+        "warmupSec": 10,
+        "durationSec": 30,
+        "timeoutSec": 5,
+        "payloadBytes": 64,
+        "maxInFlight": 10000,
+        "maxThreads": 2000,
+        "serializer": "kryo"
+    },
+    "environment": {
+        "timestamp": "2026-11-27T06:16:35.911818100Z",
+        "javaVersion": "25.0.5.1",
+        "javaVendor": "Eclipse Adoptium",
+        "vmName": "OpenJDK 64-Bit Server VM",
+        "osName": "Windows 11",
+        "osArch": "amd64",
+        "availableProcessors": 32,
+        "maxHeapMb": 1024,
+        "gc": [
+            "G1 Young Generation",
+            "G1 Concurrent GC",
+            "G1 Old Generation"
+        ],
+        "jvmArgs": [
+            "-Xms1g",
+            "-Xmx1g",
+            "--sun-misc-unsafe-memory-access=allow"
+        ]
+    },
+    "counts": {
+        "issued": 453,
+        "ok": 451,
+        "slow": 0,
+        "errors": 0,
+        "dropped": 0,
+        "incomplete": 2
+    },
+    "latencyMs": {
+        "count": 451,
+        "p50": 98.37,
+        "p90": 207.88,
+        "p99": 983.564,
+        "p999": 1138.754,
+        "max": 1138.754,
+        "mean": 157.805
+    },
+    "throughputOkPerSec": 19.983,
+    "errorRate": 0.004,
+    "percentilesReliable": false,
+    "aborted": true,
+    "abortReason": "thread count 2003 exceeded --max-threads 2000",
+    "peakThreads": 2003,
+    "peakCommittedMb": 1853,
+    "maxSchedulerLagMs": 444.35,
+    "firstError": null,
+    "histogram": "HISTFAAAAXR4nD2Rv0oDQRDGd387d5cQQghBQtAgIsFCLETEwsJKLCzE0kosxcJHEEGwEIniA1hYi7WVhZWP4RsIYh2/2Tvdvczuzn5/ZjYLVw+DEDgK9UjNGj1czGazna868XMHl1DRNv0YW4+kWVGgz7DkOzyG0pJRWKFTaKZ2pqVSaJU5r4RnSqzEjyaaBCSFWSqDrx5ctmwJaO5iRUZbpriEckGQ7Cp48iR5OC+UgiVzbDLzQtwwm4tVariU7shMtRNqYQG8SHHkZ5V6+W9F922rAcnr1b7j/m5v9YvopP5z21UzvUinFtrXxSU9I/Qk3c3INgMVMsrIP/nAsnJdGOp6ZPVLduW3SL8R7LCe/4n9XH5XuI5IA1YYimh9Hfs6TnTRF8Rp57kLqY4VJhwzjRwwJ5NNdjlhT/g13mGauIHnyGfkNfIYeY885Y2+N3iJHLLBKvdRumfib3EqD7lZRypj5umxLbfrKMlbDx8oKfp3ZEmmv9DqJCE=",
+    "abortedAfterSec": 32.569
+}

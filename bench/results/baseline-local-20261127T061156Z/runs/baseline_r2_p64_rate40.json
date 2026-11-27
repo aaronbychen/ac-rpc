@@ -1,0 +1,64 @@
+{
+    "labels": {
+        "target": "baseline",
+        "round": "2"
+    },
+    "config": {
+        "rate": 40,
+        "warmupSec": 10,
+        "durationSec": 30,
+        "timeoutSec": 5,
+        "payloadBytes": 64,
+        "maxInFlight": 10000,
+        "maxThreads": 2000,
+        "serializer": "kryo"
+    },
+    "environment": {
+        "timestamp": "2026-11-27T06:19:08.729865200Z",
+        "javaVersion": "25.0.5.1",
+        "javaVendor": "Eclipse Adoptium",
+        "vmName": "OpenJDK 64-Bit Server VM",
+        "osName": "Windows 11",
+        "osArch": "amd64",
+        "availableProcessors": 32,
+        "maxHeapMb": 1024,
+        "gc": [
+            "G1 Young Generation",
+            "G1 Concurrent GC",
+            "G1 Old Generation"
+        ],
+        "jvmArgs": [
+            "-Xms1g",
+            "-Xmx1g",
+            "--sun-misc-unsafe-memory-access=allow"
+        ]
+    },
+    "counts": {
+        "issued": 257,
+        "ok": 253,
+        "slow": 0,
+        "errors": 0,
+        "dropped": 0,
+        "incomplete": 4
+    },
+    "latencyMs": {
+        "count": 253,
+        "p50": 65.143,
+        "p90": 251.134,
+        "p99": 286.261,
+        "p999": 297.009,
+        "max": 297.009,
+        "mean": 105.74
+    },
+    "throughputOkPerSec": 39.748,
+    "errorRate": 0.016,
+    "percentilesReliable": false,
+    "aborted": true,
+    "abortReason": "thread count 2001 exceeded --max-threads 2000",
+    "peakThreads": 2001,
+    "peakCommittedMb": 1849,
+    "maxSchedulerLagMs": 53.982,
+    "firstError": null,
+    "histogram": "HISTFAAAASF4nC2QMUoEQRBFu3/32A7NMCzDMoguwyKLyLIYbCSybGBgKGLsIbyDgSBGxmZmRoaexGt4g/FVjw3dVfXr/19Fnzy9dc75Dzed8B+9PcM4jvvfCXh/lpIOXAwK6mIVK1UK0cnJnihOoAhwZAApHCnWlFVEVxk+vVQJajE4dOTG1BI4g8RUjAyF0ypFk0GptFAqHusyrFUszAvQDtc5yrUgNeo1APbasKyy7QZAL1u2ZHCjy8m/x6Y225gBks6Ldad57KlmNvWY0OlOt2hqPWjLiBevlc704/XqtdNej1zb8tPKG32peG1ABmQrduqMOujbC+E99CvZ5zRQWmYsWGVLv4c46EinGCQbny3M6GfQjGoHI5E70Lr8qK5J/gAHjBsL",
+    "abortedAfterSec": 16.39
+}

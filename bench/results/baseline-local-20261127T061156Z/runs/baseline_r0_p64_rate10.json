@@ -1,7 +1,7 @@
 {
     "labels": {
         "target": "baseline",
-        "round": "1"
+        "round": "0"
     },
     "config": {
         "rate": 10,
@@ -10,10 +10,11 @@
         "timeoutSec": 5,
         "payloadBytes": 64,
         "maxInFlight": 10000,
+        "maxThreads": 2000,
         "serializer": "kryo"
     },
     "environment": {
-        "timestamp": "2026-11-27T06:07:47.675426900Z",
+        "timestamp": "2026-11-27T06:15:14.725155400Z",
         "javaVersion": "25.0.5.1",
         "javaVendor": "Eclipse Adoptium",
         "vmName": "OpenJDK 64-Bit Server VM",
@@ -42,17 +43,21 @@
     },
     "latencyMs": {
         "count": 300,
-        "p50": 42.336,
-        "p90": 51.184,
-        "p99": 80.413,
-        "p999": 145.49,
-        "max": 145.49,
-        "mean": 44.695
+        "p50": 41.157,
+        "p90": 48.464,
+        "p99": 70.451,
+        "p999": 117.375,
+        "max": 117.375,
+        "mean": 43.259
     },
     "throughputOkPerSec": 10,
     "errorRate": 0,
     "percentilesReliable": true,
-    "maxSchedulerLagMs": 0.663,
+    "aborted": false,
+    "abortReason": null,
+    "peakThreads": 1223,
+    "peakCommittedMb": 1662,
+    "maxSchedulerLagMs": 0.399,
     "firstError": null,
-    "histogram": "HISTFAAAANZ4nC2QMU7EUAxEnWfnJ7sRilCEEBJoCwpEyQmQuAYFZ0GCE+w59gQUnGXL7bhBGP+fFB57PH6Jcv91XMy6N2uPb9plmdd1ff1rxvkTHrjBmcJUsQAPCsYQdbbYQaRvcqMQREiKHLW+l188HSgWNbdvncdYTCyhMysWeW+NX10YoxdFW0ZToRXRdzrwzKXn9G2zRSLf3aYEGlfKz9ux0jNDftAi+HUde3hKJENlac+imQl1+geHVONWu8dKGGQ9c8eH9MAFXvjtdOe889NxQvo98Q+BDBEt"
+    "histogram": "HISTFAAAAMx4nC2PMU4EMQxFnWePZ3bQCI1WFAjoQFtyBGoqzoTEDShXHGHPQck56LjB8L3ZJI79f/x/kvuPz71Ze7Q+/JJbbeO2bS9/nfh9B2NQsENZhUNYFWkEEUPBOTwt0PDUWWTByIwZbVp1pIaMmLBkknKWxcVkEuFC8mWi09VG1Z3PkrscvO4+M2ESCTJGEVaiUlpvcMXCqlcPXKneMSqv3JaTkHOtaTyUxytvZ6gvLnEnds+BJ27Ut3BCsq/Gs/iVnybywBG+R06Nf/2cEIo="
 }

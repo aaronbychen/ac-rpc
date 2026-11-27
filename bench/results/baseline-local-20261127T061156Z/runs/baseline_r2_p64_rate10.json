@@ -1,19 +1,20 @@
 {
     "labels": {
         "target": "baseline",
-        "round": "1"
+        "round": "2"
     },
     "config": {
-        "rate": 20,
+        "rate": 10,
         "warmupSec": 10,
         "durationSec": 30,
         "timeoutSec": 5,
         "payloadBytes": 64,
         "maxInFlight": 10000,
+        "maxThreads": 2000,
         "serializer": "kryo"
     },
     "environment": {
-        "timestamp": "2026-11-27T06:07:02.204922500Z",
+        "timestamp": "2026-11-27T06:20:57.169056Z",
         "javaVersion": "25.0.5.1",
         "javaVendor": "Eclipse Adoptium",
         "vmName": "OpenJDK 64-Bit Server VM",
@@ -33,26 +34,30 @@
         ]
     },
     "counts": {
-        "issued": 600,
-        "ok": 600,
+        "issued": 300,
+        "ok": 300,
         "slow": 0,
         "errors": 0,
         "dropped": 0,
         "incomplete": 0
     },
     "latencyMs": {
-        "count": 600,
-        "p50": 100.27,
-        "p90": 113.312,
-        "p99": 140.378,
-        "p999": 159.646,
-        "max": 159.646,
-        "mean": 100.677
+        "count": 300,
+        "p50": 43.68,
+        "p90": 48.792,
+        "p99": 59.277,
+        "p999": 73.269,
+        "max": 73.269,
+        "mean": 44.531
     },
-    "throughputOkPerSec": 20,
+    "throughputOkPerSec": 10,
     "errorRate": 0,
     "percentilesReliable": true,
-    "maxSchedulerLagMs": 20.782,
+    "aborted": false,
+    "abortReason": null,
+    "peakThreads": 1222,
+    "peakCommittedMb": 1661,
+    "maxSchedulerLagMs": 0.26,
     "firstError": null,
-    "histogram": "HISTFAAAASZ4nC1RMU7EQAx0ZifOJuE4IYRO0YEoqa6mQldTXsGLoKXiHRSUvIQPIFHCD8LYSTbeXY/HY1t7/fJ2adZ82/KV9Wxi287zfPxbgN9noMcBEzocMeIKTxg54QE7vDeCT/gEvgp+gA/gFmJ4h9Fb0BxuKI4Coq1gdaeRrt9hjEWYCzcZAbgSoF9cuHZaDUduYVVWZR1EJOUlHlxX2M7qIBSFUCGB1RQNDV2qCg3ZjqIyVVRWZfIkSx8Yqqoc/YR8+FIoWtGH8VxwRgQP6jGcrGQxAVuV9ewmB2hlJR1bPYuBQ1K4rQvscoJksF/oq0Lw2th0H3V0Gk3ogam8YfhbKNSv1sVD4RE3ktrgXsg+0zq91IQ7bJS4E+VCeAhp2+tJXxv8A7+3Fkg="
+    "histogram": "HISTFAAAALp4nC2OzY1CMQyE/b44ThArEOKExBVxQBwoAFHClkEfu3RAFRS30nbwGL9HnB97PJ7M/vHcmg3YvMrnHfJq4zje/mfg7wc/ukGhYlO4uSo+WbhjIUYeCxzBoR6hrCPKVw/vPcyTwoqSHY1pU/o0ndGFJr0HMQvhRQqiFomZy4AkBJf8rjL9P/mg9urRlGYip1UO5XFL9caCjdOyNnao1xRrqajOEZYc5ZiD4DMXvvkduHPlxMt5AziGDVE="
 }

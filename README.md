@@ -88,11 +88,33 @@ mvn -f example-springboot-consumer/pom.xml spring-boot:run
 - `@RpcService`: registers a provider implementation locally and in the registry
 - `@RpcReference`: injects a remote proxy into a Spring bean
 
+## Benchmarks
+
+`ac-rpc-bench` is an open-loop load generator: requests go out on a fixed schedule, and latency is measured from each request's intended send time, so a slow server cannot hide its queueing delay (coordinated omission). `bench/run.py` runs each configuration for several rounds with fresh JVMs, alternating targets in ABBA order; `bench/analyze.py` reports median [min, max] across rounds and paired per-round ratios between targets.
+
+```bash
+python bench/run.py bench/configs/baseline-local.json
+```
+
+### Baseline (tag `baseline`)
+
+i9-13980HX laptop, Windows 11, JDK 25, provider and load generator on the same host, 64 B payload, Kryo, 3 rounds × (10 s warmup + 30 s measured). Full data: [`bench/results/baseline-local-20261127T061156Z`](bench/results/baseline-local-20261127T061156Z/summary.md).
+
+| offered rps | p50 ms | p99 ms | peak client threads | outcome |
+|---|---|---|---|---|
+| 5 | 44 [43, 57] | 77 [69, 233] | 625 | completed |
+| 10 | 44 [41, 73] | 70 [59, 101] | 1,223 | completed |
+| 20 | 43 [40, 98] | 112 [84, 984] | 2,000+ | aborted at ~33 s (thread cap) |
+| 40 | 65 [53, 66] | 286 [168, 333] | 2,000+ | aborted at ~16 s |
+| 80 | — | — | 2,000+ | aborted at ~15 s, 0 successful calls |
+
+Every call leaks three threads, because the client builds a new Vert.x instance per request and never closes it. Thread count therefore grows linearly with total requests, so no request rate is sustainable: at 5 rps the client reaches 2,000 threads in about two minutes. Even when idle, a single call costs about 43 ms in Vert.x startup and a fresh TCP connection.
+
 ## Known Limitations
 
 These are tracked and being addressed:
 
-- The client creates a new Vert.x instance and TCP connection per call; there is no connection reuse or request multiplexing
+- The client creates a new Vert.x instance (leaking three threads) and TCP connection per call; there is no connection reuse or request multiplexing
 - Calls have no timeout; a failed connect can block the caller indefinitely
 - `failOver` / `failBack` tolerant strategies are stubs; retries target the same node
 - The registry's discovery cache is not keyed by service, so multiple services can collide
