@@ -1,0 +1,128 @@
+{
+  "name": "phase2-transport",
+  "targets": [
+    {
+      "label": "vertx-jdk21",
+      "ref": "WORKTREE",
+      "java": "D:/jdk-21-temurin",
+      "providerJava": "D:/jdk-25",
+      "args": [
+        "--connections",
+        "1",
+        "--transport",
+        "vertx",
+        "--write-lock",
+        "reentrant"
+      ],
+      "jvmArgs": []
+    },
+    {
+      "label": "blocking-lock-jdk21",
+      "ref": "WORKTREE",
+      "java": "D:/jdk-21-temurin",
+      "providerJava": "D:/jdk-25",
+      "args": [
+        "--connections",
+        "1",
+        "--transport",
+        "blocking",
+        "--write-lock",
+        "reentrant"
+      ],
+      "jvmArgs": []
+    },
+    {
+      "label": "blocking-sync-jdk21",
+      "ref": "WORKTREE",
+      "java": "D:/jdk-21-temurin",
+      "providerJava": "D:/jdk-25",
+      "args": [
+        "--connections",
+        "1",
+        "--transport",
+        "blocking",
+        "--write-lock",
+        "synchronized"
+      ],
+      "jvmArgs": []
+    },
+    {
+      "label": "vertx-jdk25",
+      "ref": "WORKTREE",
+      "java": "D:/jdk-25",
+      "providerJava": "D:/jdk-25",
+      "args": [
+        "--connections",
+        "1",
+        "--transport",
+        "vertx",
+        "--write-lock",
+        "reentrant"
+      ],
+      "jvmArgs": [
+        "--sun-misc-unsafe-memory-access=allow"
+      ]
+    },
+    {
+      "label": "blocking-lock-jdk25",
+      "ref": "WORKTREE",
+      "java": "D:/jdk-25",
+      "providerJava": "D:/jdk-25",
+      "args": [
+        "--connections",
+        "1",
+        "--transport",
+        "blocking",
+        "--write-lock",
+        "reentrant"
+      ],
+      "jvmArgs": [
+        "--sun-misc-unsafe-memory-access=allow"
+      ]
+    },
+    {
+      "label": "blocking-sync-jdk25",
+      "ref": "WORKTREE",
+      "java": "D:/jdk-25",
+      "providerJava": "D:/jdk-25",
+      "args": [
+        "--connections",
+        "1",
+        "--transport",
+        "blocking",
+        "--write-lock",
+        "synchronized"
+      ],
+      "jvmArgs": [
+        "--sun-misc-unsafe-memory-access=allow"
+      ]
+    }
+  ],
+  "rates": [
+    10000,
+    30000,
+    50000,
+    80000
+  ],
+  "payloadBytes": [
+    64
+  ],
+  "serializer": "kryo",
+  "rounds": 3,
+  "warmupSec": 10,
+  "durationSec": 15,
+  "timeoutSec": 5,
+  "settleSec": 2,
+  "seed": 1,
+  "port": 18080,
+  "registry": "http://localhost:2379",
+  "jvmArgs": [
+    "-Xms1g",
+    "-Xmx1g"
+  ],
+  "maxThreads": 2000,
+  "minFreeMemoryMb": 2048,
+  "providerJvmArgs": [
+    "--sun-misc-unsafe-memory-access=allow"
+  ]
+}

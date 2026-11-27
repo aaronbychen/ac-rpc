@@ -32,6 +32,8 @@ public final class Main {
         config.setSerializer(options.get("serializer", "kryo"));
         config.setConnectionsPerEndpoint(options.getInt("connections", config.getConnectionsPerEndpoint()));
         config.setRequestTimeoutMs(options.getInt("deadline-ms", (int) config.getRequestTimeoutMs()));
+        config.setTransport(options.get("transport", config.getTransport()));
+        config.setBlockingWriteLock(options.get("write-lock", config.getBlockingWriteLock()));
         RegistryConfig registry = new RegistryConfig();
         registry.setAddress(options.get("registry", "http://localhost:2379"));
         config.setRegistryConfig(registry);

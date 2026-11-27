@@ -62,7 +62,8 @@ def build_target(target):
         if not src.exists():
             sh(["git", "worktree", "add", "--detach", str(src), sha])
     print(f"[build] {target['label']} @ {sha[:12]}{' (dirty)' if dirty else ''}", flush=True)
-    sh([mvn, "-q", "-pl", "ac-rpc-bench", "-am", "package", "-DskipTests"], cwd=src, env=env)
+    # clean: an IDE compiling into target/ can otherwise leave stale or broken classes behind
+    sh([mvn, "-q", "-pl", "ac-rpc-bench", "-am", "clean", "package", "-DskipTests"], cwd=src, env=env)
     jars = WORK / "jars"
     jars.mkdir(parents=True, exist_ok=True)
     jar = jars / f"{target['label']}-{sha[:12]}.jar"
@@ -135,12 +136,16 @@ def host_info():
 
 def run_one(cfg, target, jar, run, out_file, log_file):
     java = java_exe(target["java"])
+    # The provider can be pinned to one JDK so that only the client side varies
+    provider_java = java_exe(target.get("providerJava", target["java"]))
     jvm = cfg.get("jvmArgs", []) + target.get("jvmArgs", [])
+    # With a pinned provider JDK, its flags come from the config so they are identical for every target
+    provider_jvm = cfg.get("jvmArgs", []) + cfg.get("providerJvmArgs", target.get("jvmArgs", []))
     port = cfg["port"]
     # Direct-connect systems (gRPC) need the port; ac-rpc finds the provider through the registry
     common = ["--registry", cfg["registry"], "--serializer", cfg["serializer"], "--port", str(port),
               *target.get("args", [])]
-    provider = subprocess.Popen([java, *jvm, "-jar", str(jar), "provider", *common],
+    provider = subprocess.Popen([provider_java, *provider_jvm, "-jar", str(jar), "provider", *common],
                                 stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     try:
         if not wait_for_port(port):
@@ -223,7 +228,8 @@ def main():
     for label, t in targets.items():
         jar, sha, dirty = build_target(t)
         built[label] = jar
-        target_meta[label] = {**t, "sha": sha, "dirty": dirty, "javaVersion": java_version(t["java"])}
+        target_meta[label] = {**t, "sha": sha, "dirty": dirty, "javaVersion": java_version(t["java"]),
+                              "providerJavaVersion": java_version(t.get("providerJava", t["java"]))}
 
     if args.rerun:
         rerun_at = datetime.now(timezone.utc).isoformat()
