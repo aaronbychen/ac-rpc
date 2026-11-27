@@ -1,17 +1,11 @@
 package com.ac.acrpc.server.tcp;
 
-import com.ac.acrpc.RpcApplication;
-import com.ac.acrpc.config.RpcConfig;
 import com.ac.acrpc.exception.RpcException;
 import com.ac.acrpc.model.RpcRequest;
 import com.ac.acrpc.model.RpcResponse;
 import com.ac.acrpc.model.ServiceMetaInfo;
-import com.ac.acrpc.protocol.ProtocolConstant;
 import com.ac.acrpc.protocol.ProtocolMessage;
 import com.ac.acrpc.protocol.ProtocolMessageDecoder;
-import com.ac.acrpc.protocol.ProtocolMessageEncoder;
-import com.ac.acrpc.protocol.ProtocolMessageSerializerEnum;
-import com.ac.acrpc.protocol.ProtocolMessageTypeEnum;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
 import io.vertx.core.buffer.Buffer;
@@ -41,9 +35,7 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
  * connection already has too many requests in flight.
  */
 @Slf4j
-public final class VertxTcpClient {
-
-    private static volatile VertxTcpClient shared;
+public final class VertxTcpClient implements RpcClient {
 
     private final Vertx vertx;
     private final NetClient netClient;
@@ -63,30 +55,14 @@ public final class VertxTcpClient {
         this.maxPendingPerConnection = maxPendingPerConnection;
     }
 
-    /**
-     * Client configured from the global RPC config, created on first use.
-     */
-    public static VertxTcpClient shared() {
-        if (shared == null) {
-            synchronized (VertxTcpClient.class) {
-                if (shared == null) {
-                    RpcConfig config = RpcApplication.getRpcConfig();
-                    shared = new VertxTcpClient(config.getConnectTimeoutMs(), config.getConnectionsPerEndpoint(),
-                            config.getMaxPendingPerConnection());
-                    Runtime.getRuntime().addShutdownHook(new Thread(shared::close));
-                }
-            }
+    @Override
+    public RpcResponse call(RpcRequest rpcRequest, ServiceMetaInfo target, String serializer, long timeoutMs)
+            throws Exception {
+        try {
+            return request(rpcRequest, target, serializer, timeoutMs).get();
+        } catch (ExecutionException e) {
+            throw e.getCause() instanceof Exception cause ? cause : e;
         }
-        return shared;
-    }
-
-    /**
-     * Blocking call using the global config's serializer and deadline.
-     */
-    public static RpcResponse doRequest(RpcRequest rpcRequest, ServiceMetaInfo serviceMetaInfo)
-            throws InterruptedException, ExecutionException {
-        RpcConfig config = RpcApplication.getRpcConfig();
-        return shared().request(rpcRequest, serviceMetaInfo, config.getSerializer(), config.getRequestTimeoutMs()).get();
     }
 
     /**
@@ -98,7 +74,7 @@ public final class VertxTcpClient {
         long requestId = nextRequestId.incrementAndGet();
         Buffer frame;
         try {
-            frame = encode(rpcRequest, requestId, serializer);
+            frame = Frames.encodeRequest(rpcRequest, requestId, serializer);
         } catch (IOException | RuntimeException e) {
             return CompletableFuture.failedFuture(new RpcException("Failed to encode request: " + e.getMessage()));
         }
@@ -116,23 +92,10 @@ public final class VertxTcpClient {
         return response.orTimeout(timeoutMs, TimeUnit.MILLISECONDS);
     }
 
+    @Override
     public void close() {
         pools.values().forEach(EndpointPool::closeAll);
         vertx.close();
-    }
-
-    private static Buffer encode(RpcRequest rpcRequest, long requestId, String serializer) throws IOException {
-        ProtocolMessageSerializerEnum serializerEnum = ProtocolMessageSerializerEnum.getEnumByValue(serializer);
-        if (serializerEnum == null) {
-            throw new RpcException("Unknown serializer: " + serializer);
-        }
-        ProtocolMessage.Header header = new ProtocolMessage.Header();
-        header.setMagic(ProtocolConstant.PROTOCOL_MAGIC);
-        header.setVersion(ProtocolConstant.PROTOCOL_VERSION);
-        header.setSerializer((byte) serializerEnum.getKey());
-        header.setType((byte) ProtocolMessageTypeEnum.REQUEST.getKey());
-        header.setRequestId(requestId);
-        return ProtocolMessageEncoder.encode(new ProtocolMessage<>(header, rpcRequest));
     }
 
     /**

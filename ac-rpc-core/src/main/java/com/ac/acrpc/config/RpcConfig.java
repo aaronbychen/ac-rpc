@@ -81,4 +81,14 @@ public class RpcConfig {
      * In-flight request cap per connection; calls beyond it fail fast instead of queueing
      */
     private int maxPendingPerConnection = 10_000;
+
+    /**
+     * Client transport: "vertx" (event loop) or "blocking" (blocking sockets on virtual threads)
+     */
+    private String transport = "vertx";
+
+    /**
+     * Write lock for the blocking transport: "reentrant" or "synchronized"
+     */
+    private String blockingWriteLock = "reentrant";
 }

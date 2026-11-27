@@ -15,7 +15,7 @@ import com.ac.acrpc.model.RpcResponse;
 import com.ac.acrpc.model.ServiceMetaInfo;
 import com.ac.acrpc.registry.Registry;
 import com.ac.acrpc.registry.RegistryFactory;
-import com.ac.acrpc.server.tcp.VertxTcpClient;
+import com.ac.acrpc.server.tcp.RpcClients;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -68,7 +68,8 @@ public class ServiceProxy implements InvocationHandler {
         try {
             RetryStrategy retryStrategy = RetryStrategyFactory.getInstance(rpcConfig.getRetryStrategy());
             rpcResponse = retryStrategy.doRetry(() ->
-                    VertxTcpClient.doRequest(rpcRequest, selectedServiceMetaInfo)
+                    RpcClients.shared().call(rpcRequest, selectedServiceMetaInfo,
+                            rpcConfig.getSerializer(), rpcConfig.getRequestTimeoutMs())
             );
         } catch (Exception e) {
             // Fault tolerance
