@@ -1,0 +1,1106 @@
+{
+  "config": {
+    "name": "phase2-grpc",
+    "targets": [
+      {
+        "label": "acrpc",
+        "ref": "WORKTREE",
+        "java": "D:/jdk-25",
+        "args": [
+          "--connections",
+          "1"
+        ]
+      },
+      {
+        "label": "grpc-vt",
+        "ref": "WORKTREE",
+        "java": "D:/jdk-25",
+        "args": [
+          "--system",
+          "grpc",
+          "--connections",
+          "1",
+          "--grpc-executor",
+          "virtual"
+        ]
+      },
+      {
+        "label": "grpc-direct",
+        "ref": "WORKTREE",
+        "java": "D:/jdk-25",
+        "args": [
+          "--system",
+          "grpc",
+          "--connections",
+          "1",
+          "--grpc-executor",
+          "direct"
+        ]
+      }
+    ],
+    "rates": [
+      10000,
+      40000,
+      70000,
+      100000,
+      130000
+    ],
+    "payloadBytes": [
+      64,
+      4096
+    ],
+    "serializer": "kryo",
+    "rounds": 3,
+    "warmupSec": 10,
+    "durationSec": 15,
+    "timeoutSec": 5,
+    "settleSec": 2,
+    "seed": 1,
+    "port": 18080,
+    "registry": "http://localhost:2379",
+    "jvmArgs": [
+      "-Xms1g",
+      "-Xmx1g",
+      "--sun-misc-unsafe-memory-access=allow"
+    ],
+    "maxThreads": 2000,
+    "minFreeMemoryMb": 2048
+  },
+  "targets": {
+    "acrpc": {
+      "label": "acrpc",
+      "ref": "WORKTREE",
+      "java": "D:/jdk-25",
+      "args": [
+        "--connections",
+        "1"
+      ],
+      "sha": "d0f54a0f5c454515fb6ea3798d6dfb4fa42831ec",
+      "dirty": false,
+      "javaVersion": [
+        "openjdk version \"25.0.5.1\" 2026-11-17 LTS",
+        "OpenJDK Runtime Environment Temurin-25.0.5.1+2 (build 25.0.5.1+2-LTS)",
+        "OpenJDK 64-Bit Server VM Temurin-25.0.5.1+2 (build 25.0.5.1+2-LTS, mixed mode, sharing)"
+      ]
+    },
+    "grpc-vt": {
+      "label": "grpc-vt",
+      "ref": "WORKTREE",
+      "java": "D:/jdk-25",
+      "args": [
+        "--system",
+        "grpc",
+        "--connections",
+        "1",
+        "--grpc-executor",
+        "virtual"
+      ],
+      "sha": "d0f54a0f5c454515fb6ea3798d6dfb4fa42831ec",
+      "dirty": false,
+      "javaVersion": [
+        "openjdk version \"25.0.5.1\" 2026-11-17 LTS",
+        "OpenJDK Runtime Environment Temurin-25.0.5.1+2 (build 25.0.5.1+2-LTS)",
+        "OpenJDK 64-Bit Server VM Temurin-25.0.5.1+2 (build 25.0.5.1+2-LTS, mixed mode, sharing)"
+      ]
+    },
+    "grpc-direct": {
+      "label": "grpc-direct",
+      "ref": "WORKTREE",
+      "java": "D:/jdk-25",
+      "args": [
+        "--system",
+        "grpc",
+        "--connections",
+        "1",
+        "--grpc-executor",
+        "direct"
+      ],
+      "sha": "d0f54a0f5c454515fb6ea3798d6dfb4fa42831ec",
+      "dirty": false,
+      "javaVersion": [
+        "openjdk version \"25.0.5.1\" 2026-11-17 LTS",
+        "OpenJDK Runtime Environment Temurin-25.0.5.1+2 (build 25.0.5.1+2-LTS)",
+        "OpenJDK 64-Bit Server VM Temurin-25.0.5.1+2 (build 25.0.5.1+2-LTS, mixed mode, sharing)"
+      ]
+    }
+  },
+  "host": {
+    "platform": "Windows-11-10.0.26200-SP0",
+    "machine": "AMD64",
+    "processor": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+    "cpuCount": 32,
+    "cpuModel": "13th Gen Intel(R) Core(TM) i9-13980HX",
+    "memoryGb": 16
+  },
+  "startedAt": "2026-11-27T07:51:52.529435+00:00",
+  "runs": [
+    {
+      "round": 0,
+      "target": "acrpc",
+      "payload": 4096,
+      "rate": 40000,
+      "file": "acrpc_r0_p4096_rate40000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 3063,
+      "freeMemoryMbAfter": 3538,
+      "lowMemory": false
+    },
+    {
+      "round": 0,
+      "target": "grpc-vt",
+      "payload": 4096,
+      "rate": 40000,
+      "file": "grpc-vt_r0_p4096_rate40000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 3538,
+      "freeMemoryMbAfter": 3707,
+      "lowMemory": false
+    },
+    {
+      "round": 0,
+      "target": "grpc-direct",
+      "payload": 4096,
+      "rate": 40000,
+      "file": "grpc-direct_r0_p4096_rate40000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 3707,
+      "freeMemoryMbAfter": 3827,
+      "lowMemory": false
+    },
+    {
+      "round": 0,
+      "target": "acrpc",
+      "payload": 4096,
+      "rate": 100000,
+      "file": "acrpc_r0_p4096_rate100000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 3828,
+      "freeMemoryMbAfter": 3954,
+      "lowMemory": false
+    },
+    {
+      "round": 0,
+      "target": "grpc-vt",
+      "payload": 4096,
+      "rate": 100000,
+      "file": "grpc-vt_r0_p4096_rate100000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 3953,
+      "freeMemoryMbAfter": 3973,
+      "lowMemory": false
+    },
+    {
+      "round": 0,
+      "target": "grpc-direct",
+      "payload": 4096,
+      "rate": 100000,
+      "file": "grpc-direct_r0_p4096_rate100000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 3973,
+      "freeMemoryMbAfter": 3995,
+      "lowMemory": false
+    },
+    {
+      "round": 0,
+      "target": "acrpc",
+      "payload": 4096,
+      "rate": 130000,
+      "file": "acrpc_r0_p4096_rate130000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 3995,
+      "freeMemoryMbAfter": 4047,
+      "lowMemory": false
+    },
+    {
+      "round": 0,
+      "target": "grpc-vt",
+      "payload": 4096,
+      "rate": 130000,
+      "file": "grpc-vt_r0_p4096_rate130000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4047,
+      "freeMemoryMbAfter": 4044,
+      "lowMemory": false
+    },
+    {
+      "round": 0,
+      "target": "grpc-direct",
+      "payload": 4096,
+      "rate": 130000,
+      "file": "grpc-direct_r0_p4096_rate130000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4044,
+      "freeMemoryMbAfter": 4017,
+      "lowMemory": false
+    },
+    {
+      "round": 0,
+      "target": "acrpc",
+      "payload": 4096,
+      "rate": 70000,
+      "file": "acrpc_r0_p4096_rate70000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4017,
+      "freeMemoryMbAfter": 4034,
+      "lowMemory": false
+    },
+    {
+      "round": 0,
+      "target": "grpc-vt",
+      "payload": 4096,
+      "rate": 70000,
+      "file": "grpc-vt_r0_p4096_rate70000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4034,
+      "freeMemoryMbAfter": 3979,
+      "lowMemory": false
+    },
+    {
+      "round": 0,
+      "target": "grpc-direct",
+      "payload": 4096,
+      "rate": 70000,
+      "file": "grpc-direct_r0_p4096_rate70000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 3979,
+      "freeMemoryMbAfter": 4090,
+      "lowMemory": false
+    },
+    {
+      "round": 0,
+      "target": "acrpc",
+      "payload": 4096,
+      "rate": 10000,
+      "file": "acrpc_r0_p4096_rate10000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4090,
+      "freeMemoryMbAfter": 4235,
+      "lowMemory": false
+    },
+    {
+      "round": 0,
+      "target": "grpc-vt",
+      "payload": 4096,
+      "rate": 10000,
+      "file": "grpc-vt_r0_p4096_rate10000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4235,
+      "freeMemoryMbAfter": 4233,
+      "lowMemory": false
+    },
+    {
+      "round": 0,
+      "target": "grpc-direct",
+      "payload": 4096,
+      "rate": 10000,
+      "file": "grpc-direct_r0_p4096_rate10000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4233,
+      "freeMemoryMbAfter": 4175,
+      "lowMemory": false
+    },
+    {
+      "round": 0,
+      "target": "acrpc",
+      "payload": 64,
+      "rate": 100000,
+      "file": "acrpc_r0_p64_rate100000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4175,
+      "freeMemoryMbAfter": 4160,
+      "lowMemory": false
+    },
+    {
+      "round": 0,
+      "target": "grpc-vt",
+      "payload": 64,
+      "rate": 100000,
+      "file": "grpc-vt_r0_p64_rate100000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4160,
+      "freeMemoryMbAfter": 4046,
+      "lowMemory": false
+    },
+    {
+      "round": 0,
+      "target": "grpc-direct",
+      "payload": 64,
+      "rate": 100000,
+      "file": "grpc-direct_r0_p64_rate100000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4046,
+      "freeMemoryMbAfter": 4027,
+      "lowMemory": false
+    },
+    {
+      "round": 0,
+      "target": "acrpc",
+      "payload": 64,
+      "rate": 10000,
+      "file": "acrpc_r0_p64_rate10000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4027,
+      "freeMemoryMbAfter": 3986,
+      "lowMemory": false
+    },
+    {
+      "round": 0,
+      "target": "grpc-vt",
+      "payload": 64,
+      "rate": 10000,
+      "file": "grpc-vt_r0_p64_rate10000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 3986,
+      "freeMemoryMbAfter": 3965,
+      "lowMemory": false
+    },
+    {
+      "round": 0,
+      "target": "grpc-direct",
+      "payload": 64,
+      "rate": 10000,
+      "file": "grpc-direct_r0_p64_rate10000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 3965,
+      "freeMemoryMbAfter": 3973,
+      "lowMemory": false
+    },
+    {
+      "round": 0,
+      "target": "acrpc",
+      "payload": 64,
+      "rate": 130000,
+      "file": "acrpc_r0_p64_rate130000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 3973,
+      "freeMemoryMbAfter": 3951,
+      "lowMemory": false
+    },
+    {
+      "round": 0,
+      "target": "grpc-vt",
+      "payload": 64,
+      "rate": 130000,
+      "file": "grpc-vt_r0_p64_rate130000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 3951,
+      "freeMemoryMbAfter": 3975,
+      "lowMemory": false
+    },
+    {
+      "round": 0,
+      "target": "grpc-direct",
+      "payload": 64,
+      "rate": 130000,
+      "file": "grpc-direct_r0_p64_rate130000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 3976,
+      "freeMemoryMbAfter": 4085,
+      "lowMemory": false
+    },
+    {
+      "round": 0,
+      "target": "acrpc",
+      "payload": 64,
+      "rate": 40000,
+      "file": "acrpc_r0_p64_rate40000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4085,
+      "freeMemoryMbAfter": 4100,
+      "lowMemory": false
+    },
+    {
+      "round": 0,
+      "target": "grpc-vt",
+      "payload": 64,
+      "rate": 40000,
+      "file": "grpc-vt_r0_p64_rate40000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4100,
+      "freeMemoryMbAfter": 4129,
+      "lowMemory": false
+    },
+    {
+      "round": 0,
+      "target": "grpc-direct",
+      "payload": 64,
+      "rate": 40000,
+      "file": "grpc-direct_r0_p64_rate40000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4129,
+      "freeMemoryMbAfter": 4122,
+      "lowMemory": false
+    },
+    {
+      "round": 0,
+      "target": "acrpc",
+      "payload": 64,
+      "rate": 70000,
+      "file": "acrpc_r0_p64_rate70000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4122,
+      "freeMemoryMbAfter": 4097,
+      "lowMemory": false
+    },
+    {
+      "round": 0,
+      "target": "grpc-vt",
+      "payload": 64,
+      "rate": 70000,
+      "file": "grpc-vt_r0_p64_rate70000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4097,
+      "freeMemoryMbAfter": 4067,
+      "lowMemory": false
+    },
+    {
+      "round": 0,
+      "target": "grpc-direct",
+      "payload": 64,
+      "rate": 70000,
+      "file": "grpc-direct_r0_p64_rate70000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4067,
+      "freeMemoryMbAfter": 3935,
+      "lowMemory": false
+    },
+    {
+      "round": 1,
+      "target": "grpc-direct",
+      "payload": 64,
+      "rate": 130000,
+      "file": "grpc-direct_r1_p64_rate130000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 3935,
+      "freeMemoryMbAfter": 3917,
+      "lowMemory": false
+    },
+    {
+      "round": 1,
+      "target": "grpc-vt",
+      "payload": 64,
+      "rate": 130000,
+      "file": "grpc-vt_r1_p64_rate130000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 3917,
+      "freeMemoryMbAfter": 3961,
+      "lowMemory": false
+    },
+    {
+      "round": 1,
+      "target": "acrpc",
+      "payload": 64,
+      "rate": 130000,
+      "file": "acrpc_r1_p64_rate130000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 3961,
+      "freeMemoryMbAfter": 4026,
+      "lowMemory": false
+    },
+    {
+      "round": 1,
+      "target": "grpc-direct",
+      "payload": 4096,
+      "rate": 100000,
+      "file": "grpc-direct_r1_p4096_rate100000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4026,
+      "freeMemoryMbAfter": 4038,
+      "lowMemory": false
+    },
+    {
+      "round": 1,
+      "target": "grpc-vt",
+      "payload": 4096,
+      "rate": 100000,
+      "file": "grpc-vt_r1_p4096_rate100000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4038,
+      "freeMemoryMbAfter": 4080,
+      "lowMemory": false
+    },
+    {
+      "round": 1,
+      "target": "acrpc",
+      "payload": 4096,
+      "rate": 100000,
+      "file": "acrpc_r1_p4096_rate100000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4080,
+      "freeMemoryMbAfter": 3974,
+      "lowMemory": false
+    },
+    {
+      "round": 1,
+      "target": "grpc-direct",
+      "payload": 64,
+      "rate": 70000,
+      "file": "grpc-direct_r1_p64_rate70000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 3974,
+      "freeMemoryMbAfter": 4047,
+      "lowMemory": false
+    },
+    {
+      "round": 1,
+      "target": "grpc-vt",
+      "payload": 64,
+      "rate": 70000,
+      "file": "grpc-vt_r1_p64_rate70000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4047,
+      "freeMemoryMbAfter": 4009,
+      "lowMemory": false
+    },
+    {
+      "round": 1,
+      "target": "acrpc",
+      "payload": 64,
+      "rate": 70000,
+      "file": "acrpc_r1_p64_rate70000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4009,
+      "freeMemoryMbAfter": 3992,
+      "lowMemory": false
+    },
+    {
+      "round": 1,
+      "target": "grpc-direct",
+      "payload": 4096,
+      "rate": 40000,
+      "file": "grpc-direct_r1_p4096_rate40000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 3992,
+      "freeMemoryMbAfter": 3917,
+      "lowMemory": false
+    },
+    {
+      "round": 1,
+      "target": "grpc-vt",
+      "payload": 4096,
+      "rate": 40000,
+      "file": "grpc-vt_r1_p4096_rate40000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 3917,
+      "freeMemoryMbAfter": 3936,
+      "lowMemory": false
+    },
+    {
+      "round": 1,
+      "target": "acrpc",
+      "payload": 4096,
+      "rate": 40000,
+      "file": "acrpc_r1_p4096_rate40000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 3934,
+      "freeMemoryMbAfter": 3949,
+      "lowMemory": false
+    },
+    {
+      "round": 1,
+      "target": "grpc-direct",
+      "payload": 4096,
+      "rate": 10000,
+      "file": "grpc-direct_r1_p4096_rate10000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 3949,
+      "freeMemoryMbAfter": 3893,
+      "lowMemory": false
+    },
+    {
+      "round": 1,
+      "target": "grpc-vt",
+      "payload": 4096,
+      "rate": 10000,
+      "file": "grpc-vt_r1_p4096_rate10000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 3894,
+      "freeMemoryMbAfter": 3905,
+      "lowMemory": false
+    },
+    {
+      "round": 1,
+      "target": "acrpc",
+      "payload": 4096,
+      "rate": 10000,
+      "file": "acrpc_r1_p4096_rate10000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 3905,
+      "freeMemoryMbAfter": 3912,
+      "lowMemory": false
+    },
+    {
+      "round": 1,
+      "target": "grpc-direct",
+      "payload": 4096,
+      "rate": 130000,
+      "file": "grpc-direct_r1_p4096_rate130000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 3912,
+      "freeMemoryMbAfter": 3876,
+      "lowMemory": false
+    },
+    {
+      "round": 1,
+      "target": "grpc-vt",
+      "payload": 4096,
+      "rate": 130000,
+      "file": "grpc-vt_r1_p4096_rate130000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 3876,
+      "freeMemoryMbAfter": 4426,
+      "lowMemory": false
+    },
+    {
+      "round": 1,
+      "target": "acrpc",
+      "payload": 4096,
+      "rate": 130000,
+      "file": "acrpc_r1_p4096_rate130000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4426,
+      "freeMemoryMbAfter": 4344,
+      "lowMemory": false
+    },
+    {
+      "round": 1,
+      "target": "grpc-direct",
+      "payload": 64,
+      "rate": 10000,
+      "file": "grpc-direct_r1_p64_rate10000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4344,
+      "freeMemoryMbAfter": 4310,
+      "lowMemory": false
+    },
+    {
+      "round": 1,
+      "target": "grpc-vt",
+      "payload": 64,
+      "rate": 10000,
+      "file": "grpc-vt_r1_p64_rate10000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4310,
+      "freeMemoryMbAfter": 4342,
+      "lowMemory": false
+    },
+    {
+      "round": 1,
+      "target": "acrpc",
+      "payload": 64,
+      "rate": 10000,
+      "file": "acrpc_r1_p64_rate10000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4342,
+      "freeMemoryMbAfter": 4286,
+      "lowMemory": false
+    },
+    {
+      "round": 1,
+      "target": "grpc-direct",
+      "payload": 4096,
+      "rate": 70000,
+      "file": "grpc-direct_r1_p4096_rate70000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4286,
+      "freeMemoryMbAfter": 4247,
+      "lowMemory": false
+    },
+    {
+      "round": 1,
+      "target": "grpc-vt",
+      "payload": 4096,
+      "rate": 70000,
+      "file": "grpc-vt_r1_p4096_rate70000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4248,
+      "freeMemoryMbAfter": 4622,
+      "lowMemory": false
+    },
+    {
+      "round": 1,
+      "target": "acrpc",
+      "payload": 4096,
+      "rate": 70000,
+      "file": "acrpc_r1_p4096_rate70000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4622,
+      "freeMemoryMbAfter": 4617,
+      "lowMemory": false
+    },
+    {
+      "round": 1,
+      "target": "grpc-direct",
+      "payload": 64,
+      "rate": 40000,
+      "file": "grpc-direct_r1_p64_rate40000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4617,
+      "freeMemoryMbAfter": 4634,
+      "lowMemory": false
+    },
+    {
+      "round": 1,
+      "target": "grpc-vt",
+      "payload": 64,
+      "rate": 40000,
+      "file": "grpc-vt_r1_p64_rate40000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4634,
+      "freeMemoryMbAfter": 4677,
+      "lowMemory": false
+    },
+    {
+      "round": 1,
+      "target": "acrpc",
+      "payload": 64,
+      "rate": 40000,
+      "file": "acrpc_r1_p64_rate40000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4677,
+      "freeMemoryMbAfter": 4655,
+      "lowMemory": false
+    },
+    {
+      "round": 1,
+      "target": "grpc-direct",
+      "payload": 64,
+      "rate": 100000,
+      "file": "grpc-direct_r1_p64_rate100000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4655,
+      "freeMemoryMbAfter": 4608,
+      "lowMemory": false
+    },
+    {
+      "round": 1,
+      "target": "grpc-vt",
+      "payload": 64,
+      "rate": 100000,
+      "file": "grpc-vt_r1_p64_rate100000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4608,
+      "freeMemoryMbAfter": 4632,
+      "lowMemory": false
+    },
+    {
+      "round": 1,
+      "target": "acrpc",
+      "payload": 64,
+      "rate": 100000,
+      "file": "acrpc_r1_p64_rate100000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4632,
+      "freeMemoryMbAfter": 4637,
+      "lowMemory": false
+    },
+    {
+      "round": 2,
+      "target": "grpc-direct",
+      "payload": 4096,
+      "rate": 70000,
+      "file": "grpc-direct_r2_p4096_rate70000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4637,
+      "freeMemoryMbAfter": 4390,
+      "lowMemory": false
+    },
+    {
+      "round": 2,
+      "target": "grpc-vt",
+      "payload": 4096,
+      "rate": 70000,
+      "file": "grpc-vt_r2_p4096_rate70000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4390,
+      "freeMemoryMbAfter": 4480,
+      "lowMemory": false
+    },
+    {
+      "round": 2,
+      "target": "acrpc",
+      "payload": 4096,
+      "rate": 70000,
+      "file": "acrpc_r2_p4096_rate70000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4480,
+      "freeMemoryMbAfter": 4377,
+      "lowMemory": false
+    },
+    {
+      "round": 2,
+      "target": "grpc-direct",
+      "payload": 4096,
+      "rate": 100000,
+      "file": "grpc-direct_r2_p4096_rate100000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4377,
+      "freeMemoryMbAfter": 4506,
+      "lowMemory": false
+    },
+    {
+      "round": 2,
+      "target": "grpc-vt",
+      "payload": 4096,
+      "rate": 100000,
+      "file": "grpc-vt_r2_p4096_rate100000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4506,
+      "freeMemoryMbAfter": 4541,
+      "lowMemory": false
+    },
+    {
+      "round": 2,
+      "target": "acrpc",
+      "payload": 4096,
+      "rate": 100000,
+      "file": "acrpc_r2_p4096_rate100000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4541,
+      "freeMemoryMbAfter": 4568,
+      "lowMemory": false
+    },
+    {
+      "round": 2,
+      "target": "grpc-direct",
+      "payload": 4096,
+      "rate": 40000,
+      "file": "grpc-direct_r2_p4096_rate40000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4568,
+      "freeMemoryMbAfter": 4528,
+      "lowMemory": false
+    },
+    {
+      "round": 2,
+      "target": "grpc-vt",
+      "payload": 4096,
+      "rate": 40000,
+      "file": "grpc-vt_r2_p4096_rate40000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4528,
+      "freeMemoryMbAfter": 4541,
+      "lowMemory": false
+    },
+    {
+      "round": 2,
+      "target": "acrpc",
+      "payload": 4096,
+      "rate": 40000,
+      "file": "acrpc_r2_p4096_rate40000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4541,
+      "freeMemoryMbAfter": 4622,
+      "lowMemory": false
+    },
+    {
+      "round": 2,
+      "target": "grpc-direct",
+      "payload": 4096,
+      "rate": 130000,
+      "file": "grpc-direct_r2_p4096_rate130000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4622,
+      "freeMemoryMbAfter": 4596,
+      "lowMemory": false
+    },
+    {
+      "round": 2,
+      "target": "grpc-vt",
+      "payload": 4096,
+      "rate": 130000,
+      "file": "grpc-vt_r2_p4096_rate130000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4596,
+      "freeMemoryMbAfter": 4550,
+      "lowMemory": false
+    },
+    {
+      "round": 2,
+      "target": "acrpc",
+      "payload": 4096,
+      "rate": 130000,
+      "file": "acrpc_r2_p4096_rate130000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4550,
+      "freeMemoryMbAfter": 4611,
+      "lowMemory": false
+    },
+    {
+      "round": 2,
+      "target": "grpc-direct",
+      "payload": 4096,
+      "rate": 10000,
+      "file": "grpc-direct_r2_p4096_rate10000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4611,
+      "freeMemoryMbAfter": 4625,
+      "lowMemory": false
+    },
+    {
+      "round": 2,
+      "target": "grpc-vt",
+      "payload": 4096,
+      "rate": 10000,
+      "file": "grpc-vt_r2_p4096_rate10000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4625,
+      "freeMemoryMbAfter": 4671,
+      "lowMemory": false
+    },
+    {
+      "round": 2,
+      "target": "acrpc",
+      "payload": 4096,
+      "rate": 10000,
+      "file": "acrpc_r2_p4096_rate10000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4671,
+      "freeMemoryMbAfter": 4615,
+      "lowMemory": false
+    },
+    {
+      "round": 2,
+      "target": "grpc-direct",
+      "payload": 64,
+      "rate": 10000,
+      "file": "grpc-direct_r2_p64_rate10000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4615,
+      "freeMemoryMbAfter": 4687,
+      "lowMemory": false
+    },
+    {
+      "round": 2,
+      "target": "grpc-vt",
+      "payload": 64,
+      "rate": 10000,
+      "file": "grpc-vt_r2_p64_rate10000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4687,
+      "freeMemoryMbAfter": 4755,
+      "lowMemory": false
+    },
+    {
+      "round": 2,
+      "target": "acrpc",
+      "payload": 64,
+      "rate": 10000,
+      "file": "acrpc_r2_p64_rate10000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4755,
+      "freeMemoryMbAfter": 5011,
+      "lowMemory": false
+    },
+    {
+      "round": 2,
+      "target": "grpc-direct",
+      "payload": 64,
+      "rate": 70000,
+      "file": "grpc-direct_r2_p64_rate70000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 5011,
+      "freeMemoryMbAfter": 4887,
+      "lowMemory": false
+    },
+    {
+      "round": 2,
+      "target": "grpc-vt",
+      "payload": 64,
+      "rate": 70000,
+      "file": "grpc-vt_r2_p64_rate70000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4887,
+      "freeMemoryMbAfter": 4813,
+      "lowMemory": false
+    },
+    {
+      "round": 2,
+      "target": "acrpc",
+      "payload": 64,
+      "rate": 70000,
+      "file": "acrpc_r2_p64_rate70000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4813,
+      "freeMemoryMbAfter": 4790,
+      "lowMemory": false
+    },
+    {
+      "round": 2,
+      "target": "grpc-direct",
+      "payload": 64,
+      "rate": 40000,
+      "file": "grpc-direct_r2_p64_rate40000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4790,
+      "freeMemoryMbAfter": 4757,
+      "lowMemory": false
+    },
+    {
+      "round": 2,
+      "target": "grpc-vt",
+      "payload": 64,
+      "rate": 40000,
+      "file": "grpc-vt_r2_p64_rate40000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4757,
+      "freeMemoryMbAfter": 4643,
+      "lowMemory": false
+    },
+    {
+      "round": 2,
+      "target": "acrpc",
+      "payload": 64,
+      "rate": 40000,
+      "file": "acrpc_r2_p64_rate40000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4643,
+      "freeMemoryMbAfter": 4575,
+      "lowMemory": false
+    },
+    {
+      "round": 2,
+      "target": "grpc-direct",
+      "payload": 64,
+      "rate": 100000,
+      "file": "grpc-direct_r2_p64_rate100000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4575,
+      "freeMemoryMbAfter": 4551,
+      "lowMemory": false
+    },
+    {
+      "round": 2,
+      "target": "grpc-vt",
+      "payload": 64,
+      "rate": 100000,
+      "file": "grpc-vt_r2_p64_rate100000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4551,
+      "freeMemoryMbAfter": 4574,
+      "lowMemory": false
+    },
+    {
+      "round": 2,
+      "target": "acrpc",
+      "payload": 64,
+      "rate": 100000,
+      "file": "acrpc_r2_p64_rate100000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4574,
+      "freeMemoryMbAfter": 4643,
+      "lowMemory": false
+    },
+    {
+      "round": 2,
+      "target": "grpc-direct",
+      "payload": 64,
+      "rate": 130000,
+      "file": "grpc-direct_r2_p64_rate130000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4643,
+      "freeMemoryMbAfter": 4503,
+      "lowMemory": false
+    }
+  ]
+}

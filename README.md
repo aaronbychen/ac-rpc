@@ -138,6 +138,22 @@ Changes: one shared Vert.x instance, a small connection pool per endpoint with r
 
 The knee is around 250k rps. Beyond it, latency jumps by an order of magnitude and the load generator sheds requests at its in-flight cap. Thread count stays at 53 throughout. Caveats: the client and server share one laptop, so they compete for CPU, and loopback hides network cost; multi-host numbers will come later. Latency at 5–20 rps is higher than at 10k rps. The likely causes are JIT warmup (only 50–200 calls fall in the warmup window) and CPU idle states, but this has not been investigated.
 
+### Comparison with gRPC-java
+
+gRPC-java 1.84 runs as the reference: generated Protobuf stubs, plaintext, and blocking stubs on virtual threads, driven exactly like ac-rpc. Both systems use **one connection** and a 3 s deadline. gRPC runs in two server configurations: `grpc-vt` (handlers on virtual threads, the same dispatch as ac-rpc) and `grpc-direct` (`directExecutor`, gRPC's recommended setting for non-blocking handlers). Targets alternate ABBA in each round; ratios are computed per round ([data](bench/results/phase2-grpc-20261127T075133Z/summary.md)). The run stopped after 88 of 90 runs, so the 64 B / 130k cell has two rounds and every other cell has three.
+
+| payload | offered rps | ac-rpc p99 ms | grpc-direct p99 ms | grpc-direct / ac-rpc throughput |
+|---|---|---|---|---|
+| 64 B | 10,000 | 0.32 | 0.39 | 1.00 |
+| 64 B | 40,000 | 0.75 | 4.04 | 1.00 |
+| 64 B | 100,000 | 1.57 | 220 (saturated) | 0.65 [0.64, 0.80] |
+| 64 B | 130,000 | 1.06 | 161 (saturated) | 0.61 [0.60, 0.62] |
+| 4 KB | 10,000 | 0.44 | 0.45 | 1.00 |
+| 4 KB | 40,000 | 18.5 [1.3, 33.5] | 412 (saturated) | 0.98 |
+| 4 KB | 100,000 | 272 (saturated) | 391 (saturated) | 0.77 [0.76, 0.81] |
+
+At 10k rps the two are close; gRPC's p99 is 1.0–1.2× ac-rpc's (1.2–1.4× for `grpc-vt`). On a single connection, ac-rpc sustains 130k rps at 64 B, where gRPC saturates around 65–80k. At 4 KB, ac-rpc's knee is around 50–60k rps and gRPC's is below 40k. The difference is mostly protocol weight. gRPC does HTTP/2 framing, header encoding, flow control, and per-call stream state, and it provides streaming, deadline propagation, interceptors, and cross-language clients. ac-rpc's binary framing supports only unary calls. Several cells are bimodal across rounds, with one round sustaining the offered rate and the others not, which is consistent with laptop thermal throttling over a long run; per-round pairing keeps the ratios stable despite this.
+
 ## Known Limitations
 
 These are tracked and being addressed:
@@ -147,10 +163,11 @@ These are tracked and being addressed:
 - Heartbeats re-grant a new etcd lease instead of using keep-alive
 - `RoundRobinLoadBalancer` goes negative after its counter overflows; `ConsistentHashLoadBalancer` never removes departed nodes from its ring and is not thread-safe
 - Benchmarks so far run client and server on a single host
+- `EtcdRegistry.init()` starts a global cron scheduler, so initializing a second registry in the same JVM throws
 
 ## Roadmap
 
-- Serialization: Protobuf
-- Benchmarks: open-loop load generator (HdrHistogram), paired comparison against gRPC-java
+- Transport: virtual-thread blocking client vs. the Vert.x client, across JDK 21 and 25
+- Benchmarks: multi-host runs
 - Resilience: node-exclusion failover, circuit breaking, fault-injection suite on Kubernetes
 - Observability: OpenTelemetry tracing, Prometheus metrics

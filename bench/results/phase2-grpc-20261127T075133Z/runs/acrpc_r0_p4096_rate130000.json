@@ -1,0 +1,65 @@
+{
+    "labels": {
+        "target": "acrpc",
+        "round": "0"
+    },
+    "config": {
+        "rate": 130000,
+        "warmupSec": 10,
+        "durationSec": 15,
+        "timeoutSec": 5,
+        "payloadBytes": 4096,
+        "maxInFlight": 10000,
+        "maxThreads": 2000,
+        "system": "acrpc",
+        "serializer": "kryo",
+        "connections": "1"
+    },
+    "environment": {
+        "timestamp": "2026-11-27T07:55:14.977522300Z",
+        "javaVersion": "25.0.5.1",
+        "javaVendor": "Eclipse Adoptium",
+        "vmName": "OpenJDK 64-Bit Server VM",
+        "osName": "Windows 11",
+        "osArch": "amd64",
+        "availableProcessors": 32,
+        "maxHeapMb": 1024,
+        "gc": [
+            "G1 Young Generation",
+            "G1 Concurrent GC",
+            "G1 Old Generation"
+        ],
+        "jvmArgs": [
+            "-Xms1g",
+            "-Xmx1g",
+            "--sun-misc-unsafe-memory-access=allow"
+        ]
+    },
+    "counts": {
+        "issued": 1950000,
+        "ok": 1051145,
+        "slow": 0,
+        "errors": 0,
+        "dropped": 898855,
+        "incomplete": 0
+    },
+    "latencyMs": {
+        "count": 1051145,
+        "p50": 139.33,
+        "p90": 168.428,
+        "p99": 212.074,
+        "p999": 231.997,
+        "max": 234.881,
+        "mean": 142.596
+    },
+    "throughputOkPerSec": 70076.333,
+    "errorRate": 0.461,
+    "percentilesReliable": false,
+    "aborted": false,
+    "abortReason": null,
+    "peakThreads": 53,
+    "peakCommittedMb": 1429,
+    "maxSchedulerLagMs": 3.984,
+    "firstError": null,
+    "histogram": "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"
+}
