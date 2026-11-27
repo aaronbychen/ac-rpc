@@ -166,13 +166,45 @@ def run_one(cfg, target, jar, run, out_file, log_file):
         provider.wait()
 
 
+def same_code(sha):
+    """True if everything compiled into the bench jar matches the given commit.
+
+    The harness scripts, configs, results and docs under bench/ and README.md are excluded.
+    """
+    paths = ["--", ".", ":!bench", ":!README.md"]
+    committed = subprocess.run(["git", "diff", "--quiet", sha, "HEAD", *paths], cwd=ROOT).returncode == 0
+    uncommitted = subprocess.run(["git", "diff", "--quiet", "HEAD", *paths], cwd=ROOT).returncode == 0
+    return committed and uncommitted
+
+
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("config")
+    ap.add_argument("config", help="config file, or with --rerun the existing results directory")
     ap.add_argument("--dry-run", action="store_true", help="print the schedule and exit")
+    ap.add_argument("--rerun", action="store_true",
+                    help="re-run one round of one cell, all targets together, inside an existing results directory")
+    ap.add_argument("--round", type=int)
+    ap.add_argument("--payload", type=int)
+    ap.add_argument("--rate", type=int)
     args = ap.parse_args()
-    cfg = json.loads(Path(args.config).read_text())
-    runs = schedule(cfg)
+
+    if args.rerun:
+        out_dir = Path(args.config).resolve()
+        meta = json.loads((out_dir / "meta.json").read_text())
+        cfg = meta["config"]
+        runs = [r for r in schedule(cfg)
+                if (r["round"], r["payload"], r["rate"]) == (args.round, args.payload, args.rate)]
+        if not runs:
+            sys.exit("no such cell in this results directory")
+        # Re-running all targets of the round keeps the round's pairing within one time window
+        for label, t in meta["targets"].items():
+            if t["ref"] == "WORKTREE" and not same_code(t["sha"]):
+                sys.exit(f"source differs from {t['sha'][:12]} used for '{label}'; re-run would not be comparable")
+        meta["runs"] = [r for r in meta["runs"]
+                        if (r["round"], r["payload"], r["rate"]) != (args.round, args.payload, args.rate)]
+    else:
+        cfg = json.loads(Path(args.config).read_text())
+        runs = schedule(cfg)
     per_run = cfg["warmupSec"] + cfg["durationSec"] + cfg.get("settleSec", 2) + 5
     print(f"{len(runs)} runs, roughly {len(runs) * per_run / 60:.0f} min", flush=True)
     if args.dry_run:
@@ -180,10 +212,11 @@ def main():
             print(r)
         return
 
-    stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-    out_dir = ROOT / "bench" / "results" / f"{cfg['name']}-{stamp}"
-    (out_dir / "runs").mkdir(parents=True)
-    (out_dir / "logs").mkdir()
+    if not args.rerun:
+        stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+        out_dir = ROOT / "bench" / "results" / f"{cfg['name']}-{stamp}"
+        (out_dir / "runs").mkdir(parents=True)
+        (out_dir / "logs").mkdir()
 
     targets = {t["label"]: t for t in cfg["targets"]}
     built, target_meta = {}, {}
@@ -192,8 +225,12 @@ def main():
         built[label] = jar
         target_meta[label] = {**t, "sha": sha, "dirty": dirty, "javaVersion": java_version(t["java"])}
 
-    meta = {"config": cfg, "targets": target_meta, "host": host_info(),
-            "startedAt": datetime.now(timezone.utc).isoformat(), "runs": []}
+    if args.rerun:
+        rerun_at = datetime.now(timezone.utc).isoformat()
+    else:
+        rerun_at = None
+        meta = {"config": cfg, "targets": target_meta, "host": host_info(),
+                "startedAt": datetime.now(timezone.utc).isoformat(), "runs": []}
     for i, run in enumerate(runs, 1):
         name = f"{run['target']}_r{run['round']}_p{run['payload']}_rate{run['rate']}.json"
         mem_before = available_memory_mb()
@@ -202,11 +239,13 @@ def main():
         mem_after = available_memory_mb()
         low = mem_before is not None and mem_before < cfg.get("minFreeMemoryMb", 2048)
         meta["runs"].append({**run, "file": name, **status, "freeMemoryMbBefore": mem_before,
-                             "freeMemoryMbAfter": mem_after, "lowMemory": low})
+                             "freeMemoryMbAfter": mem_after, "lowMemory": low,
+                             **({"rerunAt": rerun_at} if rerun_at else {})})
         print(f"[{i}/{len(runs)}] {run['target']} round={run['round']} payload={run['payload']} "
               f"rate={run['rate']} -> {status['status']} (free {mem_before} -> {mem_after} MB)", flush=True)
         (out_dir / "meta.json").write_text(json.dumps(meta, indent=2))
-    meta["finishedAt"] = datetime.now(timezone.utc).isoformat()
+    if not args.rerun:
+        meta["finishedAt"] = datetime.now(timezone.utc).isoformat()
     (out_dir / "meta.json").write_text(json.dumps(meta, indent=2))
     print(f"results: {out_dir.relative_to(ROOT)}")
     subprocess.run([sys.executable, str(Path(__file__).parent / "analyze.py"), str(out_dir)])
