@@ -33,12 +33,13 @@
         <logback.version>1.5.38</logback.version>
         <hessian.version>4.0.66</hessian.version>
         <kryo.version>5.7.1</kryo.version>
-        <jetcd.version>0.7.7</jetcd.version>
+        <jetcd.version>0.8.8</jetcd.version>
         <curator.version>5.6.0</curator.version>
         <guava-retrying.version>2.0.0</guava-retrying.version>
         <hdrhistogram.version>2.2.2</hdrhistogram.version>
         <junit.version>4.13.2</junit.version>
-        <grpc.version>1.86.0</grpc.version>
+        <!-- Aligned with jetcd, which needs grpc-netty on the Netty 4.1 line used by Vert.x 4.5 -->
+        <grpc.version>1.84.0</grpc.version>
         <!-- Matches the protobuf-java version grpc-protobuf is built against -->
         <protobuf.version>3.25.9</protobuf.version>
     </properties>

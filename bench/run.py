@@ -136,9 +136,11 @@ def host_info():
 def run_one(cfg, target, jar, run, out_file, log_file):
     java = java_exe(target["java"])
     jvm = cfg.get("jvmArgs", []) + target.get("jvmArgs", [])
-    common = ["--registry", cfg["registry"], "--serializer", cfg["serializer"]]
     port = cfg["port"]
-    provider = subprocess.Popen([java, *jvm, "-jar", str(jar), "provider", "--port", str(port), *common],
+    # Direct-connect systems (gRPC) need the port; ac-rpc finds the provider through the registry
+    common = ["--registry", cfg["registry"], "--serializer", cfg["serializer"], "--port", str(port),
+              *target.get("args", [])]
+    provider = subprocess.Popen([java, *jvm, "-jar", str(jar), "provider", *common],
                                 stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     try:
         if not wait_for_port(port):
