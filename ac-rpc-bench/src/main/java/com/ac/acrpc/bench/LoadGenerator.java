@@ -2,8 +2,6 @@ package com.ac.acrpc.bench;
 
 import cn.hutool.json.JSONConfig;
 import cn.hutool.json.JSONUtil;
-import com.ac.acrpc.bootstrap.ConsumerBootstrap;
-import com.ac.acrpc.proxy.ServiceProxyFactory;
 import org.HdrHistogram.Histogram;
 import org.HdrHistogram.Recorder;
 
@@ -48,7 +46,7 @@ final class LoadGenerator {
 
     private static final long SPIN_THRESHOLD_NS = TimeUnit.MILLISECONDS.toNanos(2);
 
-    private final EchoService service;
+    private final EchoClient service;
     private final byte[] payload;
     private final Recorder recorder = new Recorder(3);
 
@@ -65,7 +63,7 @@ final class LoadGenerator {
     private volatile int peakThreads;
     private volatile long peakCommittedMb;
 
-    private LoadGenerator(EchoService service, byte[] payload, long timeoutNs) {
+    private LoadGenerator(EchoClient service, byte[] payload, long timeoutNs) {
         this.service = service;
         this.payload = payload;
         this.timeoutNs = timeoutNs;
@@ -81,8 +79,7 @@ final class LoadGenerator {
         int maxThreads = options.getInt("max-threads", 2_000);
         Path out = Path.of(options.require("out"));
 
-        ConsumerBootstrap.init(Main.rpcConfig(options));
-        EchoService service = ServiceProxyFactory.getProxy(EchoService.class);
+        EchoClient service = EchoClient.create(options);
 
         byte[] payload = new byte[payloadBytes];
         new Random(42).nextBytes(payload);
@@ -102,7 +99,9 @@ final class LoadGenerator {
         config.put("payloadBytes", payloadBytes);
         config.put("maxInFlight", maxInFlight);
         config.put("maxThreads", maxThreads);
+        config.put("system", Main.system(options));
         config.put("serializer", options.get("serializer", "kryo"));
+        config.put("connections", options.get("connections", "default"));
 
         Map<String, Object> report = new LinkedHashMap<>();
         report.put("labels", options.withPrefix("label."));
