@@ -58,16 +58,38 @@ public class TcpServerHandler implements Handler<NetSocket> {
         ProtocolMessage.Header header = request.getHeader();
         header.setType((byte) ProtocolMessageTypeEnum.RESPONSE.getKey());
         header.setStatus((byte) ProtocolMessageStatusEnum.OK.getValue());
+        Buffer frame;
         try {
-            socket.write(ProtocolMessageEncoder.encode(new ProtocolMessage<>(header, rpcResponse)));
+            frame = ProtocolMessageEncoder.encode(new ProtocolMessage<>(header, rpcResponse));
         } catch (IOException | RuntimeException e) {
+            // Usually a result the serializer cannot handle; tell the caller instead of letting it time out
             log.error("Failed to encode response for request {}", header.getRequestId(), e);
+            try {
+                frame = ProtocolMessageEncoder.encode(new ProtocolMessage<>(header,
+                        error(new IllegalStateException("Response could not be serialized: " + e))));
+            } catch (IOException | RuntimeException again) {
+                log.error("Failed to encode error response for request {}", header.getRequestId(), again);
+                return;
+            }
+        }
+        try {
+            socket.write(frame);
+        } catch (RuntimeException e) {
+            // The connection or server closed while the call ran; the caller's deadline covers it
+            log.debug("Dropped response for request {}: {}", header.getRequestId(), e.toString());
         }
     }
 
+    private static RpcResponse error(Throwable t) {
+        RpcResponse response = new RpcResponse();
+        response.setErrorType(t.getClass().getName());
+        response.setMessage(t.getMessage());
+        return response;
+    }
+
     private static RpcResponse invoke(RpcRequest rpcRequest) {
-        RpcResponse rpcResponse = new RpcResponse();
         try {
+            RpcResponse rpcResponse = new RpcResponse();
             Class<?> implClass = LocalRegistry.get(rpcRequest.getServiceName());
             if (implClass == null) {
                 throw new IllegalStateException("No provider registered for " + rpcRequest.getServiceName());
@@ -78,16 +100,13 @@ public class TcpServerHandler implements Handler<NetSocket> {
             rpcResponse.setData(result);
             rpcResponse.setDataType(method.getReturnType());
             rpcResponse.setMessage("ok");
+            return rpcResponse;
         } catch (InvocationTargetException e) {
-            Throwable cause = e.getCause();
-            rpcResponse.setMessage(cause.getMessage());
-            rpcResponse.setException(cause instanceof Exception ex ? ex : new RuntimeException(cause));
+            return error(e.getCause());
         } catch (Exception e) {
             log.warn("Failed to invoke {}.{}: {}", rpcRequest.getServiceName(), rpcRequest.getMethodName(), e.toString());
-            rpcResponse.setMessage(e.getMessage());
-            rpcResponse.setException(e);
+            return error(e);
         }
-        return rpcResponse;
     }
 
     private static String methodKey(RpcRequest r) {

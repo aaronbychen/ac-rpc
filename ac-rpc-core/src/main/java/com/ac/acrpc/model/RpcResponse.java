@@ -32,8 +32,10 @@ public class RpcResponse implements Serializable {
     private String message;
 
     /**
-     * Exception, if any
+     * Class name of the exception the service threw, or null on success. Exceptions are sent as
+     * type and message, not as objects: serializers such as Kryo cannot read Throwable's private
+     * fields under the JDK module system, and the caller may not have the class anyway.
      */
-    private Exception exception;
+    private String errorType;
 
 }

@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollUtil;
 import com.ac.acrpc.RpcApplication;
 import com.ac.acrpc.config.RpcConfig;
 import com.ac.acrpc.constant.RpcConstant;
+import com.ac.acrpc.exception.RemoteServiceException;
 import com.ac.acrpc.fault.retry.RetryStrategy;
 import com.ac.acrpc.fault.retry.RetryStrategyFactory;
 import com.ac.acrpc.fault.tolerant.TolerantStrategy;
@@ -62,19 +63,26 @@ public class ServiceProxy implements InvocationHandler {
         Map<String, Object> requestParams = new HashMap<>();
         requestParams.put("methodName", rpcRequest.getMethodName());
         ServiceMetaInfo selectedServiceMetaInfo = loadBalancer.select(requestParams, serviceMetaInfoList);
-        // Send RPC request
-        // with retry
+
+        // Send the request with retries; on failure, apply the fault-tolerance strategy
+        RetryStrategy retryStrategy = RetryStrategyFactory.getInstance(rpcConfig.getRetryStrategy());
+        TolerantStrategy.Invoker invoker = node -> retryStrategy.doRetry(() ->
+                RpcClients.shared().call(rpcRequest, node, rpcConfig.getSerializer(), rpcConfig.getRequestTimeoutMs()));
         RpcResponse rpcResponse;
         try {
-            RetryStrategy retryStrategy = RetryStrategyFactory.getInstance(rpcConfig.getRetryStrategy());
-            rpcResponse = retryStrategy.doRetry(() ->
-                    RpcClients.shared().call(rpcRequest, selectedServiceMetaInfo,
-                            rpcConfig.getSerializer(), rpcConfig.getRequestTimeoutMs())
-            );
+            rpcResponse = invoker.call(selectedServiceMetaInfo);
         } catch (Exception e) {
-            // Fault tolerance
+            Map<String, Object> context = new HashMap<>();
+            context.put(TolerantStrategy.FAILED_NODE, selectedServiceMetaInfo);
+            context.put(TolerantStrategy.CANDIDATES, serviceMetaInfoList);
+            context.put(TolerantStrategy.INVOKER, invoker);
+            context.put(TolerantStrategy.METHOD, method);
             TolerantStrategy tolerantStrategy = TolerantStrategyFactory.getInstance(rpcConfig.getTolerantStrategy());
-            rpcResponse = tolerantStrategy.doTolerant(null, e);
+            rpcResponse = tolerantStrategy.doTolerant(context, e);
+        }
+        // The service itself threw: surface that to the caller, it is not a transport failure
+        if (rpcResponse.getErrorType() != null) {
+            throw RemoteServiceException.rebuild(rpcResponse.getErrorType(), rpcResponse.getMessage(), method);
         }
         return rpcResponse.getData();
     }
