@@ -7,10 +7,10 @@ A distributed RPC framework in Java, built on Vert.x TCP networking with etcd-ba
 - Custom binary protocol with TCP framing (Vert.x `RecordParser`) for sticky/half packets
 - Two interchangeable clients behind one contract: Vert.x event loops, or blocking sockets on virtual threads (`rpc.transport`)
 - JDK dynamic-proxy invocation on the consumer side, reflective dispatch on the provider side
-- Service registry SPI with etcd (lease TTL, heartbeat renewal, watch-driven cache invalidation) and ZooKeeper backends
+- Service registry SPI with etcd and ZooKeeper backends: per-service discovery cache invalidated by prefix watches (no gap between lookup and watch), last-known providers served when the registry is unreachable, and on etcd one kept-alive lease per provider that is re-granted, with every key rewritten, if it is lost
 - Pluggable serializers: JDK / JSON / Kryo / Hessian
-- Pluggable load balancers: round-robin / random / consistent hashing
-- Retry strategies (`no`, `fixedInterval`) and fault-tolerance strategies (`failFast`, `failSafe`)
+- Pluggable load balancers: round-robin / random / consistent hashing (MurmurHash3 ring rebuilt when providers change)
+- Retry strategies (`no`, `fixedInterval`) and fault-tolerance strategies: `failFast`, `failSafe`, `failOver` (each other provider once, in random order), `failBack` (default value). Exceptions thrown by the service reach the caller with their original type and never trigger failover
 - SPI loader for user-supplied extensions (`META-INF/rpc/system/`, `META-INF/rpc/custom/`)
 - Spring Boot starter with annotation-driven wiring (`@EnableRpc`, `@RpcService`, `@RpcReference`)
 
@@ -186,17 +186,13 @@ On JDK 25, v2 sustains 120k rps on one connection with a p99 of 1.0 ms, about a 
 
 ## Known Limitations
 
-These are tracked and being addressed:
-
-- `failOver` / `failBack` tolerant strategies are stubs; retries target the same node
-- The registry's discovery cache is not keyed by service, so multiple services can collide
-- Heartbeats re-grant a new etcd lease instead of using keep-alive
-- `RoundRobinLoadBalancer` goes negative after its counter overflows; `ConsistentHashLoadBalancer` never removes departed nodes from its ring and is not thread-safe
+- `failOver` resends a request that may already have run on the failed provider, so it is only safe for idempotent methods; there is no per-method opt-in yet
+- A crashed provider stays listed until its lease expires (30 s by default), and one that is alive but failing stays listed indefinitely. `failOver` routes around both per call, but there is no outlier ejection or circuit breaking yet
+- Registry integration tests run against etcd only; the ZooKeeper backend shares the cache logic but has no tests
 - Benchmarks so far run client and server on a single host
-- `EtcdRegistry.init()` starts a global cron scheduler, so initializing a second registry in the same JVM throws
 
 ## Roadmap
 
 - Benchmarks: multi-host runs
-- Resilience: node-exclusion failover, circuit breaking, fault-injection suite on Kubernetes
+- Resilience: outlier ejection and circuit breaking, fault-injection suite on Kubernetes
 - Observability: OpenTelemetry tracing, Prometheus metrics
