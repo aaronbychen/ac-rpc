@@ -1,6 +1,7 @@
 package com.ac.acrpc.bootstrap;
 
 import com.ac.acrpc.RpcApplication;
+import com.ac.acrpc.config.RpcConfig;
 
 /**
  * Service consumer startup class (init)
@@ -15,4 +16,10 @@ public class ConsumerBootstrap {
         RpcApplication.init();
     }
 
+    /**
+     * Init with an explicit config
+     */
+    public static void init(RpcConfig rpcConfig) {
+        RpcApplication.init(rpcConfig);
+    }
 }

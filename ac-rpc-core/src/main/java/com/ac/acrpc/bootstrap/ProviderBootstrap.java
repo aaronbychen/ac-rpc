@@ -18,12 +18,22 @@ import java.util.List;
 public class ProviderBootstrap {
 
     /**
-     * Init
+     * Init with config loaded from application.properties
      */
     public static void init(List<ServiceRegisterInfo<?>> serviceRegisterInfoList) {
-        // RPC framework init (config and registry)
         RpcApplication.init();
-        // Global config
+        registerAndStart(serviceRegisterInfoList);
+    }
+
+    /**
+     * Init with an explicit config
+     */
+    public static void init(RpcConfig rpcConfig, List<ServiceRegisterInfo<?>> serviceRegisterInfoList) {
+        RpcApplication.init(rpcConfig);
+        registerAndStart(serviceRegisterInfoList);
+    }
+
+    private static void registerAndStart(List<ServiceRegisterInfo<?>> serviceRegisterInfoList) {
         final RpcConfig rpcConfig = RpcApplication.getRpcConfig();
 
         // Registration services
