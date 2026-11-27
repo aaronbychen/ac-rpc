@@ -35,7 +35,8 @@ def git_sha(ref="HEAD"):
 
 
 def worktree_dirty():
-    return bool(sh(["git", "status", "--porcelain"]).stdout.strip())
+    # Results written by earlier runs are not source changes
+    return bool(sh(["git", "status", "--porcelain", "--", ".", ":!bench/results"]).stdout.strip())
 
 
 def java_exe(java_home):
