@@ -34,8 +34,7 @@ public final class RpcClients {
             case VERTX -> new VertxTcpClient(config.getConnectTimeoutMs(), config.getConnectionsPerEndpoint(),
                     config.getMaxPendingPerConnection());
             case BLOCKING -> new BlockingTcpClient(config.getConnectTimeoutMs(), config.getConnectionsPerEndpoint(),
-                    config.getMaxPendingPerConnection(),
-                    BlockingTcpClient.WriteLock.valueOf(config.getBlockingWriteLock().toUpperCase()));
+                    config.getMaxPendingPerConnection());
             default -> throw new IllegalArgumentException("Unknown transport: " + config.getTransport());
         };
     }

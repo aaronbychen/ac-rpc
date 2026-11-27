@@ -86,9 +86,4 @@ public class RpcConfig {
      * Client transport: "vertx" (event loop) or "blocking" (blocking sockets on virtual threads)
      */
     private String transport = "vertx";
-
-    /**
-     * Write lock for the blocking transport: "reentrant" or "synchronized"
-     */
-    private String blockingWriteLock = "reentrant";
 }

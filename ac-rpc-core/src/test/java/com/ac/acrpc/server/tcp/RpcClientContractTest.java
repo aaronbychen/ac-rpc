@@ -145,6 +145,52 @@ public abstract class RpcClientContractTest {
         assertTrue("threads grew from " + before + " to " + after, after - before < 20);
     }
 
+    /**
+     * A peer that accepts but never reads lets socket buffers fill until writes block. Calls
+     * must still fail at their deadline instead of hanging behind the blocked write.
+     */
+    @Test
+    public void deadlineHoldsWhenPeerStopsReading() throws Exception {
+        List<java.net.Socket> accepted = new java.util.concurrent.CopyOnWriteArrayList<>();
+        try (ServerSocket silent = new ServerSocket(0)) {
+            Thread.ofVirtual().start(() -> {
+                try {
+                    while (true) {
+                        // Hold a reference: an unreferenced socket can be closed by GC, resetting the peer
+                        accepted.add(silent.accept());
+                    }
+                } catch (Exception ignored) {
+                    // server socket closed at the end of the test
+                }
+            });
+            String big = "x".repeat(1 << 20);
+            int calls = 32;
+            List<Future<Long>> durations = new ArrayList<>(calls);
+            try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
+                for (int i = 0; i < calls; i++) {
+                    durations.add(executor.submit(() -> {
+                        long start = System.nanoTime();
+                        try {
+                            client.call(echo(big), endpoint(silent.getLocalPort()), "kryo", 300);
+                            fail("expected timeout");
+                        } catch (TimeoutException expected) {
+                            // deadline passed
+                        }
+                        return elapsedMs(start);
+                    }));
+                }
+                for (Future<Long> d : durations) {
+                    long ms = d.get(10, TimeUnit.SECONDS);
+                    assertTrue("call took " + ms + " ms with a 300 ms deadline", ms < 1500);
+                }
+            }
+        } finally {
+            for (java.net.Socket s : accepted) {
+                s.close();
+            }
+        }
+    }
+
     private static RpcRequest echo(String value) {
         return request("echo", new Class<?>[]{String.class}, new Object[]{value});
     }

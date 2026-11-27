@@ -11,15 +11,19 @@ import io.vertx.core.buffer.Buffer;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -28,33 +32,33 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * Blocking-socket client designed for virtual threads.
  *
- * <p>The calling thread writes its request frame and waits for the response; one virtual
- * thread per connection reads response frames and completes the waiting call by request id.
- * Pooling, multiplexing, deadlines and the in-flight cap match {@link VertxTcpClient}.
+ * <p>Each connection has a writer thread and a reader thread. The writer drains an outbox of request frames and
+ * writes everything queued in one flush, and a reader completes waiting calls by request id.
+ * Callers only enqueue and wait, so the deadline covers the whole call, including time spent
+ * queued, and a stalled socket cannot block callers past their deadline. Pooling, multiplexing
+ * and the in-flight cap match {@link VertxTcpClient}.
  *
- * <p>The write lock can be a {@code synchronized} monitor or a {@link ReentrantLock}. On
- * JDK 21, a virtual thread that blocks while holding or waiting for a monitor pins its carrier
- * thread; JDK 24 removed that restriction (JEP 491). The option exists to measure the effect.
+ * <p>An earlier version (tag {@code blocking-v1}) had each caller write its own frame under a
+ * lock. Under load nearly every in-flight call was queued on that lock, throughput topped out
+ * well below the Vert.x client, and since the deadline only started after the write, a stalled
+ * write could hold every caller indefinitely.
  */
 @Slf4j
 public final class BlockingTcpClient implements RpcClient {
 
-    public enum WriteLock { SYNCHRONIZED, REENTRANT }
+    private static final int MAX_BATCH = 256;
 
     private final int connectTimeoutMs;
     private final int connectionsPerEndpoint;
     private final int maxPendingPerConnection;
-    private final WriteLock writeLock;
     private final ConcurrentMap<String, Endpoint> endpoints = new ConcurrentHashMap<>();
     private final AtomicLong nextRequestId = new AtomicLong();
     private volatile boolean closed;
 
-    public BlockingTcpClient(int connectTimeoutMs, int connectionsPerEndpoint, int maxPendingPerConnection,
-                             WriteLock writeLock) {
+    public BlockingTcpClient(int connectTimeoutMs, int connectionsPerEndpoint, int maxPendingPerConnection) {
         this.connectTimeoutMs = connectTimeoutMs;
         this.connectionsPerEndpoint = connectionsPerEndpoint;
         this.maxPendingPerConnection = maxPendingPerConnection;
-        this.writeLock = writeLock;
     }
 
     @Override
@@ -131,15 +135,14 @@ public final class BlockingTcpClient implements RpcClient {
     }
 
     /**
-     * One socket, its reader thread, and the calls awaiting responses on it.
+     * One socket, its writer and reader threads, and the calls awaiting responses on it.
      */
     private final class Connection {
 
         private final Socket socket;
-        private final OutputStream out;
-        private final Object monitor = new Object();
-        private final ReentrantLock lock = new ReentrantLock();
+        private final LinkedBlockingQueue<byte[]> outbox = new LinkedBlockingQueue<>();
         private final ConcurrentMap<Long, CompletableFuture<RpcResponse>> pending = new ConcurrentHashMap<>();
+        private final Thread writer;
         private volatile boolean closed;
 
         Connection(String host, int port) throws IOException {
@@ -147,7 +150,13 @@ public final class BlockingTcpClient implements RpcClient {
             socket.setTcpNoDelay(true);
             socket.setKeepAlive(true);
             socket.connect(new InetSocketAddress(host, port), connectTimeoutMs);
-            out = socket.getOutputStream();
+            OutputStream out = new BufferedOutputStream(socket.getOutputStream(), 64 * 1024);
+            // The writer is a platform thread so that only one direction of the socket parks in the
+            // JDK's virtual-thread poller. On Windows, a virtual thread blocked reading and another
+            // blocked writing on the same socket can miss their wakeup (JDK-8334574); see
+            // bench/repro/PollerStall.java. One platform thread per connection is cheap.
+            writer = Thread.ofPlatform().daemon().name("acrpc-writer-" + socket.getLocalPort())
+                    .start(() -> writeLoop(out));
             Thread.ofVirtual().name("acrpc-reader-" + socket.getLocalPort()).start(this::readLoop);
         }
 
@@ -161,30 +170,38 @@ public final class BlockingTcpClient implements RpcClient {
             CompletableFuture<RpcResponse> response = new CompletableFuture<>();
             pending.put(requestId, response);
             try {
-                write(frame);
+                outbox.add(frame);
+                if (closed) {
+                    // Closed between the check above and registration; failAll may have missed us
+                    throw new RpcException("Connection closed");
+                }
                 return response.get(timeoutMs, TimeUnit.MILLISECONDS);
             } catch (ExecutionException e) {
                 throw e.getCause() instanceof Exception cause ? cause : e;
-            } catch (IOException e) {
-                close(new RpcException("Write failed: " + e.getMessage()));
-                throw new RpcException("Write failed: " + e.getMessage());
             } finally {
                 pending.remove(requestId);
             }
         }
 
-        private void write(byte[] frame) throws IOException {
-            if (writeLock == WriteLock.SYNCHRONIZED) {
-                synchronized (monitor) {
-                    out.write(frame);
+        /**
+         * Writes every queued frame with a single flush, so syscalls scale with batches, not calls.
+         */
+        private void writeLoop(OutputStream out) {
+            List<byte[]> batch = new ArrayList<>(MAX_BATCH);
+            try {
+                while (!closed) {
+                    batch.add(outbox.take());
+                    outbox.drainTo(batch, MAX_BATCH - 1);
+                    for (byte[] frame : batch) {
+                        out.write(frame);
+                    }
+                    out.flush();
+                    batch.clear();
                 }
-            } else {
-                lock.lock();
-                try {
-                    out.write(frame);
-                } finally {
-                    lock.unlock();
-                }
+            } catch (InterruptedException e) {
+                // closing
+            } catch (IOException e) {
+                close(new RpcException("Write failed: " + e.getMessage()));
             }
         }
 
@@ -224,6 +241,8 @@ public final class BlockingTcpClient implements RpcClient {
                 return;
             }
             closed = true;
+            writer.interrupt();
+            outbox.clear();
             try {
                 socket.close();
             } catch (IOException ignored) {

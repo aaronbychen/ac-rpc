@@ -4,6 +4,6 @@ public class BlockingTcpClientTest extends RpcClientContractTest {
 
     @Override
     protected RpcClient newClient() {
-        return new BlockingTcpClient(1000, 2, 10_000, BlockingTcpClient.WriteLock.REENTRANT);
+        return new BlockingTcpClient(1000, 2, 10_000);
     }
 }

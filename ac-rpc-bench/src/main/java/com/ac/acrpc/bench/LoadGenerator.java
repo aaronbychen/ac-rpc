@@ -103,7 +103,6 @@ final class LoadGenerator {
         config.put("serializer", options.get("serializer", "kryo"));
         config.put("connections", options.get("connections", "default"));
         config.put("transport", options.get("transport", "vertx"));
-        config.put("writeLock", options.get("write-lock", "reentrant"));
 
         Map<String, Object> report = new LinkedHashMap<>();
         report.put("labels", options.withPrefix("label."));
