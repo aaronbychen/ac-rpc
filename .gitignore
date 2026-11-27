@@ -36,3 +36,4 @@ resume.md
 
 # Benchmark scratch (worktrees, built jars)
 .bench/
+__pycache__/

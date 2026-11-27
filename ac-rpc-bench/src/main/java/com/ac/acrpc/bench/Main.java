@@ -33,8 +33,13 @@ public final class Main {
         config.setConnectionsPerEndpoint(options.getInt("connections", config.getConnectionsPerEndpoint()));
         config.setRequestTimeoutMs(options.getInt("deadline-ms", (int) config.getRequestTimeoutMs()));
         config.setTransport(options.get("transport", config.getTransport()));
+        config.setTolerantStrategy(options.get("tolerant", config.getTolerantStrategy()));
+        config.setRetryStrategy(options.get("retry", config.getRetryStrategy()));
+        config.setConnectTimeoutMs(options.getInt("connect-timeout-ms", config.getConnectTimeoutMs()));
+        config.setOutlierEjection(Boolean.parseBoolean(options.get("outlier-ejection", String.valueOf(config.isOutlierEjection()))));
         RegistryConfig registry = new RegistryConfig();
         registry.setAddress(options.get("registry", "http://localhost:2379"));
+        registry.setLeaseTtlSeconds(options.getInt("lease-ttl", (int) registry.getLeaseTtlSeconds()));
         config.setRegistryConfig(registry);
         return config;
     }

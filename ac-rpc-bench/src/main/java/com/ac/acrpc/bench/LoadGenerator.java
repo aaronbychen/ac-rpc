@@ -2,6 +2,7 @@ package com.ac.acrpc.bench;
 
 import cn.hutool.json.JSONConfig;
 import cn.hutool.json.JSONUtil;
+import org.HdrHistogram.ConcurrentHistogram;
 import org.HdrHistogram.Histogram;
 import org.HdrHistogram.Recorder;
 
@@ -12,6 +13,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -21,6 +23,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLongArray;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.concurrent.locks.LockSupport;
 
@@ -63,10 +66,66 @@ final class LoadGenerator {
     private volatile int peakThreads;
     private volatile long peakCommittedMb;
 
+    /**
+     * Optional per-second outcomes, bucketed by each request's intended send time relative to the
+     * start of the measured window, so a fault at second N shows up in bucket N.
+     */
+    private Timeline timeline;
+
+    /**
+     * Optional fault: forcibly kill this process (like kill -9) this many seconds into the window.
+     */
+    private long killPid;
+    private double killAtSec;
+    private volatile long killedAtNs;
+
     private LoadGenerator(EchoClient service, byte[] payload, long timeoutNs) {
         this.service = service;
         this.payload = payload;
         this.timeoutNs = timeoutNs;
+    }
+
+    private static final class Timeline {
+        final AtomicLongArray issued;
+        final AtomicLongArray ok;
+        final AtomicLongArray errors;
+        final Histogram[] latency;
+        final long startNs;
+
+        Timeline(int seconds, long startNs) {
+            issued = new AtomicLongArray(seconds);
+            ok = new AtomicLongArray(seconds);
+            errors = new AtomicLongArray(seconds);
+            latency = new Histogram[seconds];
+            for (int i = 0; i < seconds; i++) {
+                latency[i] = new ConcurrentHistogram(3);
+            }
+            this.startNs = startNs;
+        }
+
+        int bucket(long intendedNs) {
+            int b = (int) ((intendedNs - startNs) / 1_000_000_000L);
+            return b >= 0 && b < issued.length() ? b : -1;
+        }
+
+        List<Map<String, Object>> toJson() {
+            List<Map<String, Object>> rows = new ArrayList<>();
+            for (int i = 0; i < issued.length(); i++) {
+                Map<String, Object> row = new LinkedHashMap<>();
+                row.put("sec", i);
+                row.put("issued", issued.get(i));
+                row.put("ok", ok.get(i));
+                row.put("errors", errors.get(i));
+                Histogram h = latency[i];
+                if (h.getTotalCount() > 0) {
+                    row.put("p50", ms(h.getValueAtPercentile(50)));
+                    row.put("p99", ms(h.getValueAtPercentile(99)));
+                    row.put("max", ms(h.getMaxValue()));
+                }
+                rows.add(row);
+            }
+            return rows;
+        }
     }
 
     static void run(Options options) throws Exception {
@@ -89,6 +148,13 @@ final class LoadGenerator {
         }
 
         LoadGenerator generator = new LoadGenerator(service, payload, secondsToNanos(timeoutSec));
+        boolean withTimeline = Boolean.parseBoolean(options.get("timeline", "false"));
+        generator.killPid = Long.parseLong(options.get("kill-pid", "0"));
+        generator.killAtSec = options.getDouble("kill-at", 0);
+        if (withTimeline) {
+            // Created in drive(), once the window's start time is known
+            generator.timeline = new Timeline(0, 0);
+        }
         Map<String, Object> result = generator.drive(rate, warmupSec, durationSec, timeoutSec, maxInFlight, maxThreads);
 
         Map<String, Object> config = new LinkedHashMap<>();
@@ -103,6 +169,10 @@ final class LoadGenerator {
         config.put("serializer", options.get("serializer", "kryo"));
         config.put("connections", options.get("connections", "default"));
         config.put("transport", options.get("transport", "vertx"));
+        config.put("tolerant", options.get("tolerant", "failFast"));
+        config.put("retry", options.get("retry", "no"));
+        config.put("leaseTtlSec", options.getInt("lease-ttl", 30));
+        config.put("outlierEjection", options.get("outlier-ejection", "true"));
 
         Map<String, Object> report = new LinkedHashMap<>();
         report.put("labels", options.withPrefix("label."));
@@ -128,6 +198,12 @@ final class LoadGenerator {
         long maxLagNs = 0;
         long hardDeadline = measureEnd + secondsToNanos(timeoutSec) + TimeUnit.SECONDS.toNanos(30);
         Thread monitor = startMonitor(maxThreads, hardDeadline);
+        if (timeline != null) {
+            timeline = new Timeline((int) Math.ceil(durationSec), measureStart);
+        }
+        if (killPid > 0) {
+            scheduleKill(measureStart + secondsToNanos(killAtSec));
+        }
 
         // Not closed with try-with-resources: close() would wait forever on requests the client never completes
         ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
@@ -148,9 +224,16 @@ final class LoadGenerator {
                     issuedMeasured++;
                     maxLagNs = Math.max(maxLagNs, now - intended);
                 }
+                int bucket = measured && timeline != null ? timeline.bucket(intended) : -1;
+                if (bucket >= 0) {
+                    timeline.issued.incrementAndGet(bucket);
+                }
                 if (inFlight.get() >= maxInFlight) {
                     if (measured) {
                         dropped.increment();
+                        if (bucket >= 0) {
+                            timeline.errors.incrementAndGet(bucket);
+                        }
                     }
                     continue;
                 }
@@ -174,6 +257,17 @@ final class LoadGenerator {
                     Math.max(1e-9, (windowEnd - measureStart) / 1e9), maxLagNs);
             if (abortReason != null) {
                 result.put("abortedAfterSec", round((abortAtNs - start) / 1e9));
+            }
+            if (killPid > 0) {
+                Map<String, Object> fault = new LinkedHashMap<>();
+                fault.put("type", "kill");
+                fault.put("pid", killPid);
+                fault.put("plannedAtSec", killAtSec);
+                fault.put("killedAtSec", killedAtNs == 0 ? null : round((killedAtNs - measureStart) / 1e9));
+                result.put("fault", fault);
+            }
+            if (timeline != null) {
+                result.put("timeline", timeline.toJson());
             }
             return result;
         } finally {
@@ -206,6 +300,23 @@ final class LoadGenerator {
         return monitor;
     }
 
+    /**
+     * Kills the target process at {@code atNs}; destroyForcibly is TerminateProcess on Windows and
+     * SIGKILL elsewhere, so the provider gets no chance to unregister.
+     */
+    private void scheduleKill(long atNs) {
+        Thread.ofPlatform().daemon().name("bench-fault").start(() -> {
+            long wait;
+            while ((wait = atNs - System.nanoTime()) > 0) {
+                LockSupport.parkNanos(wait);
+            }
+            ProcessHandle.of(killPid).ifPresentOrElse(handle -> {
+                killedAtNs = System.nanoTime();
+                handle.destroyForcibly();
+            }, () -> System.err.println("kill target " + killPid + " not found"));
+        });
+    }
+
     private void abort(String reason) {
         abortAtNs = System.nanoTime();
         abortReason = reason;
@@ -220,9 +331,18 @@ final class LoadGenerator {
             }
             if (reply == null || reply.length != payload.length) {
                 recordError("unexpected reply");
+                int bucket = timeline != null ? timeline.bucket(intended) : -1;
+                if (bucket >= 0) {
+                    timeline.errors.incrementAndGet(bucket);
+                }
                 return;
             }
             recorder.recordValue(latency);
+            int bucket = timeline != null ? timeline.bucket(intended) : -1;
+            if (bucket >= 0) {
+                timeline.ok.incrementAndGet(bucket);
+                timeline.latency[bucket].recordValue(latency);
+            }
             if (latency > timeoutNs) {
                 slow.increment();
             } else {
@@ -231,6 +351,10 @@ final class LoadGenerator {
         } catch (Throwable t) {
             if (measured) {
                 recordError(t.toString());
+                int bucket = timeline != null ? timeline.bucket(intended) : -1;
+                if (bucket >= 0) {
+                    timeline.errors.incrementAndGet(bucket);
+                }
             }
         } finally {
             inFlight.decrementAndGet();

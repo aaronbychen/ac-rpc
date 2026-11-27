@@ -1,0 +1,61 @@
+{
+  "name": "failover",
+  "java": "D:/jdk-25",
+  "jvmArgs": [
+    "-Xms512m",
+    "-Xmx512m",
+    "--sun-misc-unsafe-memory-access=allow"
+  ],
+  "registry": "http://localhost:2379",
+  "etcdContainer": "ac-rpc-etcd",
+  "serializer": "kryo",
+  "providers": 3,
+  "basePort": 18081,
+  "leaseTtlSec": 30,
+  "rate": 2000,
+  "payload": 64,
+  "warmupSec": 5,
+  "durationSec": 50,
+  "killAtSec": 10,
+  "timeoutSec": 5,
+  "settleSec": 2,
+  "rounds": 3,
+  "scenarios": [
+    {
+      "label": "failFast",
+      "args": [
+        "--tolerant",
+        "failFast",
+        "--outlier-ejection",
+        "false"
+      ]
+    },
+    {
+      "label": "failOver",
+      "args": [
+        "--tolerant",
+        "failOver",
+        "--outlier-ejection",
+        "false"
+      ]
+    },
+    {
+      "label": "failFast+ejection",
+      "args": [
+        "--tolerant",
+        "failFast",
+        "--outlier-ejection",
+        "true"
+      ]
+    },
+    {
+      "label": "failOver+ejection",
+      "args": [
+        "--tolerant",
+        "failOver",
+        "--outlier-ejection",
+        "true"
+      ]
+    }
+  ]
+}
