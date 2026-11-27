@@ -11,6 +11,7 @@ A distributed RPC framework in Java, built on Vert.x TCP networking with etcd-ba
 - Pluggable serializers: JDK / JSON / Kryo / Hessian
 - Pluggable load balancers: round-robin / random / consistent hashing (MurmurHash3 ring rebuilt when providers change)
 - Retry strategies (`no`, `fixedInterval`) and fault-tolerance strategies: `failFast`, `failSafe`, `failOver` (each other provider once, in random order), `failBack` (default value). Exceptions thrown by the service reach the caller with their original type and never trigger failover
+- Outlier ejection: three consecutive transport failures take a provider out of load balancing, with exponential backoff (1 s to 30 s) before it is tried again
 - SPI loader for user-supplied extensions (`META-INF/rpc/system/`, `META-INF/rpc/custom/`)
 - Spring Boot starter with annotation-driven wiring (`@EnableRpc`, `@RpcService`, `@RpcReference`)
 
@@ -184,15 +185,30 @@ On JDK 25, v2 sustains 120k rps on one connection with a p99 of 1.0 ms, about a 
 
 **A JDK bug on the way.** With the writer as a virtual thread, v2 occasionally stalled for seconds on Windows and JDK 25. A virtual thread blocked reading and another blocked writing on the same socket could both miss their wakeup. [`bench/repro/PollerStall.java`](bench/repro/PollerStall.java) reproduces it with no RPC code. This is JDK-8334574: Windows' wepoll can lose events when one socket has both a read and a write poll outstanding. It is fixed upstream (JDK-8394217, which removes write pollers on Windows) but not in JDK 25 updates. The writer is now a platform thread, one per connection, so only reads park in the virtual-thread poller. With the upstream fix adapted to a local jdk25u build, the reproducer went from 6/6 stalls to 0/6.
 
+### Killing a provider under load
+
+Three providers on one host, 2,000 rps open loop through etcd discovery (lease TTL 30 s). Ten seconds into a 50 s window, the load generator kills provider 0 with `TerminateProcess`, so it never unregisters. The two strategies are crossed with outlier ejection, 3 rounds each ([data](bench/results/failover-20261127T205432Z/summary.md); `python bench/failover.py bench/configs/failover.json`):
+
+| strategy | ejection | failed calls after kill | errors until (s after kill) | worst per-second p99 |
+|---|---|---|---|---|
+| `failFast` | off | 14,645 [14,642, 14,827] | 22 [22, 23] | 11 ms |
+| `failOver` | off | 0 | — | 15 ms |
+| `failFast` | on | 17 [16, 18] | 16 | 0.5 ms |
+| `failOver` | on | 0 | — | 0.6 ms |
+
+Pre-kill p99 is 0.41–0.49 ms in every run. Without ejection, round robin keeps sending a third of the traffic to the dead provider until etcd expires its lease, 22–23 s after the kill (the TTL minus the time since the last keep-alive). `failFast` fails all of those calls. `failOver` saves them, but each first waits for a refused connect, which raises p99 to 11–15 ms. With ejection, three failures take the provider out within the first second. It is tried again after 1, 2, 4 and 8 s, three failed calls each time, which accounts for the 16–18 failures, and then the lease expires. Combined with `failOver`, callers saw no errors and p99 stayed under 0.6 ms.
+
+The p99 of calls to the *healthy* providers also rose to about 11 ms without ejection under `failFast`. This happens with the Vert.x client but not with the blocking client (p99 stayed at 0.45–0.51 ms in a smoke test), and it disappears once ejection stops the reconnect attempts. The client's CPU was idle according to a JFR profile, and a non-blocking connect to the closed port returns in under 1 ms, so the event loop is not blocked in the call itself. The exact mechanism inside Vert.x/Netty has not been identified.
+
 ## Known Limitations
 
 - `failOver` resends a request that may already have run on the failed provider, so it is only safe for idempotent methods; there is no per-method opt-in yet
-- A crashed provider stays listed until its lease expires (30 s by default), and one that is alive but failing stays listed indefinitely. `failOver` routes around both per call, but there is no outlier ejection or circuit breaking yet
+- Outlier ejection counts only transport failures and deadlines. A provider that answers quickly with errors, or is slow but within the deadline, stays in rotation
 - Registry integration tests run against etcd only; the ZooKeeper backend shares the cache logic but has no tests
 - Benchmarks so far run client and server on a single host
 
 ## Roadmap
 
 - Benchmarks: multi-host runs
-- Resilience: outlier ejection and circuit breaking, fault-injection suite on Kubernetes
+- Resilience: fault-injection suite on Kubernetes (network partitions, slow and flapping providers), latency-based ejection
 - Observability: OpenTelemetry tracing, Prometheus metrics
