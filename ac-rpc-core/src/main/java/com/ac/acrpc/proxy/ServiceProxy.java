@@ -5,6 +5,7 @@ import com.ac.acrpc.RpcApplication;
 import com.ac.acrpc.config.RpcConfig;
 import com.ac.acrpc.constant.RpcConstant;
 import com.ac.acrpc.exception.RemoteServiceException;
+import com.ac.acrpc.fault.OutlierDetector;
 import com.ac.acrpc.fault.retry.RetryStrategy;
 import com.ac.acrpc.fault.retry.RetryStrategyFactory;
 import com.ac.acrpc.fault.tolerant.TolerantStrategy;
@@ -62,19 +63,35 @@ public class ServiceProxy implements InvocationHandler {
         // Use the method name (request path) as the load balancing key
         Map<String, Object> requestParams = new HashMap<>();
         requestParams.put("methodName", rpcRequest.getMethodName());
-        ServiceMetaInfo selectedServiceMetaInfo = loadBalancer.select(requestParams, serviceMetaInfoList);
+        OutlierDetector outliers = OutlierDetector.shared();
+        List<ServiceMetaInfo> candidates = outliers == null ? serviceMetaInfoList : outliers.available(serviceMetaInfoList);
+        ServiceMetaInfo selectedServiceMetaInfo = loadBalancer.select(requestParams, candidates);
 
         // Send the request with retries; on failure, apply the fault-tolerance strategy
         RetryStrategy retryStrategy = RetryStrategyFactory.getInstance(rpcConfig.getRetryStrategy());
-        TolerantStrategy.Invoker invoker = node -> retryStrategy.doRetry(() ->
-                RpcClients.shared().call(rpcRequest, node, rpcConfig.getSerializer(), rpcConfig.getRequestTimeoutMs()));
+        TolerantStrategy.Invoker invoker = node -> retryStrategy.doRetry(() -> {
+            try {
+                RpcResponse response = RpcClients.shared().call(rpcRequest, node, rpcConfig.getSerializer(),
+                        rpcConfig.getRequestTimeoutMs());
+                if (outliers != null) {
+                    outliers.onSuccess(node);
+                }
+                return response;
+            } catch (Exception e) {
+                // Only transport failures land here; a service exception arrives as a normal response
+                if (outliers != null) {
+                    outliers.onFailure(node);
+                }
+                throw e;
+            }
+        });
         RpcResponse rpcResponse;
         try {
             rpcResponse = invoker.call(selectedServiceMetaInfo);
         } catch (Exception e) {
             Map<String, Object> context = new HashMap<>();
             context.put(TolerantStrategy.FAILED_NODE, selectedServiceMetaInfo);
-            context.put(TolerantStrategy.CANDIDATES, serviceMetaInfoList);
+            context.put(TolerantStrategy.CANDIDATES, candidates);
             context.put(TolerantStrategy.INVOKER, invoker);
             context.put(TolerantStrategy.METHOD, method);
             TolerantStrategy tolerantStrategy = TolerantStrategyFactory.getInstance(rpcConfig.getTolerantStrategy());

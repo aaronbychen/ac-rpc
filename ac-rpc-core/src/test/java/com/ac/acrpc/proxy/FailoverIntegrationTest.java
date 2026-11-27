@@ -76,6 +76,17 @@ public class FailoverIntegrationTest {
         survivor.doStart(survivorPort);
         registry.register(node(crashedPort));
         registry.register(node(survivorPort));
+        try {
+            crashAndCall(crashed);
+        } finally {
+            registry.unRegister(node(crashedPort));
+            registry.unRegister(node(survivorPort));
+            survivor.stop();
+            survivor = null;
+        }
+    }
+
+    private void crashAndCall(VertxTcpServer crashed) {
 
         Greeter greeter = ServiceProxyFactory.getProxy(Greeter.class);
         for (int i = 0; i < 10; i++) {
@@ -85,6 +96,7 @@ public class FailoverIntegrationTest {
         // Crash without unregistering: the registry keeps listing the dead provider until its lease expires
         crashed.stop();
 
+        config.setOutlierEjection(false);
         config.setTolerantStrategy(TolerantStrategyKeys.FAIL_FAST);
         int failures = 0;
         for (int i = 0; i < 10; i++) {
@@ -100,6 +112,40 @@ public class FailoverIntegrationTest {
         config.setTolerantStrategy(TolerantStrategyKeys.FAIL_OVER);
         for (int i = 0; i < 20; i++) {
             assertEquals("hello " + i, greeter.greet(String.valueOf(i)));
+        }
+    }
+
+    @Test
+    public void outlierEjectionStopsRoutingToACrashedProvider() throws Exception {
+        int crashedPort = freePort();
+        int healthyPort = freePort();
+        VertxTcpServer crashed = new VertxTcpServer();
+        crashed.doStart(crashedPort);
+        VertxTcpServer healthy = new VertxTcpServer();
+        healthy.doStart(healthyPort);
+        try {
+            registry.register(node(crashedPort));
+            registry.register(node(healthyPort));
+            config.setOutlierEjection(true);
+            config.setTolerantStrategy(TolerantStrategyKeys.FAIL_FAST);
+            Greeter greeter = ServiceProxyFactory.getProxy(Greeter.class);
+            greeter.greet("warm");
+
+            crashed.stop();
+            int failures = 0;
+            for (int i = 0; i < 50; i++) {
+                try {
+                    greeter.greet("x");
+                } catch (RuntimeException e) {
+                    failures++;
+                }
+            }
+            // Three consecutive failures eject it; without ejection about half of the 50 calls would fail
+            assertTrue("failed " + failures + " of 50", failures <= 3);
+        } finally {
+            registry.unRegister(node(crashedPort));
+            registry.unRegister(node(healthyPort));
+            healthy.stop();
         }
     }
 

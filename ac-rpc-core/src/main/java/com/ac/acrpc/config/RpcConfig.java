@@ -86,4 +86,24 @@ public class RpcConfig {
      * Client transport: "vertx" (event loop) or "blocking" (blocking sockets on virtual threads)
      */
     private String transport = "vertx";
+
+    /**
+     * Skip providers that keep failing at the transport level until they recover
+     */
+    private boolean outlierEjection = true;
+
+    /**
+     * Consecutive transport failures that eject a provider
+     */
+    private int outlierConsecutiveFailures = 3;
+
+    /**
+     * First ejection length; each further ejection doubles it
+     */
+    private long outlierBaseEjectionMs = 1000;
+
+    /**
+     * Longest ejection
+     */
+    private long outlierMaxEjectionMs = 30_000;
 }
