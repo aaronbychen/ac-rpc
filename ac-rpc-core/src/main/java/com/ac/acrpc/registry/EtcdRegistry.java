@@ -1,208 +1,321 @@
 package com.ac.acrpc.registry;
 
-import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.collection.ConcurrentHashSet;
-import cn.hutool.cron.CronUtil;
-import cn.hutool.cron.task.Task;
 import cn.hutool.json.JSONUtil;
 import com.ac.acrpc.config.RegistryConfig;
 import com.ac.acrpc.model.ServiceMetaInfo;
-import io.etcd.jetcd.*;
+import io.etcd.jetcd.ByteSequence;
+import io.etcd.jetcd.Client;
+import io.etcd.jetcd.KV;
+import io.etcd.jetcd.Lease;
+import io.etcd.jetcd.Watch;
+import io.etcd.jetcd.kv.GetResponse;
+import io.etcd.jetcd.lease.LeaseKeepAliveResponse;
 import io.etcd.jetcd.options.GetOption;
 import io.etcd.jetcd.options.PutOption;
-import io.etcd.jetcd.watch.WatchEvent;
+import io.etcd.jetcd.options.WatchOption;
+import io.etcd.jetcd.support.CloseableClient;
+import io.grpc.stub.StreamObserver;
+import lombok.extern.slf4j.Slf4j;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * Etcd registry
+ * etcd registry.
+ *
+ * <p>Providers attach all their keys to one lease and keep it alive over etcd's keep-alive
+ * stream. If the lease is lost (for example, etcd was unreachable for longer than the TTL), a
+ * new lease is granted and every local key is written again.
+ *
+ * <p>Consumers watch each discovered service's key prefix, starting at the revision of the
+ * lookup, so no change between the lookup and the watch is missed. Any change invalidates that
+ * service's cache entry. If etcd is unreachable, discovery falls back to the last known
+ * providers rather than failing.
  */
+@Slf4j
 public class EtcdRegistry implements Registry {
 
-    private Client client;
-
-    private KV kvClient;
-
-    /**
-     * Keys of nodes registered by this host (for lease renewal)
-     */
-    private final Set<String> localRegisterNodeKeySet = new HashSet<>();
-
-    /**
-     * Service cache
-     */
-    private final RegistryServiceCache registryServiceCache = new RegistryServiceCache();
-
-    /**
-     * Keys currently being watched
-     */
-    private final Set<String> watchingKeySet = new ConcurrentHashSet<>();
-
-    /**
-     * Root path
-     */
     private static final String ETCD_ROOT_PATH = "/rpc/";
+
+    private Client client;
+    private KV kvClient;
+    private Lease leaseClient;
+    private Watch watchClient;
+    private long timeoutMs;
+    private long leaseTtlSeconds;
+
+    /**
+     * Keys registered by this process, with their values, for re-registration after lease loss
+     */
+    private final ConcurrentMap<String, String> localNodes = new ConcurrentHashMap<>();
+
+    private final Object leaseLock = new Object();
+    private long leaseId;
+    private CloseableClient keepAlive;
+    private final AtomicBoolean recovering = new AtomicBoolean();
+
+    private final RegistryServiceCache registryServiceCache = new RegistryServiceCache();
+    private final ConcurrentMap<String, Watch.Watcher> watchers = new ConcurrentHashMap<>();
+    private volatile boolean destroyed;
 
     @Override
     public void init(RegistryConfig registryConfig) {
+        timeoutMs = registryConfig.getTimeout();
+        leaseTtlSeconds = registryConfig.getLeaseTtlSeconds();
         client = Client.builder()
                 .endpoints(registryConfig.getAddress())
-                .connectTimeout(Duration.ofMillis(registryConfig.getTimeout()))
+                .connectTimeout(Duration.ofMillis(timeoutMs))
                 .build();
         kvClient = client.getKVClient();
-        heartBeat();
+        leaseClient = client.getLeaseClient();
+        watchClient = client.getWatchClient();
     }
 
     @Override
     public void register(ServiceMetaInfo serviceMetaInfo) throws Exception {
-        // Create lease and KV clients
-        Lease leaseClient = client.getLeaseClient();
-
-        // Create a 30-second lease
-        long leaseId = leaseClient.grant(30).get().getID();
-
-        // Build the key-value pair
-        String registerKey = ETCD_ROOT_PATH + serviceMetaInfo.getServiceNodeKey();
-        ByteSequence key = ByteSequence.from(registerKey, StandardCharsets.UTF_8);
-        ByteSequence value = ByteSequence.from(JSONUtil.toJsonStr(serviceMetaInfo), StandardCharsets.UTF_8);
-
-        // Put the key-value pair bound to the lease
-        PutOption putOption = PutOption.builder().withLeaseId(leaseId).build();
-        kvClient.put(key, value, putOption).get();
-        // Track the key locally
-        localRegisterNodeKeySet.add(registerKey);
+        String key = ETCD_ROOT_PATH + serviceMetaInfo.getServiceNodeKey();
+        String value = JSONUtil.toJsonStr(serviceMetaInfo);
+        localNodes.put(key, value);
+        try {
+            put(key, value, currentLease());
+        } catch (Exception e) {
+            localNodes.remove(key);
+            throw e;
+        }
     }
 
     @Override
     public void unRegister(ServiceMetaInfo serviceMetaInfo) {
-        String registerKey = ETCD_ROOT_PATH + serviceMetaInfo.getServiceNodeKey();
-        kvClient.delete(ByteSequence.from(registerKey, StandardCharsets.UTF_8));
-        // Remove from local set too
-        localRegisterNodeKeySet.remove(registerKey);
+        String key = ETCD_ROOT_PATH + serviceMetaInfo.getServiceNodeKey();
+        localNodes.remove(key);
+        try {
+            kvClient.delete(bytes(key)).get(timeoutMs, TimeUnit.MILLISECONDS);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to unregister " + key, e);
+        }
     }
 
     @Override
     public List<ServiceMetaInfo> serviceDiscovery(String serviceKey) {
-        // Try the cache first
-        List<ServiceMetaInfo> cachedServiceMetaInfoList = registryServiceCache.readCache();
-        if (cachedServiceMetaInfoList != null) {
-            return cachedServiceMetaInfoList;
+        List<ServiceMetaInfo> cached = registryServiceCache.read(serviceKey);
+        if (cached != null) {
+            return cached;
         }
-
-        // Prefix search; must end with '/'
-        String searchPrefix = ETCD_ROOT_PATH + serviceKey + "/";
-
+        long generation = registryServiceCache.generation(serviceKey);
         try {
-            // Prefix query
-            GetOption getOption = GetOption.builder().isPrefix(true).build();
-            List<KeyValue> keyValues = kvClient.get(
-                            ByteSequence.from(searchPrefix, StandardCharsets.UTF_8),
-                            getOption)
-                    .get()
-                    .getKvs();
-            // Parse service info
-            List<ServiceMetaInfo> serviceMetaInfoList = keyValues.stream()
-                    .map(keyValue -> {
-                        String key = keyValue.getKey().toString(StandardCharsets.UTF_8);
-                        // Watch the key for changes
-                        watch(key);
-                        String value = keyValue.getValue().toString(StandardCharsets.UTF_8);
-                        return JSONUtil.toBean(value, ServiceMetaInfo.class);
-                    })
-                    .collect(Collectors.toList());
-            // Populate the cache
-            registryServiceCache.writeCache(serviceMetaInfoList);
-            return serviceMetaInfoList;
+            GetResponse response = kvClient.get(bytes(prefix(serviceKey)), GetOption.builder().isPrefix(true).build())
+                    .get(timeoutMs, TimeUnit.MILLISECONDS);
+            List<ServiceMetaInfo> nodes = response.getKvs().stream()
+                    .map(kv -> JSONUtil.toBean(kv.getValue().toString(StandardCharsets.UTF_8), ServiceMetaInfo.class))
+                    .toList();
+            watchService(serviceKey, response.getHeader().getRevision() + 1);
+            registryServiceCache.write(serviceKey, nodes, generation);
+            return nodes;
         } catch (Exception e) {
-            throw new RuntimeException("Failed to get service list", e);
-        }
-    }
-
-    @Override
-    public void heartBeat() {
-        // Renew every 10 seconds
-        CronUtil.schedule("*/10 * * * * *", new Task() {
-            @Override
-            public void execute() {
-                // Iterate over all keys registered by this node
-                for (String key : localRegisterNodeKeySet) {
-                    try {
-                        List<KeyValue> keyValues = kvClient.get(ByteSequence.from(key, StandardCharsets.UTF_8))
-                                .get()
-                                .getKvs();
-                        // Node has expired (restart required to re-register)
-                        if (CollUtil.isEmpty(keyValues)) {
-                            continue;
-                        }
-                        // Not expired yet: re-register (i.e. renew)
-                        KeyValue keyValue = keyValues.get(0);
-                        String value = keyValue.getValue().toString(StandardCharsets.UTF_8);
-                        ServiceMetaInfo serviceMetaInfo = JSONUtil.toBean(value, ServiceMetaInfo.class);
-                        register(serviceMetaInfo);
-                    } catch (Exception e) {
-                        throw new RuntimeException(key + " renewal failed", e);
-                    }
-                }
+            if (e instanceof InterruptedException) {
+                Thread.currentThread().interrupt();
             }
-        });
-
-        // Enable second-level cron precision
-        CronUtil.setMatchSecond(true);
-        CronUtil.start();
+            List<ServiceMetaInfo> stale = registryServiceCache.readStale(serviceKey);
+            if (stale != null) {
+                log.warn("Registry lookup for {} failed, using last known providers: {}", serviceKey, e.toString());
+                return stale;
+            }
+            throw new RuntimeException("Failed to get service list for " + serviceKey, e);
+        }
     }
 
     /**
-     * Watch (consumer side)
-     *
-     * @param serviceNodeKey
+     * Nothing to schedule: the lease keep-alive stream starts with the first registration.
      */
     @Override
-    public void watch(String serviceNodeKey) {
-        Watch watchClient = client.getWatchClient();
-        // Start watching if not already watched
-        boolean newWatch = watchingKeySet.add(serviceNodeKey);
-        if (newWatch) {
-            watchClient.watch(ByteSequence.from(serviceNodeKey, StandardCharsets.UTF_8), response -> {
-                for (WatchEvent event : response.getEvents()) {
-                    switch (event.getEventType()) {
-                        // Triggered on key deletion
-                        case DELETE:
-                            // Clear the service cache
-                            registryServiceCache.clearCache();
-                            break;
-                        case PUT:
-                        default:
-                            break;
-                    }
-                }
-            });
-        }
+    public void heartBeat() {
+    }
+
+    @Override
+    public void watch(String serviceKey) {
+        watchService(serviceKey, 0);
     }
 
     @Override
     public void destroy() {
-        System.out.println("Current node going offline");
-        // Take this node offline
-        // Iterate over all keys registered by this node
-        for (String key : localRegisterNodeKeySet) {
+        destroyed = true;
+        watchers.values().forEach(Watch.Watcher::close);
+        watchers.clear();
+        for (String key : localNodes.keySet()) {
             try {
-                kvClient.delete(ByteSequence.from(key, StandardCharsets.UTF_8)).get();
+                kvClient.delete(bytes(key)).get(timeoutMs, TimeUnit.MILLISECONDS);
             } catch (Exception e) {
-                throw new RuntimeException(key + " failed to go offline");
+                log.warn("Failed to remove {} on shutdown; it expires with its lease: {}", key, e.toString());
             }
         }
-
-        // Release resources
-        if (kvClient != null) {
-            kvClient.close();
+        localNodes.clear();
+        synchronized (leaseLock) {
+            if (keepAlive != null) {
+                keepAlive.close();
+            }
+            if (leaseId != 0) {
+                try {
+                    leaseClient.revoke(leaseId).get(timeoutMs, TimeUnit.MILLISECONDS);
+                } catch (Exception e) {
+                    log.warn("Failed to revoke lease {}: {}", leaseId, e.toString());
+                }
+                leaseId = 0;
+            }
         }
         if (client != null) {
             client.close();
+        }
+    }
+
+    /**
+     * The lease shared by all local keys, granted and kept alive on first use.
+     */
+    private long currentLease() throws Exception {
+        synchronized (leaseLock) {
+            if (leaseId == 0) {
+                long id = leaseClient.grant(leaseTtlSeconds).get(timeoutMs, TimeUnit.MILLISECONDS).getID();
+                keepAlive = leaseClient.keepAlive(id, new KeepAliveObserver(id));
+                leaseId = id;
+            }
+            return leaseId;
+        }
+    }
+
+    private void put(String key, String value, long lease) throws Exception {
+        kvClient.put(bytes(key), bytes(value), PutOption.builder().withLeaseId(lease).build())
+                .get(timeoutMs, TimeUnit.MILLISECONDS);
+    }
+
+    private void onLeaseLost(long lostLeaseId, Throwable cause) {
+        synchronized (leaseLock) {
+            if (leaseId != lostLeaseId) {
+                return;
+            }
+            leaseId = 0;
+            if (keepAlive != null) {
+                keepAlive.close();
+                keepAlive = null;
+            }
+        }
+        if (destroyed) {
+            return;
+        }
+        log.warn("etcd lease {} lost, re-registering {} key(s): {}", lostLeaseId, localNodes.size(),
+                cause == null ? "stream completed" : cause.toString());
+        if (recovering.compareAndSet(false, true)) {
+            Thread.ofVirtual().name("acrpc-etcd-recovery").start(this::reRegister);
+        }
+    }
+
+    /**
+     * Grants a new lease and writes every local key again, retrying with backoff until it works.
+     */
+    private void reRegister() {
+        long backoffMs = 200;
+        try {
+            while (!destroyed) {
+                try {
+                    long lease = currentLease();
+                    for (Map.Entry<String, String> node : localNodes.entrySet()) {
+                        put(node.getKey(), node.getValue(), lease);
+                    }
+                    log.info("Re-registered {} key(s) under lease {}", localNodes.size(), lease);
+                    return;
+                } catch (Exception e) {
+                    log.warn("Re-registration failed, retrying in {} ms: {}", backoffMs, e.toString());
+                    Thread.sleep(backoffMs);
+                    backoffMs = Math.min(backoffMs * 2, 5000);
+                }
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        } finally {
+            recovering.set(false);
+        }
+    }
+
+    /**
+     * Watches a service's prefix from {@code fromRevision} (0 means now); every change invalidates
+     * its cache entry. A failed watch is dropped so the next lookup starts a new one.
+     */
+    private void watchService(String serviceKey, long fromRevision) {
+        watchers.computeIfAbsent(serviceKey, key -> {
+            WatchOption option = WatchOption.builder()
+                    .isPrefix(true)
+                    .withRevision(fromRevision)
+                    .build();
+            return watchClient.watch(bytes(prefix(key)), option,
+                    response -> registryServiceCache.invalidate(key),
+                    error -> {
+                        log.warn("Watch on {} failed: {}", key, error.toString());
+                        Watch.Watcher failed = watchers.remove(key);
+                        if (failed != null) {
+                            failed.close();
+                        }
+                        registryServiceCache.invalidate(key);
+                    });
+        });
+    }
+
+    private final class KeepAliveObserver implements StreamObserver<LeaseKeepAliveResponse> {
+
+        private final long id;
+
+        KeepAliveObserver(long id) {
+            this.id = id;
+        }
+
+        @Override
+        public void onNext(LeaseKeepAliveResponse response) {
+            if (response.getTTL() <= 0) {
+                onLeaseLost(id, null);
+            }
+        }
+
+        @Override
+        public void onError(Throwable t) {
+            onLeaseLost(id, t);
+        }
+
+        @Override
+        public void onCompleted() {
+            onLeaseLost(id, null);
+        }
+    }
+
+    private static String prefix(String serviceKey) {
+        // The trailing slash keeps "svc:1.0" from matching "svc:1.0.1"
+        return ETCD_ROOT_PATH + serviceKey + "/";
+    }
+
+    private static ByteSequence bytes(String s) {
+        return ByteSequence.from(s, StandardCharsets.UTF_8);
+    }
+
+    /**
+     * Visible for tests: drops the connection without cleanup, as if the process died.
+     */
+    void crashForTest() {
+        destroyed = true;
+        client.close();
+    }
+
+    RegistryServiceCache registryServiceCacheForTest() {
+        return registryServiceCache;
+    }
+
+    /**
+     * Visible for tests: the lease currently holding this process's keys, or 0.
+     */
+    long leaseIdForTest() {
+        synchronized (leaseLock) {
+            return leaseId;
         }
     }
 }

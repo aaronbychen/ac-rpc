@@ -1,13 +1,11 @@
 package com.ac.acrpc.registry;
 
-import cn.hutool.core.collection.ConcurrentHashSet;
 import com.ac.acrpc.config.RegistryConfig;
 import com.ac.acrpc.model.ServiceMetaInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.framework.recipes.cache.CuratorCache;
-import org.apache.curator.framework.recipes.cache.CuratorCacheListener;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.curator.x.discovery.ServiceDiscovery;
 import org.apache.curator.x.discovery.ServiceDiscoveryBuilder;
@@ -15,9 +13,10 @@ import org.apache.curator.x.discovery.ServiceInstance;
 import org.apache.curator.x.discovery.details.JsonInstanceSerializer;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 
 /**
@@ -34,9 +33,9 @@ public class ZooKeeperRegistry implements Registry {
     private ServiceDiscovery<ServiceMetaInfo> serviceDiscovery;
 
     /**
-     * Keys of nodes registered by this host (for lease renewal)
+     * Nodes registered by this host
      */
-    private final Set<String> localRegisterNodeKeySet = new HashSet<>();
+    private final Set<String> localRegisterNodeKeySet = ConcurrentHashMap.newKeySet();
 
     /**
      * Service cache
@@ -44,9 +43,9 @@ public class ZooKeeperRegistry implements Registry {
     private final RegistryServiceCache registryServiceCache = new RegistryServiceCache();
 
     /**
-     * Keys currently being watched
+     * Watches by service key
      */
-    private final Set<String> watchingKeySet = new ConcurrentHashSet<>();
+    private final ConcurrentMap<String, CuratorCache> watchers = new ConcurrentHashMap<>();
 
     /**
      * Root path
@@ -103,12 +102,13 @@ public class ZooKeeperRegistry implements Registry {
 
     @Override
     public List<ServiceMetaInfo> serviceDiscovery(String serviceKey) {
-        // Try the cache first
-        List<ServiceMetaInfo> cachedServiceMetaInfoList = registryServiceCache.readCache();
-        if (cachedServiceMetaInfoList != null) {
-            return cachedServiceMetaInfoList;
+        List<ServiceMetaInfo> cached = registryServiceCache.read(serviceKey);
+        if (cached != null) {
+            return cached;
         }
-
+        long generation = registryServiceCache.generation(serviceKey);
+        // Watch before reading, so a change after the read is never missed
+        watch(serviceKey);
         try {
             // Query service instances
             Collection<ServiceInstance<ServiceMetaInfo>> serviceInstanceList = serviceDiscovery.queryForInstances(serviceKey);
@@ -118,11 +118,15 @@ public class ZooKeeperRegistry implements Registry {
                     .map(ServiceInstance::getPayload)
                     .collect(Collectors.toList());
 
-            // Populate the cache
-            registryServiceCache.writeCache(serviceMetaInfoList);
+            registryServiceCache.write(serviceKey, serviceMetaInfoList, generation);
             return serviceMetaInfoList;
         } catch (Exception e) {
-            throw new RuntimeException("Failed to get service list", e);
+            List<ServiceMetaInfo> stale = registryServiceCache.readStale(serviceKey);
+            if (stale != null) {
+                log.warn("Registry lookup for {} failed, using last known providers: {}", serviceKey, e.toString());
+                return stale;
+            }
+            throw new RuntimeException("Failed to get service list for " + serviceKey, e);
         }
     }
 
@@ -132,36 +136,31 @@ public class ZooKeeperRegistry implements Registry {
     }
 
     /**
-     * Watch (consumer side)
+     * Watches the service's subtree; any node change invalidates its cache entry.
      *
-     * @param serviceNodeKey service node key
+     * @param serviceKey service key
      */
     @Override
-    public void watch(String serviceNodeKey) {
-        String watchKey = ZK_ROOT_PATH + "/" + serviceNodeKey;
-        boolean newWatch = watchingKeySet.add(watchKey);
-        if (newWatch) {
-            CuratorCache curatorCache = CuratorCache.build(client, watchKey);
-            curatorCache.start();
-            curatorCache.listenable().addListener(
-                    CuratorCacheListener
-                            .builder()
-                            .forDeletes(childData -> registryServiceCache.clearCache())
-                            .forChanges(((oldNode, node) -> registryServiceCache.clearCache()))
-                            .build()
-            );
-        }
+    public void watch(String serviceKey) {
+        watchers.computeIfAbsent(serviceKey, key -> {
+            CuratorCache cache = CuratorCache.build(client, ZK_ROOT_PATH + "/" + key);
+            cache.listenable().addListener((type, oldData, data) -> registryServiceCache.invalidate(key));
+            cache.start();
+            return cache;
+        });
     }
 
     @Override
     public void destroy() {
         log.info("Current node going offline");
-        // Take this node offline (optional: ephemeral nodes are removed automatically)
+        watchers.values().forEach(CuratorCache::close);
+        watchers.clear();
+        // Optional: ephemeral nodes disappear with the session anyway
         for (String key : localRegisterNodeKeySet) {
             try {
                 client.delete().guaranteed().forPath(key);
             } catch (Exception e) {
-                throw new RuntimeException(key + " failed to go offline");
+                log.warn("Failed to remove {} on shutdown: {}", key, e.toString());
             }
         }
 

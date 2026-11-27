@@ -40,16 +40,18 @@ public interface Registry {
     List<ServiceMetaInfo> serviceDiscovery(String serviceKey);
 
     /**
-     * Heartbeat (provider side)
+     * Keeps this provider's registrations alive (provider side). Implementations may do this
+     * on their own once a service is registered.
      */
     void heartBeat();
 
     /**
-     * Watch (consumer side)
+     * Watches a service's providers and invalidates its cached list on any change (consumer side).
+     * {@link #serviceDiscovery} starts this automatically.
      *
-     * @param serviceNodeKey
+     * @param serviceKey service key
      */
-    void watch(String serviceNodeKey);
+    void watch(String serviceKey);
 
     /**
      * Destroy

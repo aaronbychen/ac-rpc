@@ -10,14 +10,14 @@ import lombok.Data;
 public class RegistryConfig {
 
     /**
-     * Registrtion center type
+     * Registry type
      */
     private String registry = RegistryKeys.ETCD;
 
     /**
-     * Registrtion center address
+     * Registry address
      */
-    private String address = "http://localhost:2380";
+    private String address = "http://localhost:2379";
 
     /**
      * Username
@@ -33,4 +33,9 @@ public class RegistryConfig {
      * Timeout (ms)
      */
     private Long timeout = 10000L;
+
+    /**
+     * Lease TTL (seconds) for etcd registrations; keys expire this long after a provider dies
+     */
+    private long leaseTtlSeconds = 30;
 }
