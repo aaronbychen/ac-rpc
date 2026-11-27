@@ -92,7 +92,8 @@ def summarize(meta, runs):
                 p99, thr = [], []
                 for rnd in range(c["rounds"]):
                     a, b = by_round.get((ref, payload, rate, rnd)), by_round.get((other, payload, rate, rnd))
-                    if a and b and a["latencyMs"].get("p99") and a["throughputOkPerSec"]:
+                    # Skip rounds where either side completed nothing (no latency to compare)
+                    if a and b and a["latencyMs"].get("p99") and b["latencyMs"].get("p99") and a["throughputOkPerSec"]:
                         p99.append(b["latencyMs"]["p99"] / a["latencyMs"]["p99"])
                         thr.append(b["throughputOkPerSec"] / a["throughputOkPerSec"])
                 lines.append(f"| {other} | {payload} | {rate} | {spread(p99, '{:.3f}')} | "
