@@ -27,8 +27,8 @@ A distributed RPC framework in Java, built on Vert.x TCP networking with etcd-ba
 
 ### Prerequisites
 
-- JDK 8+
-- Maven 3.8+
+- JDK 25
+- Maven 3.9+
 - etcd (default registry)
 
 Run etcd with Docker:
@@ -46,9 +46,7 @@ docker run -d --name etcd \
 ### Build
 
 ```bash
-mvn -f ac-rpc-core/pom.xml clean install -DskipTests
-mvn -f example-common/pom.xml clean install -DskipTests
-mvn -f ac-rpc-spring-boot-starter/pom.xml clean install -DskipTests
+mvn install -DskipTests
 ```
 
 ### Configure
