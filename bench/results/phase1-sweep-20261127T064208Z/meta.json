@@ -1,0 +1,331 @@
+{
+  "config": {
+    "name": "phase1-sweep",
+    "targets": [
+      {
+        "label": "pooled",
+        "ref": "WORKTREE",
+        "java": "D:/jdk-25"
+      }
+    ],
+    "rates": [
+      1000,
+      10000,
+      50000,
+      100000,
+      150000,
+      200000,
+      250000,
+      300000
+    ],
+    "payloadBytes": [
+      64
+    ],
+    "serializer": "kryo",
+    "rounds": 3,
+    "warmupSec": 10,
+    "durationSec": 20,
+    "timeoutSec": 5,
+    "settleSec": 2,
+    "seed": 1,
+    "port": 18080,
+    "registry": "http://localhost:2379",
+    "jvmArgs": [
+      "-Xms1g",
+      "-Xmx1g",
+      "--sun-misc-unsafe-memory-access=allow"
+    ],
+    "maxThreads": 2000,
+    "minFreeMemoryMb": 2048
+  },
+  "targets": {
+    "pooled": {
+      "label": "pooled",
+      "ref": "WORKTREE",
+      "java": "D:/jdk-25",
+      "sha": "6f1260eb404066c1117a3f1261c7d772fc181d32",
+      "dirty": true,
+      "javaVersion": [
+        "openjdk version \"25.0.5.1\" 2026-11-17 LTS",
+        "OpenJDK Runtime Environment Temurin-25.0.5.1+2 (build 25.0.5.1+2-LTS)",
+        "OpenJDK 64-Bit Server VM Temurin-25.0.5.1+2 (build 25.0.5.1+2-LTS, mixed mode, sharing)"
+      ]
+    }
+  },
+  "host": {
+    "platform": "Windows-11-10.0.26200-SP0",
+    "machine": "AMD64",
+    "processor": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+    "cpuCount": 32,
+    "cpuModel": "13th Gen Intel(R) Core(TM) i9-13980HX",
+    "memoryGb": 16
+  },
+  "startedAt": "2026-11-27T06:42:26.395036+00:00",
+  "runs": [
+    {
+      "round": 0,
+      "target": "pooled",
+      "payload": 64,
+      "rate": 100000,
+      "file": "pooled_r0_p64_rate100000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 3100,
+      "freeMemoryMbAfter": 3425,
+      "lowMemory": false
+    },
+    {
+      "round": 0,
+      "target": "pooled",
+      "payload": 64,
+      "rate": 250000,
+      "file": "pooled_r0_p64_rate250000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 3425,
+      "freeMemoryMbAfter": 3377,
+      "lowMemory": false
+    },
+    {
+      "round": 0,
+      "target": "pooled",
+      "payload": 64,
+      "rate": 10000,
+      "file": "pooled_r0_p64_rate10000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 3377,
+      "freeMemoryMbAfter": 3397,
+      "lowMemory": false
+    },
+    {
+      "round": 0,
+      "target": "pooled",
+      "payload": 64,
+      "rate": 200000,
+      "file": "pooled_r0_p64_rate200000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 3397,
+      "freeMemoryMbAfter": 3290,
+      "lowMemory": false
+    },
+    {
+      "round": 0,
+      "target": "pooled",
+      "payload": 64,
+      "rate": 300000,
+      "file": "pooled_r0_p64_rate300000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 3290,
+      "freeMemoryMbAfter": 3234,
+      "lowMemory": false
+    },
+    {
+      "round": 0,
+      "target": "pooled",
+      "payload": 64,
+      "rate": 1000,
+      "file": "pooled_r0_p64_rate1000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 3234,
+      "freeMemoryMbAfter": 3299,
+      "lowMemory": false
+    },
+    {
+      "round": 0,
+      "target": "pooled",
+      "payload": 64,
+      "rate": 150000,
+      "file": "pooled_r0_p64_rate150000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 3299,
+      "freeMemoryMbAfter": 2821,
+      "lowMemory": false
+    },
+    {
+      "round": 0,
+      "target": "pooled",
+      "payload": 64,
+      "rate": 50000,
+      "file": "pooled_r0_p64_rate50000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 2821,
+      "freeMemoryMbAfter": 3637,
+      "lowMemory": false
+    },
+    {
+      "round": 1,
+      "target": "pooled",
+      "payload": 64,
+      "rate": 50000,
+      "file": "pooled_r1_p64_rate50000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 3637,
+      "freeMemoryMbAfter": 3429,
+      "lowMemory": false
+    },
+    {
+      "round": 1,
+      "target": "pooled",
+      "payload": 64,
+      "rate": 250000,
+      "file": "pooled_r1_p64_rate250000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 3429,
+      "freeMemoryMbAfter": 3498,
+      "lowMemory": false
+    },
+    {
+      "round": 1,
+      "target": "pooled",
+      "payload": 64,
+      "rate": 150000,
+      "file": "pooled_r1_p64_rate150000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 3498,
+      "freeMemoryMbAfter": 3524,
+      "lowMemory": false
+    },
+    {
+      "round": 1,
+      "target": "pooled",
+      "payload": 64,
+      "rate": 1000,
+      "file": "pooled_r1_p64_rate1000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 3524,
+      "freeMemoryMbAfter": 3372,
+      "lowMemory": false
+    },
+    {
+      "round": 1,
+      "target": "pooled",
+      "payload": 64,
+      "rate": 10000,
+      "file": "pooled_r1_p64_rate10000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 3372,
+      "freeMemoryMbAfter": 3451,
+      "lowMemory": false
+    },
+    {
+      "round": 1,
+      "target": "pooled",
+      "payload": 64,
+      "rate": 100000,
+      "file": "pooled_r1_p64_rate100000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 3451,
+      "freeMemoryMbAfter": 3474,
+      "lowMemory": false
+    },
+    {
+      "round": 1,
+      "target": "pooled",
+      "payload": 64,
+      "rate": 200000,
+      "file": "pooled_r1_p64_rate200000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 3474,
+      "freeMemoryMbAfter": 3555,
+      "lowMemory": false
+    },
+    {
+      "round": 1,
+      "target": "pooled",
+      "payload": 64,
+      "rate": 300000,
+      "file": "pooled_r1_p64_rate300000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 3555,
+      "freeMemoryMbAfter": 3448,
+      "lowMemory": false
+    },
+    {
+      "round": 2,
+      "target": "pooled",
+      "payload": 64,
+      "rate": 50000,
+      "file": "pooled_r2_p64_rate50000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 3448,
+      "freeMemoryMbAfter": 3602,
+      "lowMemory": false
+    },
+    {
+      "round": 2,
+      "target": "pooled",
+      "payload": 64,
+      "rate": 200000,
+      "file": "pooled_r2_p64_rate200000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 3602,
+      "freeMemoryMbAfter": 3566,
+      "lowMemory": false
+    },
+    {
+      "round": 2,
+      "target": "pooled",
+      "payload": 64,
+      "rate": 10000,
+      "file": "pooled_r2_p64_rate10000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 3566,
+      "freeMemoryMbAfter": 3466,
+      "lowMemory": false
+    },
+    {
+      "round": 2,
+      "target": "pooled",
+      "payload": 64,
+      "rate": 300000,
+      "file": "pooled_r2_p64_rate300000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 3466,
+      "freeMemoryMbAfter": 3518,
+      "lowMemory": false
+    },
+    {
+      "round": 2,
+      "target": "pooled",
+      "payload": 64,
+      "rate": 1000,
+      "file": "pooled_r2_p64_rate1000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 3518,
+      "freeMemoryMbAfter": 3504,
+      "lowMemory": false
+    },
+    {
+      "round": 2,
+      "target": "pooled",
+      "payload": 64,
+      "rate": 150000,
+      "file": "pooled_r2_p64_rate150000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 3504,
+      "freeMemoryMbAfter": 3508,
+      "lowMemory": false
+    },
+    {
+      "round": 2,
+      "target": "pooled",
+      "payload": 64,
+      "rate": 100000,
+      "file": "pooled_r2_p64_rate100000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 3508,
+      "freeMemoryMbAfter": 3516,
+      "lowMemory": false
+    },
+    {
+      "round": 2,
+      "target": "pooled",
+      "payload": 64,
+      "rate": 250000,
+      "file": "pooled_r2_p64_rate250000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 3516,
+      "freeMemoryMbAfter": 3475,
+      "lowMemory": false
+    }
+  ],
+  "finishedAt": "2026-11-27T06:56:03.774186+00:00"
+}

@@ -1,0 +1,63 @@
+{
+    "labels": {
+        "target": "pooled",
+        "round": "0"
+    },
+    "config": {
+        "rate": 20,
+        "warmupSec": 10,
+        "durationSec": 30,
+        "timeoutSec": 5,
+        "payloadBytes": 64,
+        "maxInFlight": 10000,
+        "maxThreads": 2000,
+        "serializer": "kryo"
+    },
+    "environment": {
+        "timestamp": "2026-11-27T06:32:02.429126Z",
+        "javaVersion": "25.0.5.1",
+        "javaVendor": "Eclipse Adoptium",
+        "vmName": "OpenJDK 64-Bit Server VM",
+        "osName": "Windows 11",
+        "osArch": "amd64",
+        "availableProcessors": 32,
+        "maxHeapMb": 1024,
+        "gc": [
+            "G1 Young Generation",
+            "G1 Concurrent GC",
+            "G1 Old Generation"
+        ],
+        "jvmArgs": [
+            "-Xms1g",
+            "-Xmx1g",
+            "--sun-misc-unsafe-memory-access=allow"
+        ]
+    },
+    "counts": {
+        "issued": 600,
+        "ok": 600,
+        "slow": 0,
+        "errors": 0,
+        "dropped": 0,
+        "incomplete": 0
+    },
+    "latencyMs": {
+        "count": 600,
+        "p50": 1.075,
+        "p90": 1.583,
+        "p99": 1.989,
+        "p999": 2.224,
+        "max": 2.224,
+        "mean": 1.144
+    },
+    "throughputOkPerSec": 20,
+    "errorRate": 0,
+    "percentilesReliable": true,
+    "aborted": false,
+    "abortReason": null,
+    "peakThreads": 22,
+    "peakCommittedMb": 1232,
+    "maxSchedulerLagMs": 0.248,
+    "firstError": null,
+    "histogram": "HISTFAAAAaB4nD1SS2rdQBCcV90zekI8xMMYI0gIjyxCMMErr73ywkfIeeIb+AQ+ky/iGzhV1bIlzWimP9XVn2/PL1etxX2rJ/b/wfvDx8fDewneXg9o+HcArnHmaQEuuM4JJwoaRStFF/ziDR0bV6f4D08B0Gjmv3Nl0PYE6vTdcJsx5Uxn6Q09Z+PxjMhO1KCBnjXBO9UT12brHF2aqI0RSYdAk40U3v+Uv5B4zzqOEJNmbFmZA5AMIsQUQqdvhk0W2KqZl0I1jOK/ZDMEKbTspmA8+bVcFW4euXMRG4hgx5BPRq4OZGQMbTu8kusKX36unNJkAi2jqpdHGY+jnUMKmaQTY2F2ItkybT05iRzIZPjKyKWSdmQVNI6KEzTp6V4xu170mkmwjLAwhRmF6mabVRTVzzYxh9grxe/kBKtcOp0tdQTZVtFX7PqN/XYRJifF8rocX5k4qGYjPFuqgPK5qjYXL7fuhM/hmnTRRJyRS7VvM1Dj3Dq2xrkZQ/4abApvPe4S/yDOxneh9CfyO0X8Vq4Fv+m8MuIlb/GEO/zFI/4DD7kVOg=="
+}

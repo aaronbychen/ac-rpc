@@ -1,0 +1,64 @@
+{
+    "labels": {
+        "target": "baseline",
+        "round": "1"
+    },
+    "config": {
+        "rate": 20,
+        "warmupSec": 10,
+        "durationSec": 30,
+        "timeoutSec": 5,
+        "payloadBytes": 64,
+        "maxInFlight": 10000,
+        "maxThreads": 2000,
+        "serializer": "kryo"
+    },
+    "environment": {
+        "timestamp": "2026-11-27T06:34:52.151719600Z",
+        "javaVersion": "25.0.5.1",
+        "javaVendor": "Eclipse Adoptium",
+        "vmName": "OpenJDK 64-Bit Server VM",
+        "osName": "Windows 11",
+        "osArch": "amd64",
+        "availableProcessors": 32,
+        "maxHeapMb": 1024,
+        "gc": [
+            "G1 Young Generation",
+            "G1 Concurrent GC",
+            "G1 Old Generation"
+        ],
+        "jvmArgs": [
+            "-Xms1g",
+            "-Xmx1g",
+            "--sun-misc-unsafe-memory-access=allow"
+        ]
+    },
+    "counts": {
+        "issued": 461,
+        "ok": 459,
+        "slow": 0,
+        "errors": 0,
+        "dropped": 0,
+        "incomplete": 2
+    },
+    "latencyMs": {
+        "count": 459,
+        "p50": 98.959,
+        "p90": 117.441,
+        "p99": 190.579,
+        "p999": 225.182,
+        "max": 225.182,
+        "mean": 100.526
+    },
+    "throughputOkPerSec": 19.959,
+    "errorRate": 0.004,
+    "percentilesReliable": false,
+    "aborted": true,
+    "abortReason": "thread count 2009 exceeded --max-threads 2000",
+    "peakThreads": 2009,
+    "peakCommittedMb": 1851,
+    "maxSchedulerLagMs": 68.594,
+    "firstError": null,
+    "histogram": "HISTFAAAATJ4nD1RS07EMAzNPDtOQxmNqgoh1EGjCnECFixZcQLEgiUrjsAF2LJiwUG4GBwAlWenQ13HyfPvOdm/fYwpYZ/aJ6vd+LJbluXuuwG/78ArnjFTHpHQ02ICBDij9LpDxWA8Z0qi0FNpYu9xQrsNv6Y49qiKoqLiQRk4Jh3cqERQYTBENWsycVBbQRorUdyBFXR/8ljPpyOi2SBHBqurrxTzsFB1TC2ho+vEUpAXmGebRB+NJlkRLZyNtakImfeJkuTH02nVIAFPYV1FFwQNaExjRO74dU48iJn+z+SYd3JeYm1g3sNa89hWELeF4jfEbR9a6CI4xAwFO/Cf0MYfI1EHJtTwJlxQD9TK3cw33MY1ZlzG404YdCR2S2SmnjPuAS/42eAan8AVnvAF3OAefyl/FIk=",
+    "abortedAfterSec": 32.997
+}

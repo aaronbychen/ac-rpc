@@ -1,0 +1,64 @@
+{
+    "labels": {
+        "target": "baseline",
+        "round": "2"
+    },
+    "config": {
+        "rate": 20,
+        "warmupSec": 10,
+        "durationSec": 30,
+        "timeoutSec": 5,
+        "payloadBytes": 64,
+        "maxInFlight": 10000,
+        "maxThreads": 2000,
+        "serializer": "kryo"
+    },
+    "environment": {
+        "timestamp": "2026-11-27T06:40:38.257769800Z",
+        "javaVersion": "25.0.5.1",
+        "javaVendor": "Eclipse Adoptium",
+        "vmName": "OpenJDK 64-Bit Server VM",
+        "osName": "Windows 11",
+        "osArch": "amd64",
+        "availableProcessors": 32,
+        "maxHeapMb": 1024,
+        "gc": [
+            "G1 Young Generation",
+            "G1 Concurrent GC",
+            "G1 Old Generation"
+        ],
+        "jvmArgs": [
+            "-Xms1g",
+            "-Xmx1g",
+            "--sun-misc-unsafe-memory-access=allow"
+        ]
+    },
+    "counts": {
+        "issued": 461,
+        "ok": 458,
+        "slow": 0,
+        "errors": 0,
+        "dropped": 0,
+        "incomplete": 3
+    },
+    "latencyMs": {
+        "count": 458,
+        "p50": 91.292,
+        "p90": 105.906,
+        "p99": 197.001,
+        "p999": 290.98,
+        "max": 290.98,
+        "mean": 93.757
+    },
+    "throughputOkPerSec": 19.922,
+    "errorRate": 0.007,
+    "percentilesReliable": false,
+    "aborted": true,
+    "abortReason": "thread count 2008 exceeded --max-threads 2000",
+    "peakThreads": 2008,
+    "peakCommittedMb": 1848,
+    "maxSchedulerLagMs": 67.016,
+    "firstError": null,
+    "histogram": "HISTFAAAATN4nD1RMU7EQAzcHU+cnKJwQhTodKATFQVCiBdQIh5ASc1HqOgQoqSmRBQ8gIIHID5CTxHG3hOx4rXH47XXPrh73Cul/pb22fasoTbzPF/8NODlHviq2OC5ouChYglMuEWPY044g0l6LPQbRrCTmljANQ6FFGJkx7AAeREOUFksDDQkFR2d4p1MIxcEW1okBhIswzaDNB/ComqpqiucFHqAyEu95TK6sjBU0tkrYB52EHuHci0zKF7YVKbYg5ydvEA8F9wTA7Nge4yKW4uW9iaoqw5ePAYQNNo/V7DaFI6M5ZG9Z9fRZNEUrXGFmSaBnB5C2gQN2ZqsiW1uk0SHxrXSZmIVI7Y72ceNbryUvpa/5Aq78nmOU913hSO8VpHfgM+KE3xULWyNb7nAU8W74Q9NXhj/",
+    "abortedAfterSec": 32.99
+}

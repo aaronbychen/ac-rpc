@@ -1,0 +1,277 @@
+{
+  "config": {
+    "name": "phase1-compare",
+    "targets": [
+      {
+        "label": "baseline",
+        "ref": "baseline",
+        "java": "D:/jdk-25"
+      },
+      {
+        "label": "pooled",
+        "ref": "WORKTREE",
+        "java": "D:/jdk-25"
+      }
+    ],
+    "rates": [
+      5,
+      10,
+      20
+    ],
+    "payloadBytes": [
+      64
+    ],
+    "serializer": "kryo",
+    "rounds": 3,
+    "warmupSec": 10,
+    "durationSec": 30,
+    "timeoutSec": 5,
+    "settleSec": 2,
+    "seed": 1,
+    "port": 18080,
+    "registry": "http://localhost:2379",
+    "jvmArgs": [
+      "-Xms1g",
+      "-Xmx1g",
+      "--sun-misc-unsafe-memory-access=allow"
+    ],
+    "maxThreads": 2000,
+    "minFreeMemoryMb": 2048
+  },
+  "targets": {
+    "baseline": {
+      "label": "baseline",
+      "ref": "baseline",
+      "java": "D:/jdk-25",
+      "sha": "952068527fc6d5d7e86aee4408dc568908ebcd46",
+      "dirty": false,
+      "javaVersion": [
+        "openjdk version \"25.0.5.1\" 2026-11-17 LTS",
+        "OpenJDK Runtime Environment Temurin-25.0.5.1+2 (build 25.0.5.1+2-LTS)",
+        "OpenJDK 64-Bit Server VM Temurin-25.0.5.1+2 (build 25.0.5.1+2-LTS, mixed mode, sharing)"
+      ]
+    },
+    "pooled": {
+      "label": "pooled",
+      "ref": "WORKTREE",
+      "java": "D:/jdk-25",
+      "sha": "6f1260eb404066c1117a3f1261c7d772fc181d32",
+      "dirty": false,
+      "javaVersion": [
+        "openjdk version \"25.0.5.1\" 2026-11-17 LTS",
+        "OpenJDK Runtime Environment Temurin-25.0.5.1+2 (build 25.0.5.1+2-LTS)",
+        "OpenJDK 64-Bit Server VM Temurin-25.0.5.1+2 (build 25.0.5.1+2-LTS, mixed mode, sharing)"
+      ]
+    }
+  },
+  "host": {
+    "platform": "Windows-11-10.0.26200-SP0",
+    "machine": "AMD64",
+    "processor": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+    "cpuCount": 32,
+    "cpuModel": "13th Gen Intel(R) Core(TM) i9-13980HX",
+    "memoryGb": 16
+  },
+  "startedAt": "2026-11-27T06:29:10.951546+00:00",
+  "runs": [
+    {
+      "round": 0,
+      "target": "baseline",
+      "payload": 64,
+      "rate": 10,
+      "file": "baseline_r0_p64_rate10.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 2125,
+      "freeMemoryMbAfter": 2323,
+      "lowMemory": false
+    },
+    {
+      "round": 0,
+      "target": "pooled",
+      "payload": 64,
+      "rate": 10,
+      "file": "pooled_r0_p64_rate10.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 2323,
+      "freeMemoryMbAfter": 2290,
+      "lowMemory": false
+    },
+    {
+      "round": 0,
+      "target": "baseline",
+      "payload": 64,
+      "rate": 20,
+      "file": "baseline_r0_p64_rate20.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 2290,
+      "freeMemoryMbAfter": 2487,
+      "lowMemory": false
+    },
+    {
+      "round": 0,
+      "target": "pooled",
+      "payload": 64,
+      "rate": 20,
+      "file": "pooled_r0_p64_rate20.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 2487,
+      "freeMemoryMbAfter": 2729,
+      "lowMemory": false
+    },
+    {
+      "round": 0,
+      "target": "baseline",
+      "payload": 64,
+      "rate": 5,
+      "file": "baseline_r0_p64_rate5.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 2729,
+      "freeMemoryMbAfter": 2961,
+      "lowMemory": false
+    },
+    {
+      "round": 0,
+      "target": "pooled",
+      "payload": 64,
+      "rate": 5,
+      "file": "pooled_r0_p64_rate5.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 2961,
+      "freeMemoryMbAfter": 2966,
+      "lowMemory": false
+    },
+    {
+      "round": 1,
+      "target": "pooled",
+      "payload": 64,
+      "rate": 20,
+      "file": "pooled_r1_p64_rate20.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 2966,
+      "freeMemoryMbAfter": 2871,
+      "lowMemory": false
+    },
+    {
+      "round": 1,
+      "target": "baseline",
+      "payload": 64,
+      "rate": 20,
+      "file": "baseline_r1_p64_rate20.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 2871,
+      "freeMemoryMbAfter": 2520,
+      "lowMemory": false
+    },
+    {
+      "round": 1,
+      "target": "pooled",
+      "payload": 64,
+      "rate": 5,
+      "file": "pooled_r1_p64_rate5.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 2520,
+      "freeMemoryMbAfter": 2377,
+      "lowMemory": false
+    },
+    {
+      "round": 1,
+      "target": "baseline",
+      "payload": 64,
+      "rate": 5,
+      "file": "baseline_r1_p64_rate5.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 2377,
+      "freeMemoryMbAfter": 2440,
+      "lowMemory": false
+    },
+    {
+      "round": 1,
+      "target": "pooled",
+      "payload": 64,
+      "rate": 10,
+      "file": "pooled_r1_p64_rate10.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 2440,
+      "freeMemoryMbAfter": 2580,
+      "lowMemory": false
+    },
+    {
+      "round": 1,
+      "target": "baseline",
+      "payload": 64,
+      "rate": 10,
+      "file": "baseline_r1_p64_rate10.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 2580,
+      "freeMemoryMbAfter": 2443,
+      "lowMemory": false
+    },
+    {
+      "round": 2,
+      "target": "pooled",
+      "payload": 64,
+      "rate": 5,
+      "file": "pooled_r2_p64_rate5.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 2443,
+      "freeMemoryMbAfter": 2612,
+      "lowMemory": false
+    },
+    {
+      "round": 2,
+      "target": "baseline",
+      "payload": 64,
+      "rate": 5,
+      "file": "baseline_r2_p64_rate5.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 2612,
+      "freeMemoryMbAfter": 2557,
+      "lowMemory": false
+    },
+    {
+      "round": 2,
+      "target": "pooled",
+      "payload": 64,
+      "rate": 20,
+      "file": "pooled_r2_p64_rate20.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 2557,
+      "freeMemoryMbAfter": 2580,
+      "lowMemory": false
+    },
+    {
+      "round": 2,
+      "target": "baseline",
+      "payload": 64,
+      "rate": 20,
+      "file": "baseline_r2_p64_rate20.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 2580,
+      "freeMemoryMbAfter": 2532,
+      "lowMemory": false
+    },
+    {
+      "round": 2,
+      "target": "pooled",
+      "payload": 64,
+      "rate": 10,
+      "file": "pooled_r2_p64_rate10.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 2532,
+      "freeMemoryMbAfter": 2425,
+      "lowMemory": false
+    },
+    {
+      "round": 2,
+      "target": "baseline",
+      "payload": 64,
+      "rate": 10,
+      "file": "baseline_r2_p64_rate10.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 2425,
+      "freeMemoryMbAfter": 3268,
+      "lowMemory": false
+    }
+  ],
+  "finishedAt": "2026-11-27T06:42:08.453618+00:00"
+}

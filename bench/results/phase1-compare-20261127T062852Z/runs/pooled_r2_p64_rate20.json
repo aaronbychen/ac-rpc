@@ -1,0 +1,63 @@
+{
+    "labels": {
+        "target": "pooled",
+        "round": "2"
+    },
+    "config": {
+        "rate": 20,
+        "warmupSec": 10,
+        "durationSec": 30,
+        "timeoutSec": 5,
+        "payloadBytes": 64,
+        "maxInFlight": 10000,
+        "maxThreads": 2000,
+        "serializer": "kryo"
+    },
+    "environment": {
+        "timestamp": "2026-11-27T06:40:01.196317800Z",
+        "javaVersion": "25.0.5.1",
+        "javaVendor": "Eclipse Adoptium",
+        "vmName": "OpenJDK 64-Bit Server VM",
+        "osName": "Windows 11",
+        "osArch": "amd64",
+        "availableProcessors": 32,
+        "maxHeapMb": 1024,
+        "gc": [
+            "G1 Young Generation",
+            "G1 Concurrent GC",
+            "G1 Old Generation"
+        ],
+        "jvmArgs": [
+            "-Xms1g",
+            "-Xmx1g",
+            "--sun-misc-unsafe-memory-access=allow"
+        ]
+    },
+    "counts": {
+        "issued": 600,
+        "ok": 600,
+        "slow": 0,
+        "errors": 0,
+        "dropped": 0,
+        "incomplete": 0
+    },
+    "latencyMs": {
+        "count": 600,
+        "p50": 1.076,
+        "p90": 1.461,
+        "p99": 1.93,
+        "p999": 2.277,
+        "max": 2.277,
+        "mean": 1.105
+    },
+    "throughputOkPerSec": 20,
+    "errorRate": 0,
+    "percentilesReliable": true,
+    "aborted": false,
+    "abortReason": null,
+    "peakThreads": 22,
+    "peakCommittedMb": 1233,
+    "maxSchedulerLagMs": 0.409,
+    "firstError": null,
+    "histogram": "HISTFAAAAZh4nDVSwU0DMRB0xmMbczqhKEIRgohHFKGIF28e1EApVMCHH08qoCBKoAc6CDPrSy7Jedezs+Px3n18bVLKcxqfvLxX8f9yOr38jcTv9wqPOGCDjgnPuNLzpHVmxhqzVk35GRkVO+1NSMI2PQXsTICWifdKJ9zql/UAG5JrAROTiAJdAAXKzUIZNGGqTYuGGomsHaag0HeCKrKhyV2cN4/hhSwKFbBphYDVLJiKtuCoKzSlCZnp6jmU0oWzFwJ36JBLy2a5PpUjCVWtIssPDUXMPlmwRns2perWWqiNIbFgTSzqJEfqhg4bmKDul96KFtHGgLC51yCQVvGGr0KXat/P3CmIrYjhpVIt/GWc72JYn2tn0DOg3dVqLQ8Ut+hSF6myLw2bLa5KGOmLt1qROF8W2cM5C6aJh1NyULQt2jrO3hvXUcYr5qHGYUeVZcXdL+xjfnC+Aq0YzXMYN6Znom9Fs9K130eRnZioaeU+ptFnj4HDDXA0+U7j2MI6z/G13nv93l0uyAFHvgn4s9LW5wqvwAP+AWyTFZA="
+}
