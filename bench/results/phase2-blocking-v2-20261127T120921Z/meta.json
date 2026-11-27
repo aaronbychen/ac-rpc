@@ -1,0 +1,919 @@
+{
+  "config": {
+    "name": "phase2-blocking-v2",
+    "targets": [
+      {
+        "label": "blocking-v1-jdk25",
+        "ref": "blocking-v1",
+        "java": "D:/jdk-25",
+        "providerJava": "D:/jdk-25",
+        "args": [
+          "--connections",
+          "1",
+          "--transport",
+          "blocking",
+          "--write-lock",
+          "reentrant"
+        ],
+        "jvmArgs": [
+          "--sun-misc-unsafe-memory-access=allow"
+        ]
+      },
+      {
+        "label": "blocking-v2-jdk25",
+        "ref": "WORKTREE",
+        "java": "D:/jdk-25",
+        "providerJava": "D:/jdk-25",
+        "args": [
+          "--connections",
+          "1",
+          "--transport",
+          "blocking"
+        ],
+        "jvmArgs": [
+          "--sun-misc-unsafe-memory-access=allow"
+        ]
+      },
+      {
+        "label": "vertx-jdk25",
+        "ref": "WORKTREE",
+        "java": "D:/jdk-25",
+        "providerJava": "D:/jdk-25",
+        "args": [
+          "--connections",
+          "1",
+          "--transport",
+          "vertx"
+        ],
+        "jvmArgs": [
+          "--sun-misc-unsafe-memory-access=allow"
+        ]
+      },
+      {
+        "label": "blocking-v2-jdk21",
+        "ref": "WORKTREE",
+        "java": "D:/jdk-21-temurin",
+        "providerJava": "D:/jdk-25",
+        "args": [
+          "--connections",
+          "1",
+          "--transport",
+          "blocking"
+        ],
+        "jvmArgs": []
+      },
+      {
+        "label": "vertx-jdk21",
+        "ref": "WORKTREE",
+        "java": "D:/jdk-21-temurin",
+        "providerJava": "D:/jdk-25",
+        "args": [
+          "--connections",
+          "1",
+          "--transport",
+          "vertx"
+        ],
+        "jvmArgs": []
+      }
+    ],
+    "rates": [
+      10000,
+      40000,
+      80000,
+      120000
+    ],
+    "payloadBytes": [
+      64
+    ],
+    "serializer": "kryo",
+    "rounds": 3,
+    "warmupSec": 10,
+    "durationSec": 15,
+    "timeoutSec": 5,
+    "settleSec": 2,
+    "seed": 1,
+    "port": 18080,
+    "registry": "http://localhost:2379",
+    "jvmArgs": [
+      "-Xms1g",
+      "-Xmx1g"
+    ],
+    "maxThreads": 2000,
+    "minFreeMemoryMb": 2048,
+    "providerJvmArgs": [
+      "--sun-misc-unsafe-memory-access=allow"
+    ]
+  },
+  "targets": {
+    "blocking-v1-jdk25": {
+      "label": "blocking-v1-jdk25",
+      "ref": "blocking-v1",
+      "java": "D:/jdk-25",
+      "providerJava": "D:/jdk-25",
+      "args": [
+        "--connections",
+        "1",
+        "--transport",
+        "blocking",
+        "--write-lock",
+        "reentrant"
+      ],
+      "jvmArgs": [
+        "--sun-misc-unsafe-memory-access=allow"
+      ],
+      "sha": "237e9325b597b11272fe6bd53b8c2bca01374c43",
+      "dirty": false,
+      "javaVersion": [
+        "openjdk version \"25.0.5.1\" 2026-11-17 LTS",
+        "OpenJDK Runtime Environment Temurin-25.0.5.1+2 (build 25.0.5.1+2-LTS)",
+        "OpenJDK 64-Bit Server VM Temurin-25.0.5.1+2 (build 25.0.5.1+2-LTS, mixed mode, sharing)"
+      ],
+      "providerJavaVersion": [
+        "openjdk version \"25.0.5.1\" 2026-11-17 LTS",
+        "OpenJDK Runtime Environment Temurin-25.0.5.1+2 (build 25.0.5.1+2-LTS)",
+        "OpenJDK 64-Bit Server VM Temurin-25.0.5.1+2 (build 25.0.5.1+2-LTS, mixed mode, sharing)"
+      ]
+    },
+    "blocking-v2-jdk25": {
+      "label": "blocking-v2-jdk25",
+      "ref": "WORKTREE",
+      "java": "D:/jdk-25",
+      "providerJava": "D:/jdk-25",
+      "args": [
+        "--connections",
+        "1",
+        "--transport",
+        "blocking"
+      ],
+      "jvmArgs": [
+        "--sun-misc-unsafe-memory-access=allow"
+      ],
+      "sha": "7c3a04c5239cb1d17091cbaea398c588f6dc93c1",
+      "dirty": false,
+      "javaVersion": [
+        "openjdk version \"25.0.5.1\" 2026-11-17 LTS",
+        "OpenJDK Runtime Environment Temurin-25.0.5.1+2 (build 25.0.5.1+2-LTS)",
+        "OpenJDK 64-Bit Server VM Temurin-25.0.5.1+2 (build 25.0.5.1+2-LTS, mixed mode, sharing)"
+      ],
+      "providerJavaVersion": [
+        "openjdk version \"25.0.5.1\" 2026-11-17 LTS",
+        "OpenJDK Runtime Environment Temurin-25.0.5.1+2 (build 25.0.5.1+2-LTS)",
+        "OpenJDK 64-Bit Server VM Temurin-25.0.5.1+2 (build 25.0.5.1+2-LTS, mixed mode, sharing)"
+      ]
+    },
+    "vertx-jdk25": {
+      "label": "vertx-jdk25",
+      "ref": "WORKTREE",
+      "java": "D:/jdk-25",
+      "providerJava": "D:/jdk-25",
+      "args": [
+        "--connections",
+        "1",
+        "--transport",
+        "vertx"
+      ],
+      "jvmArgs": [
+        "--sun-misc-unsafe-memory-access=allow"
+      ],
+      "sha": "7c3a04c5239cb1d17091cbaea398c588f6dc93c1",
+      "dirty": false,
+      "javaVersion": [
+        "openjdk version \"25.0.5.1\" 2026-11-17 LTS",
+        "OpenJDK Runtime Environment Temurin-25.0.5.1+2 (build 25.0.5.1+2-LTS)",
+        "OpenJDK 64-Bit Server VM Temurin-25.0.5.1+2 (build 25.0.5.1+2-LTS, mixed mode, sharing)"
+      ],
+      "providerJavaVersion": [
+        "openjdk version \"25.0.5.1\" 2026-11-17 LTS",
+        "OpenJDK Runtime Environment Temurin-25.0.5.1+2 (build 25.0.5.1+2-LTS)",
+        "OpenJDK 64-Bit Server VM Temurin-25.0.5.1+2 (build 25.0.5.1+2-LTS, mixed mode, sharing)"
+      ]
+    },
+    "blocking-v2-jdk21": {
+      "label": "blocking-v2-jdk21",
+      "ref": "WORKTREE",
+      "java": "D:/jdk-21-temurin",
+      "providerJava": "D:/jdk-25",
+      "args": [
+        "--connections",
+        "1",
+        "--transport",
+        "blocking"
+      ],
+      "jvmArgs": [],
+      "sha": "7c3a04c5239cb1d17091cbaea398c588f6dc93c1",
+      "dirty": false,
+      "javaVersion": [
+        "openjdk version \"21.0.13.1\" 2026-11-17 LTS",
+        "OpenJDK Runtime Environment Temurin-21.0.13.1+2 (build 21.0.13.1+2-LTS)",
+        "OpenJDK 64-Bit Server VM Temurin-21.0.13.1+2 (build 21.0.13.1+2-LTS, mixed mode, sharing)"
+      ],
+      "providerJavaVersion": [
+        "openjdk version \"25.0.5.1\" 2026-11-17 LTS",
+        "OpenJDK Runtime Environment Temurin-25.0.5.1+2 (build 25.0.5.1+2-LTS)",
+        "OpenJDK 64-Bit Server VM Temurin-25.0.5.1+2 (build 25.0.5.1+2-LTS, mixed mode, sharing)"
+      ]
+    },
+    "vertx-jdk21": {
+      "label": "vertx-jdk21",
+      "ref": "WORKTREE",
+      "java": "D:/jdk-21-temurin",
+      "providerJava": "D:/jdk-25",
+      "args": [
+        "--connections",
+        "1",
+        "--transport",
+        "vertx"
+      ],
+      "jvmArgs": [],
+      "sha": "7c3a04c5239cb1d17091cbaea398c588f6dc93c1",
+      "dirty": false,
+      "javaVersion": [
+        "openjdk version \"21.0.13.1\" 2026-11-17 LTS",
+        "OpenJDK Runtime Environment Temurin-21.0.13.1+2 (build 21.0.13.1+2-LTS)",
+        "OpenJDK 64-Bit Server VM Temurin-21.0.13.1+2 (build 21.0.13.1+2-LTS, mixed mode, sharing)"
+      ],
+      "providerJavaVersion": [
+        "openjdk version \"25.0.5.1\" 2026-11-17 LTS",
+        "OpenJDK Runtime Environment Temurin-25.0.5.1+2 (build 25.0.5.1+2-LTS)",
+        "OpenJDK 64-Bit Server VM Temurin-25.0.5.1+2 (build 25.0.5.1+2-LTS, mixed mode, sharing)"
+      ]
+    }
+  },
+  "host": {
+    "platform": "Windows-11-10.0.26200-SP0",
+    "machine": "AMD64",
+    "processor": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+    "cpuCount": 32,
+    "cpuModel": "13th Gen Intel(R) Core(TM) i9-13980HX",
+    "memoryGb": 16
+  },
+  "startedAt": "2026-11-27T12:10:22.324031+00:00",
+  "runs": [
+    {
+      "round": 0,
+      "target": "blocking-v1-jdk25",
+      "payload": 64,
+      "rate": 120000,
+      "file": "blocking-v1-jdk25_r0_p64_rate120000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4256,
+      "freeMemoryMbAfter": 4523,
+      "lowMemory": false
+    },
+    {
+      "round": 0,
+      "target": "blocking-v2-jdk25",
+      "payload": 64,
+      "rate": 120000,
+      "file": "blocking-v2-jdk25_r0_p64_rate120000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4523,
+      "freeMemoryMbAfter": 4567,
+      "lowMemory": false
+    },
+    {
+      "round": 0,
+      "target": "vertx-jdk25",
+      "payload": 64,
+      "rate": 120000,
+      "file": "vertx-jdk25_r0_p64_rate120000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4567,
+      "freeMemoryMbAfter": 4519,
+      "lowMemory": false
+    },
+    {
+      "round": 0,
+      "target": "blocking-v2-jdk21",
+      "payload": 64,
+      "rate": 120000,
+      "file": "blocking-v2-jdk21_r0_p64_rate120000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4519,
+      "freeMemoryMbAfter": 4400,
+      "lowMemory": false
+    },
+    {
+      "round": 0,
+      "target": "vertx-jdk21",
+      "payload": 64,
+      "rate": 120000,
+      "file": "vertx-jdk21_r0_p64_rate120000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4400,
+      "freeMemoryMbAfter": 4690,
+      "lowMemory": false
+    },
+    {
+      "round": 0,
+      "target": "blocking-v1-jdk25",
+      "payload": 64,
+      "rate": 80000,
+      "file": "blocking-v1-jdk25_r0_p64_rate80000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 2109,
+      "freeMemoryMbAfter": 3649,
+      "lowMemory": false
+    },
+    {
+      "round": 0,
+      "target": "blocking-v2-jdk25",
+      "payload": 64,
+      "rate": 80000,
+      "file": "blocking-v2-jdk25_r0_p64_rate80000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 3649,
+      "freeMemoryMbAfter": 3820,
+      "lowMemory": false
+    },
+    {
+      "round": 0,
+      "target": "vertx-jdk25",
+      "payload": 64,
+      "rate": 80000,
+      "file": "vertx-jdk25_r0_p64_rate80000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 3820,
+      "freeMemoryMbAfter": 3833,
+      "lowMemory": false
+    },
+    {
+      "round": 0,
+      "target": "blocking-v2-jdk21",
+      "payload": 64,
+      "rate": 80000,
+      "file": "blocking-v2-jdk21_r0_p64_rate80000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 3833,
+      "freeMemoryMbAfter": 3845,
+      "lowMemory": false
+    },
+    {
+      "round": 0,
+      "target": "vertx-jdk21",
+      "payload": 64,
+      "rate": 80000,
+      "file": "vertx-jdk21_r0_p64_rate80000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 3845,
+      "freeMemoryMbAfter": 3949,
+      "lowMemory": false
+    },
+    {
+      "round": 0,
+      "target": "blocking-v1-jdk25",
+      "payload": 64,
+      "rate": 40000,
+      "file": "blocking-v1-jdk25_r0_p64_rate40000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 3949,
+      "freeMemoryMbAfter": 4485,
+      "lowMemory": false
+    },
+    {
+      "round": 0,
+      "target": "blocking-v2-jdk25",
+      "payload": 64,
+      "rate": 40000,
+      "file": "blocking-v2-jdk25_r0_p64_rate40000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4485,
+      "freeMemoryMbAfter": 4496,
+      "lowMemory": false
+    },
+    {
+      "round": 0,
+      "target": "vertx-jdk25",
+      "payload": 64,
+      "rate": 40000,
+      "file": "vertx-jdk25_r0_p64_rate40000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4496,
+      "freeMemoryMbAfter": 4365,
+      "lowMemory": false
+    },
+    {
+      "round": 0,
+      "target": "blocking-v2-jdk21",
+      "payload": 64,
+      "rate": 40000,
+      "file": "blocking-v2-jdk21_r0_p64_rate40000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4365,
+      "freeMemoryMbAfter": 4346,
+      "lowMemory": false
+    },
+    {
+      "round": 0,
+      "target": "vertx-jdk21",
+      "payload": 64,
+      "rate": 40000,
+      "file": "vertx-jdk21_r0_p64_rate40000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4346,
+      "freeMemoryMbAfter": 4296,
+      "lowMemory": false
+    },
+    {
+      "round": 1,
+      "target": "vertx-jdk21",
+      "payload": 64,
+      "rate": 120000,
+      "file": "vertx-jdk21_r1_p64_rate120000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4296,
+      "freeMemoryMbAfter": 4228,
+      "lowMemory": false
+    },
+    {
+      "round": 1,
+      "target": "blocking-v2-jdk21",
+      "payload": 64,
+      "rate": 120000,
+      "file": "blocking-v2-jdk21_r1_p64_rate120000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4228,
+      "freeMemoryMbAfter": 4019,
+      "lowMemory": false
+    },
+    {
+      "round": 1,
+      "target": "vertx-jdk25",
+      "payload": 64,
+      "rate": 120000,
+      "file": "vertx-jdk25_r1_p64_rate120000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4019,
+      "freeMemoryMbAfter": 4074,
+      "lowMemory": false
+    },
+    {
+      "round": 1,
+      "target": "blocking-v2-jdk25",
+      "payload": 64,
+      "rate": 120000,
+      "file": "blocking-v2-jdk25_r1_p64_rate120000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4074,
+      "freeMemoryMbAfter": 3943,
+      "lowMemory": false
+    },
+    {
+      "round": 1,
+      "target": "blocking-v1-jdk25",
+      "payload": 64,
+      "rate": 120000,
+      "file": "blocking-v1-jdk25_r1_p64_rate120000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 3943,
+      "freeMemoryMbAfter": 3926,
+      "lowMemory": false
+    },
+    {
+      "round": 1,
+      "target": "vertx-jdk21",
+      "payload": 64,
+      "rate": 40000,
+      "file": "vertx-jdk21_r1_p64_rate40000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 3926,
+      "freeMemoryMbAfter": 4191,
+      "lowMemory": false
+    },
+    {
+      "round": 1,
+      "target": "blocking-v2-jdk21",
+      "payload": 64,
+      "rate": 40000,
+      "file": "blocking-v2-jdk21_r1_p64_rate40000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4191,
+      "freeMemoryMbAfter": 4427,
+      "lowMemory": false
+    },
+    {
+      "round": 1,
+      "target": "vertx-jdk25",
+      "payload": 64,
+      "rate": 40000,
+      "file": "vertx-jdk25_r1_p64_rate40000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4427,
+      "freeMemoryMbAfter": 4367,
+      "lowMemory": false
+    },
+    {
+      "round": 1,
+      "target": "blocking-v2-jdk25",
+      "payload": 64,
+      "rate": 40000,
+      "file": "blocking-v2-jdk25_r1_p64_rate40000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4367,
+      "freeMemoryMbAfter": 4485,
+      "lowMemory": false
+    },
+    {
+      "round": 1,
+      "target": "blocking-v1-jdk25",
+      "payload": 64,
+      "rate": 40000,
+      "file": "blocking-v1-jdk25_r1_p64_rate40000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4486,
+      "freeMemoryMbAfter": 4395,
+      "lowMemory": false
+    },
+    {
+      "round": 1,
+      "target": "vertx-jdk21",
+      "payload": 64,
+      "rate": 10000,
+      "file": "vertx-jdk21_r1_p64_rate10000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4394,
+      "freeMemoryMbAfter": 4242,
+      "lowMemory": false
+    },
+    {
+      "round": 1,
+      "target": "blocking-v2-jdk21",
+      "payload": 64,
+      "rate": 10000,
+      "file": "blocking-v2-jdk21_r1_p64_rate10000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4242,
+      "freeMemoryMbAfter": 4302,
+      "lowMemory": false
+    },
+    {
+      "round": 1,
+      "target": "vertx-jdk25",
+      "payload": 64,
+      "rate": 10000,
+      "file": "vertx-jdk25_r1_p64_rate10000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4302,
+      "freeMemoryMbAfter": 4323,
+      "lowMemory": false
+    },
+    {
+      "round": 1,
+      "target": "blocking-v2-jdk25",
+      "payload": 64,
+      "rate": 10000,
+      "file": "blocking-v2-jdk25_r1_p64_rate10000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4323,
+      "freeMemoryMbAfter": 4273,
+      "lowMemory": false
+    },
+    {
+      "round": 1,
+      "target": "blocking-v1-jdk25",
+      "payload": 64,
+      "rate": 10000,
+      "file": "blocking-v1-jdk25_r1_p64_rate10000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4273,
+      "freeMemoryMbAfter": 4230,
+      "lowMemory": false
+    },
+    {
+      "round": 1,
+      "target": "vertx-jdk21",
+      "payload": 64,
+      "rate": 80000,
+      "file": "vertx-jdk21_r1_p64_rate80000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4230,
+      "freeMemoryMbAfter": 4159,
+      "lowMemory": false
+    },
+    {
+      "round": 1,
+      "target": "blocking-v2-jdk21",
+      "payload": 64,
+      "rate": 80000,
+      "file": "blocking-v2-jdk21_r1_p64_rate80000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4159,
+      "freeMemoryMbAfter": 4268,
+      "lowMemory": false
+    },
+    {
+      "round": 1,
+      "target": "vertx-jdk25",
+      "payload": 64,
+      "rate": 80000,
+      "file": "vertx-jdk25_r1_p64_rate80000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4268,
+      "freeMemoryMbAfter": 4154,
+      "lowMemory": false
+    },
+    {
+      "round": 1,
+      "target": "blocking-v2-jdk25",
+      "payload": 64,
+      "rate": 80000,
+      "file": "blocking-v2-jdk25_r1_p64_rate80000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4154,
+      "freeMemoryMbAfter": 4227,
+      "lowMemory": false
+    },
+    {
+      "round": 1,
+      "target": "blocking-v1-jdk25",
+      "payload": 64,
+      "rate": 80000,
+      "file": "blocking-v1-jdk25_r1_p64_rate80000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4226,
+      "freeMemoryMbAfter": 4239,
+      "lowMemory": false
+    },
+    {
+      "round": 2,
+      "target": "vertx-jdk21",
+      "payload": 64,
+      "rate": 10000,
+      "file": "vertx-jdk21_r2_p64_rate10000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4239,
+      "freeMemoryMbAfter": 4182,
+      "lowMemory": false
+    },
+    {
+      "round": 2,
+      "target": "blocking-v2-jdk21",
+      "payload": 64,
+      "rate": 10000,
+      "file": "blocking-v2-jdk21_r2_p64_rate10000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4182,
+      "freeMemoryMbAfter": 4153,
+      "lowMemory": false
+    },
+    {
+      "round": 2,
+      "target": "vertx-jdk25",
+      "payload": 64,
+      "rate": 10000,
+      "file": "vertx-jdk25_r2_p64_rate10000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4153,
+      "freeMemoryMbAfter": 4134,
+      "lowMemory": false
+    },
+    {
+      "round": 2,
+      "target": "blocking-v2-jdk25",
+      "payload": 64,
+      "rate": 10000,
+      "file": "blocking-v2-jdk25_r2_p64_rate10000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4134,
+      "freeMemoryMbAfter": 4167,
+      "lowMemory": false
+    },
+    {
+      "round": 2,
+      "target": "blocking-v1-jdk25",
+      "payload": 64,
+      "rate": 10000,
+      "file": "blocking-v1-jdk25_r2_p64_rate10000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4167,
+      "freeMemoryMbAfter": 4128,
+      "lowMemory": false
+    },
+    {
+      "round": 2,
+      "target": "vertx-jdk21",
+      "payload": 64,
+      "rate": 80000,
+      "file": "vertx-jdk21_r2_p64_rate80000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4128,
+      "freeMemoryMbAfter": 4141,
+      "lowMemory": false
+    },
+    {
+      "round": 2,
+      "target": "blocking-v2-jdk21",
+      "payload": 64,
+      "rate": 80000,
+      "file": "blocking-v2-jdk21_r2_p64_rate80000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4141,
+      "freeMemoryMbAfter": 4157,
+      "lowMemory": false
+    },
+    {
+      "round": 2,
+      "target": "vertx-jdk25",
+      "payload": 64,
+      "rate": 80000,
+      "file": "vertx-jdk25_r2_p64_rate80000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4157,
+      "freeMemoryMbAfter": 4173,
+      "lowMemory": false
+    },
+    {
+      "round": 2,
+      "target": "blocking-v2-jdk25",
+      "payload": 64,
+      "rate": 80000,
+      "file": "blocking-v2-jdk25_r2_p64_rate80000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4173,
+      "freeMemoryMbAfter": 4163,
+      "lowMemory": false
+    },
+    {
+      "round": 2,
+      "target": "blocking-v1-jdk25",
+      "payload": 64,
+      "rate": 80000,
+      "file": "blocking-v1-jdk25_r2_p64_rate80000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4163,
+      "freeMemoryMbAfter": 4119,
+      "lowMemory": false
+    },
+    {
+      "round": 2,
+      "target": "vertx-jdk21",
+      "payload": 64,
+      "rate": 40000,
+      "file": "vertx-jdk21_r2_p64_rate40000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4119,
+      "freeMemoryMbAfter": 3908,
+      "lowMemory": false
+    },
+    {
+      "round": 2,
+      "target": "blocking-v2-jdk21",
+      "payload": 64,
+      "rate": 40000,
+      "file": "blocking-v2-jdk21_r2_p64_rate40000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 3908,
+      "freeMemoryMbAfter": 3881,
+      "lowMemory": false
+    },
+    {
+      "round": 2,
+      "target": "vertx-jdk25",
+      "payload": 64,
+      "rate": 40000,
+      "file": "vertx-jdk25_r2_p64_rate40000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 3881,
+      "freeMemoryMbAfter": 3951,
+      "lowMemory": false
+    },
+    {
+      "round": 2,
+      "target": "blocking-v2-jdk25",
+      "payload": 64,
+      "rate": 40000,
+      "file": "blocking-v2-jdk25_r2_p64_rate40000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 3951,
+      "freeMemoryMbAfter": 3971,
+      "lowMemory": false
+    },
+    {
+      "round": 2,
+      "target": "blocking-v1-jdk25",
+      "payload": 64,
+      "rate": 40000,
+      "file": "blocking-v1-jdk25_r2_p64_rate40000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 3971,
+      "freeMemoryMbAfter": 3938,
+      "lowMemory": false
+    },
+    {
+      "round": 2,
+      "target": "vertx-jdk21",
+      "payload": 64,
+      "rate": 120000,
+      "file": "vertx-jdk21_r2_p64_rate120000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 3938,
+      "freeMemoryMbAfter": 3876,
+      "lowMemory": false
+    },
+    {
+      "round": 2,
+      "target": "blocking-v2-jdk21",
+      "payload": 64,
+      "rate": 120000,
+      "file": "blocking-v2-jdk21_r2_p64_rate120000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 3876,
+      "freeMemoryMbAfter": 3805,
+      "lowMemory": false
+    },
+    {
+      "round": 2,
+      "target": "vertx-jdk25",
+      "payload": 64,
+      "rate": 120000,
+      "file": "vertx-jdk25_r2_p64_rate120000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 3805,
+      "freeMemoryMbAfter": 4037,
+      "lowMemory": false
+    },
+    {
+      "round": 2,
+      "target": "blocking-v2-jdk25",
+      "payload": 64,
+      "rate": 120000,
+      "file": "blocking-v2-jdk25_r2_p64_rate120000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4037,
+      "freeMemoryMbAfter": 3947,
+      "lowMemory": false
+    },
+    {
+      "round": 2,
+      "target": "blocking-v1-jdk25",
+      "payload": 64,
+      "rate": 120000,
+      "file": "blocking-v1-jdk25_r2_p64_rate120000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 3947,
+      "freeMemoryMbAfter": 4038,
+      "lowMemory": false
+    },
+    {
+      "round": 0,
+      "target": "blocking-v1-jdk25",
+      "payload": 64,
+      "rate": 10000,
+      "file": "blocking-v1-jdk25_r0_p64_rate10000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 3520,
+      "freeMemoryMbAfter": 3590,
+      "lowMemory": false,
+      "rerunAt": "2026-11-27T12:41:22.083743+00:00"
+    },
+    {
+      "round": 0,
+      "target": "blocking-v2-jdk25",
+      "payload": 64,
+      "rate": 10000,
+      "file": "blocking-v2-jdk25_r0_p64_rate10000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 3590,
+      "freeMemoryMbAfter": 3632,
+      "lowMemory": false,
+      "rerunAt": "2026-11-27T12:41:22.083743+00:00"
+    },
+    {
+      "round": 0,
+      "target": "vertx-jdk25",
+      "payload": 64,
+      "rate": 10000,
+      "file": "vertx-jdk25_r0_p64_rate10000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 3632,
+      "freeMemoryMbAfter": 3656,
+      "lowMemory": false,
+      "rerunAt": "2026-11-27T12:41:22.083743+00:00"
+    },
+    {
+      "round": 0,
+      "target": "blocking-v2-jdk21",
+      "payload": 64,
+      "rate": 10000,
+      "file": "blocking-v2-jdk21_r0_p64_rate10000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 3656,
+      "freeMemoryMbAfter": 3720,
+      "lowMemory": false,
+      "rerunAt": "2026-11-27T12:41:22.083743+00:00"
+    },
+    {
+      "round": 0,
+      "target": "vertx-jdk21",
+      "payload": 64,
+      "rate": 10000,
+      "file": "vertx-jdk21_r0_p64_rate10000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 3720,
+      "freeMemoryMbAfter": 3692,
+      "lowMemory": false,
+      "rerunAt": "2026-11-27T12:41:22.083743+00:00"
+    }
+  ],
+  "finishedAt": "2026-11-27T12:39:41.670663+00:00"
+}
