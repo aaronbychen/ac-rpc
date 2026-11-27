@@ -1,0 +1,65 @@
+{
+    "labels": {
+        "target": "grpc-vt",
+        "round": "2"
+    },
+    "config": {
+        "rate": 130000,
+        "warmupSec": 10,
+        "durationSec": 15,
+        "timeoutSec": 5,
+        "payloadBytes": 64,
+        "maxInFlight": 10000,
+        "maxThreads": 2000,
+        "system": "grpc",
+        "serializer": "kryo",
+        "connections": "1"
+    },
+    "environment": {
+        "timestamp": "2026-11-27T08:53:51.454231Z",
+        "javaVersion": "25.0.5.1",
+        "javaVendor": "Eclipse Adoptium",
+        "vmName": "OpenJDK 64-Bit Server VM",
+        "osName": "Windows 11",
+        "osArch": "amd64",
+        "availableProcessors": 32,
+        "maxHeapMb": 1024,
+        "gc": [
+            "G1 Young Generation",
+            "G1 Concurrent GC",
+            "G1 Old Generation"
+        ],
+        "jvmArgs": [
+            "-Xms1g",
+            "-Xmx1g",
+            "--sun-misc-unsafe-memory-access=allow"
+        ]
+    },
+    "counts": {
+        "issued": 1950000,
+        "ok": 969365,
+        "slow": 0,
+        "errors": 0,
+        "dropped": 980635,
+        "incomplete": 0
+    },
+    "latencyMs": {
+        "count": 969365,
+        "p50": 153.485,
+        "p90": 177.209,
+        "p99": 201.458,
+        "p999": 219.808,
+        "max": 316.67,
+        "mean": 154.299
+    },
+    "throughputOkPerSec": 64624.333,
+    "errorRate": 0.503,
+    "percentilesReliable": false,
+    "aborted": false,
+    "abortReason": null,
+    "peakThreads": 74,
+    "peakCommittedMb": 1383,
+    "maxSchedulerLagMs": 8.467,
+    "firstError": null,
+    "histogram": "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"
+}

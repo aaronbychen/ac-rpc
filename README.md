@@ -140,14 +140,14 @@ The knee is around 250k rps. Beyond it, latency jumps by an order of magnitude a
 
 ### Comparison with gRPC-java
 
-gRPC-java 1.84 runs as the reference: generated Protobuf stubs, plaintext, and blocking stubs on virtual threads, driven exactly like ac-rpc. Both systems use **one connection** and a 3 s deadline. gRPC runs in two server configurations: `grpc-vt` (handlers on virtual threads, the same dispatch as ac-rpc) and `grpc-direct` (`directExecutor`, gRPC's recommended setting for non-blocking handlers). Targets alternate ABBA in each round; ratios are computed per round ([data](bench/results/phase2-grpc-20261127T075133Z/summary.md)). The run stopped after 88 of 90 runs, so the 64 B / 130k cell has two rounds and every other cell has three.
+gRPC-java 1.84 runs as the reference: generated Protobuf stubs, plaintext, and blocking stubs on virtual threads, driven exactly like ac-rpc. Both systems use **one connection** and a 3 s deadline. gRPC runs in two server configurations: `grpc-vt` (handlers on virtual threads, the same dispatch as ac-rpc) and `grpc-direct` (`directExecutor`, gRPC's recommended setting for non-blocking handlers). Targets alternate ABBA in each round; ratios are computed per round ([data](bench/results/phase2-grpc-20261127T075133Z/summary.md)). One cell (64 B / 130k, round 3) was re-run with all three targets together after the original run stopped early.
 
 | payload | offered rps | ac-rpc p99 ms | grpc-direct p99 ms | grpc-direct / ac-rpc throughput |
 |---|---|---|---|---|
 | 64 B | 10,000 | 0.32 | 0.39 | 1.00 |
 | 64 B | 40,000 | 0.75 | 4.04 | 1.00 |
 | 64 B | 100,000 | 1.57 | 220 (saturated) | 0.65 [0.64, 0.80] |
-| 64 B | 130,000 | 1.06 | 161 (saturated) | 0.61 [0.60, 0.62] |
+| 64 B | 130,000 | 1.07 | 161 (saturated) | 0.60 [0.57, 0.62] |
 | 4 KB | 10,000 | 0.44 | 0.45 | 1.00 |
 | 4 KB | 40,000 | 18.5 [1.3, 33.5] | 412 (saturated) | 0.98 |
 | 4 KB | 100,000 | 272 (saturated) | 391 (saturated) | 0.77 [0.76, 0.81] |

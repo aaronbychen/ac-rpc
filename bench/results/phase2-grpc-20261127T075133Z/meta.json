@@ -1098,9 +1098,34 @@
       "rate": 130000,
       "file": "grpc-direct_r2_p64_rate130000.json",
       "status": "ok",
-      "freeMemoryMbBefore": 4643,
-      "freeMemoryMbAfter": 4503,
-      "lowMemory": false
+      "freeMemoryMbBefore": 4173,
+      "freeMemoryMbAfter": 4480,
+      "lowMemory": false,
+      "rerunAt": "2026-11-27T08:52:54.118804+00:00"
+    },
+    {
+      "round": 2,
+      "target": "grpc-vt",
+      "payload": 64,
+      "rate": 130000,
+      "file": "grpc-vt_r2_p64_rate130000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4480,
+      "freeMemoryMbAfter": 4601,
+      "lowMemory": false,
+      "rerunAt": "2026-11-27T08:52:54.118804+00:00"
+    },
+    {
+      "round": 2,
+      "target": "acrpc",
+      "payload": 64,
+      "rate": 130000,
+      "file": "acrpc_r2_p64_rate130000.json",
+      "status": "ok",
+      "freeMemoryMbBefore": 4601,
+      "freeMemoryMbAfter": 4596,
+      "lowMemory": false,
+      "rerunAt": "2026-11-27T08:52:54.118804+00:00"
     }
   ]
 }
