@@ -32,7 +32,6 @@ Thumbs.db
 
 # Local-only material (not part of the published project)
 archive/
-resume.md
 
 # Benchmark scratch (worktrees, built jars)
 .bench/
