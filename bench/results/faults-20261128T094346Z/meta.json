@@ -1,0 +1,1063 @@
+{
+  "config": {
+    "name": "faults",
+    "java": "D:/jdk-25",
+    "jvmArgs": [
+      "-Xms512m",
+      "-Xmx512m",
+      "--sun-misc-unsafe-memory-access=allow"
+    ],
+    "registry": "http://localhost:2379",
+    "etcdContainer": "ac-rpc-etcd",
+    "serializer": "kryo",
+    "providers": 3,
+    "basePort": 18081,
+    "leaseTtlSec": 30,
+    "rate": 2000,
+    "payload": 64,
+    "warmupSec": 5,
+    "durationSec": 60,
+    "timeoutSec": 5,
+    "settleSec": 2,
+    "rounds": 3,
+    "scenarios": [
+      {
+        "label": "etcd-outage",
+        "args": [
+          "--tolerant",
+          "failOver",
+          "--outlier-ejection",
+          "true"
+        ],
+        "events": [
+          {
+            "at": 10.5,
+            "action": "kill-etcd"
+          },
+          {
+            "at": 30.5,
+            "action": "start-etcd"
+          }
+        ]
+      },
+      {
+        "label": "restart-failFast",
+        "args": [
+          "--tolerant",
+          "failFast",
+          "--outlier-ejection",
+          "false"
+        ],
+        "events": [
+          {
+            "at": 10.5,
+            "action": "kill-provider",
+            "index": 0
+          },
+          {
+            "at": 20.5,
+            "action": "start-provider",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "label": "restart-failOver+ejection",
+        "args": [
+          "--tolerant",
+          "failOver",
+          "--outlier-ejection",
+          "true"
+        ],
+        "events": [
+          {
+            "at": 10.5,
+            "action": "kill-provider",
+            "index": 0
+          },
+          {
+            "at": 20.5,
+            "action": "start-provider",
+            "index": 0
+          }
+        ]
+      }
+    ]
+  },
+  "sha": "828b185f3d97c083295461f822edbaec234a6839",
+  "dirty": false,
+  "host": {
+    "platform": "Windows-11-10.0.26200-SP0",
+    "machine": "AMD64",
+    "processor": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+    "cpuCount": 32,
+    "cpuModel": "13th Gen Intel(R) Core(TM) i9-13980HX",
+    "memoryGb": 16
+  },
+  "javaVersion": [
+    "openjdk version \"25.0.5.1\" 2026-11-17 LTS",
+    "OpenJDK Runtime Environment Temurin-25.0.5.1+2 (build 25.0.5.1+2-LTS)",
+    "OpenJDK 64-Bit Server VM Temurin-25.0.5.1+2 (build 25.0.5.1+2-LTS, mixed mode, sharing)"
+  ],
+  "results": [
+    {
+      "scenario": "etcd-outage",
+      "round": 0,
+      "file": "runs/etcd-outage_r0.json",
+      "freeMemoryMbBefore": 3202,
+      "lowMemory": false,
+      "status": "ok",
+      "windowStartEpochMs": 1795859035711,
+      "events": [
+        {
+          "at": 10.5,
+          "action": "kill-etcd",
+          "startedEpochMs": 1795859046210.801,
+          "doneEpochMs": 1795859046790.6265
+        },
+        {
+          "at": 30.5,
+          "action": "start-etcd",
+          "startedEpochMs": 1795859066211.0642,
+          "doneEpochMs": 1795859066567.1475
+        }
+      ],
+      "reregisteredEpochMs": 1795859067603.5574,
+      "finalRegistered": 3,
+      "providerLogs": {
+        "0": [
+          "etcd-outage_r0_provider0.log"
+        ],
+        "1": [
+          "etcd-outage_r0_provider1.log"
+        ],
+        "2": [
+          "etcd-outage_r0_provider2.log"
+        ]
+      },
+      "summary": {
+        "faultSec": 10.5,
+        "events": [
+          {
+            "action": "kill-etcd",
+            "sec": 10.5,
+            "commandMs": 580
+          },
+          {
+            "action": "start-etcd",
+            "sec": 30.5,
+            "commandMs": 356
+          }
+        ],
+        "failedBeforeFault": 0,
+        "failedAfterFault": 40051,
+        "failedPctAfterFault": 40.051,
+        "unhealthySecondsAfterFault": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          23
+        ],
+        "recoverySec": 24,
+        "baselineP99Ms": 0.475,
+        "peakP99Ms": 10099.884,
+        "peakP99Sec": 14,
+        "postFaultMedianP99Ms": 0.485,
+        "firstError": null,
+        "reregisteredSecAfterEtcdStart": 1.39,
+        "finalRegistered": 3,
+        "staleFallbackLogLines": 19357,
+        "watchFailedLogLines": 1
+      }
+    },
+    {
+      "scenario": "restart-failFast",
+      "round": 0,
+      "file": "runs/restart-failFast_r0.json",
+      "freeMemoryMbBefore": 3627,
+      "lowMemory": false,
+      "status": "ok",
+      "windowStartEpochMs": 1795859106464,
+      "events": [
+        {
+          "at": 10.5,
+          "action": "kill-provider",
+          "index": 0,
+          "startedEpochMs": 1795859116963.8508,
+          "doneEpochMs": 1795859116964.6604
+        },
+        {
+          "at": 20.5,
+          "action": "start-provider",
+          "index": 0,
+          "startedEpochMs": 1795859126964.1226,
+          "doneEpochMs": 1795859126969.0806
+        }
+      ],
+      "reregisteredEpochMs": null,
+      "finalRegistered": 3,
+      "providerLogs": {
+        "0": [
+          "restart-failFast_r0_provider0.log",
+          "restart-failFast_r0_provider0_start1.log"
+        ],
+        "1": [
+          "restart-failFast_r0_provider1.log"
+        ],
+        "2": [
+          "restart-failFast_r0_provider2.log"
+        ]
+      },
+      "summary": {
+        "faultSec": 10.5,
+        "events": [
+          {
+            "action": "kill-provider",
+            "sec": 10.5,
+            "commandMs": 1
+          },
+          {
+            "action": "start-provider",
+            "sec": 20.5,
+            "commandMs": 5
+          }
+        ],
+        "failedBeforeFault": 0,
+        "failedAfterFault": 7302,
+        "failedPctAfterFault": 7.302,
+        "unhealthySecondsAfterFault": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11
+        ],
+        "recoverySec": 12,
+        "baselineP99Ms": 0.433,
+        "peakP99Ms": 124.453,
+        "peakP99Sec": 11,
+        "postFaultMedianP99Ms": 0.3965,
+        "firstError": "java.lang.RuntimeException: Service call failed",
+        "rejoinSec": 1,
+        "restartedShareBySec": {
+          "0": 0.0,
+          "1": 0.172,
+          "2": 0.334,
+          "3": 0.335,
+          "4": 0.335,
+          "5": 0.334,
+          "6": 0.335,
+          "7": 0.335,
+          "8": 0.334,
+          "9": 0.334,
+          "10": 0.335,
+          "11": 0.335,
+          "12": 0.335,
+          "13": 0.335,
+          "14": 0.334,
+          "15": 0.335,
+          "16": 0.335,
+          "17": 0.334,
+          "18": 0.334,
+          "19": 0.334,
+          "20": 0.335,
+          "21": 0.335,
+          "22": 0.334,
+          "23": 0.334,
+          "24": 0.334,
+          "25": 0.335,
+          "26": 0.334,
+          "27": 0.335,
+          "28": 0.334,
+          "29": 0.335,
+          "30": 0.334,
+          "31": 0.335,
+          "32": 0.335,
+          "33": 0.334,
+          "34": 0.334,
+          "35": 0.335,
+          "36": 0.334,
+          "37": 0.335,
+          "38": 0.335,
+          "39": 0.307
+        }
+      }
+    },
+    {
+      "scenario": "restart-failOver+ejection",
+      "round": 0,
+      "file": "runs/restart-failOver+ejection_r0.json",
+      "freeMemoryMbBefore": 3860,
+      "lowMemory": false,
+      "status": "ok",
+      "windowStartEpochMs": 1795859177050,
+      "events": [
+        {
+          "at": 10.5,
+          "action": "kill-provider",
+          "index": 0,
+          "startedEpochMs": 1795859187550.0654,
+          "doneEpochMs": 1795859187550.5874
+        },
+        {
+          "at": 20.5,
+          "action": "start-provider",
+          "index": 0,
+          "startedEpochMs": 1795859197550.21,
+          "doneEpochMs": 1795859197555.1948
+        }
+      ],
+      "reregisteredEpochMs": null,
+      "finalRegistered": 3,
+      "providerLogs": {
+        "0": [
+          "restart-failOver+ejection_r0_provider0.log",
+          "restart-failOver+ejection_r0_provider0_start1.log"
+        ],
+        "1": [
+          "restart-failOver+ejection_r0_provider1.log"
+        ],
+        "2": [
+          "restart-failOver+ejection_r0_provider2.log"
+        ]
+      },
+      "summary": {
+        "faultSec": 10.5,
+        "events": [
+          {
+            "action": "kill-provider",
+            "sec": 10.5,
+            "commandMs": 1
+          },
+          {
+            "action": "start-provider",
+            "sec": 20.5,
+            "commandMs": 5
+          }
+        ],
+        "failedBeforeFault": 0,
+        "failedAfterFault": 0,
+        "failedPctAfterFault": 0.0,
+        "unhealthySecondsAfterFault": [],
+        "recoverySec": 0,
+        "baselineP99Ms": 0.4305,
+        "peakP99Ms": 151.912,
+        "peakP99Sec": 15,
+        "postFaultMedianP99Ms": 0.3845,
+        "firstError": null,
+        "rejoinSec": 5,
+        "restartedShareBySec": {
+          "0": 0.0,
+          "1": 0.0,
+          "2": 0.0,
+          "3": 0.0,
+          "4": 0.0,
+          "5": 0.197,
+          "6": 0.334,
+          "7": 0.334,
+          "8": 0.334,
+          "9": 0.335,
+          "10": 0.251,
+          "11": 0.335,
+          "12": 0.335,
+          "13": 0.334,
+          "14": 0.334,
+          "15": 0.335,
+          "16": 0.334,
+          "17": 0.335,
+          "18": 0.335,
+          "19": 0.335,
+          "20": 0.335,
+          "21": 0.334,
+          "22": 0.335,
+          "23": 0.334,
+          "24": 0.334,
+          "25": 0.335,
+          "26": 0.334,
+          "27": 0.334,
+          "28": 0.334,
+          "29": 0.334,
+          "30": 0.335,
+          "31": 0.335,
+          "32": 0.334,
+          "33": 0.334,
+          "34": 0.335,
+          "35": 0.334,
+          "36": 0.334,
+          "37": 0.335,
+          "38": 0.334,
+          "39": 0.335
+        }
+      }
+    },
+    {
+      "scenario": "restart-failOver+ejection",
+      "round": 1,
+      "file": "runs/restart-failOver+ejection_r1.json",
+      "freeMemoryMbBefore": 4501,
+      "lowMemory": false,
+      "status": "ok",
+      "windowStartEpochMs": 1795859247542,
+      "events": [
+        {
+          "at": 10.5,
+          "action": "kill-provider",
+          "index": 0,
+          "startedEpochMs": 1795859258041.8137,
+          "doneEpochMs": 1795859258042.64
+        },
+        {
+          "at": 20.5,
+          "action": "start-provider",
+          "index": 0,
+          "startedEpochMs": 1795859268042.0913,
+          "doneEpochMs": 1795859268044.9546
+        }
+      ],
+      "reregisteredEpochMs": null,
+      "finalRegistered": 3,
+      "providerLogs": {
+        "0": [
+          "restart-failOver+ejection_r1_provider0.log",
+          "restart-failOver+ejection_r1_provider0_start1.log"
+        ],
+        "1": [
+          "restart-failOver+ejection_r1_provider1.log"
+        ],
+        "2": [
+          "restart-failOver+ejection_r1_provider2.log"
+        ]
+      },
+      "summary": {
+        "faultSec": 10.5,
+        "events": [
+          {
+            "action": "kill-provider",
+            "sec": 10.5,
+            "commandMs": 1
+          },
+          {
+            "action": "start-provider",
+            "sec": 20.5,
+            "commandMs": 3
+          }
+        ],
+        "failedBeforeFault": 0,
+        "failedAfterFault": 0,
+        "failedPctAfterFault": 0.0,
+        "unhealthySecondsAfterFault": [],
+        "recoverySec": 0,
+        "baselineP99Ms": 0.423,
+        "peakP99Ms": 129.237,
+        "peakP99Sec": 15,
+        "postFaultMedianP99Ms": 0.3985,
+        "firstError": null,
+        "rejoinSec": 5,
+        "restartedShareBySec": {
+          "0": 0.0,
+          "1": 0.0,
+          "2": 0.0,
+          "3": 0.0,
+          "4": 0.0,
+          "5": 0.138,
+          "6": 0.334,
+          "7": 0.334,
+          "8": 0.335,
+          "9": 0.334,
+          "10": 0.335,
+          "11": 0.334,
+          "12": 0.335,
+          "13": 0.334,
+          "14": 0.334,
+          "15": 0.335,
+          "16": 0.334,
+          "17": 0.335,
+          "18": 0.334,
+          "19": 0.335,
+          "20": 0.334,
+          "21": 0.335,
+          "22": 0.334,
+          "23": 0.334,
+          "24": 0.335,
+          "25": 0.334,
+          "26": 0.334,
+          "27": 0.335,
+          "28": 0.334,
+          "29": 0.335,
+          "30": 0.334,
+          "31": 0.336,
+          "32": 0.335,
+          "33": 0.335,
+          "34": 0.335,
+          "35": 0.335,
+          "36": 0.334,
+          "37": 0.335,
+          "38": 0.334,
+          "39": 0.322
+        }
+      }
+    },
+    {
+      "scenario": "restart-failFast",
+      "round": 1,
+      "file": "runs/restart-failFast_r1.json",
+      "freeMemoryMbBefore": 4442,
+      "lowMemory": false,
+      "status": "ok",
+      "windowStartEpochMs": 1795859318012,
+      "events": [
+        {
+          "at": 10.5,
+          "action": "kill-provider",
+          "index": 0,
+          "startedEpochMs": 1795859328511.9006,
+          "doneEpochMs": 1795859328512.3442
+        },
+        {
+          "at": 20.5,
+          "action": "start-provider",
+          "index": 0,
+          "startedEpochMs": 1795859338511.907,
+          "doneEpochMs": 1795859338515.9075
+        }
+      ],
+      "reregisteredEpochMs": null,
+      "finalRegistered": 3,
+      "providerLogs": {
+        "0": [
+          "restart-failFast_r1_provider0.log",
+          "restart-failFast_r1_provider0_start1.log"
+        ],
+        "1": [
+          "restart-failFast_r1_provider1.log"
+        ],
+        "2": [
+          "restart-failFast_r1_provider2.log"
+        ]
+      },
+      "summary": {
+        "faultSec": 10.5,
+        "events": [
+          {
+            "action": "kill-provider",
+            "sec": 10.5,
+            "commandMs": 0
+          },
+          {
+            "action": "start-provider",
+            "sec": 20.5,
+            "commandMs": 4
+          }
+        ],
+        "failedBeforeFault": 0,
+        "failedAfterFault": 7236,
+        "failedPctAfterFault": 7.236,
+        "unhealthySecondsAfterFault": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11
+        ],
+        "recoverySec": 12,
+        "baselineP99Ms": 0.422,
+        "peakP99Ms": 125.96,
+        "peakP99Sec": 11,
+        "postFaultMedianP99Ms": 0.3835,
+        "firstError": "java.lang.RuntimeException: Service call failed",
+        "rejoinSec": 1,
+        "restartedShareBySec": {
+          "0": 0.0,
+          "1": 0.174,
+          "2": 0.334,
+          "3": 0.334,
+          "4": 0.334,
+          "5": 0.334,
+          "6": 0.335,
+          "7": 0.335,
+          "8": 0.334,
+          "9": 0.335,
+          "10": 0.334,
+          "11": 0.334,
+          "12": 0.335,
+          "13": 0.334,
+          "14": 0.334,
+          "15": 0.334,
+          "16": 0.334,
+          "17": 0.335,
+          "18": 0.335,
+          "19": 0.334,
+          "20": 0.335,
+          "21": 0.334,
+          "22": 0.335,
+          "23": 0.334,
+          "24": 0.335,
+          "25": 0.334,
+          "26": 0.334,
+          "27": 0.334,
+          "28": 0.335,
+          "29": 0.334,
+          "30": 0.334,
+          "31": 0.335,
+          "32": 0.334,
+          "33": 0.334,
+          "34": 0.334,
+          "35": 0.335,
+          "36": 0.334,
+          "37": 0.334,
+          "38": 0.335,
+          "39": 0.334
+        }
+      }
+    },
+    {
+      "scenario": "etcd-outage",
+      "round": 1,
+      "file": "runs/etcd-outage_r1.json",
+      "freeMemoryMbBefore": 4764,
+      "lowMemory": false,
+      "status": "ok",
+      "windowStartEpochMs": 1795859388454,
+      "events": [
+        {
+          "at": 10.5,
+          "action": "kill-etcd",
+          "startedEpochMs": 1795859398953.98,
+          "doneEpochMs": 1795859399544.7134
+        },
+        {
+          "at": 30.5,
+          "action": "start-etcd",
+          "startedEpochMs": 1795859418953.9941,
+          "doneEpochMs": 1795859419240.0942
+        }
+      ],
+      "reregisteredEpochMs": 1795859420387.2183,
+      "finalRegistered": 3,
+      "providerLogs": {
+        "0": [
+          "etcd-outage_r1_provider0.log"
+        ],
+        "1": [
+          "etcd-outage_r1_provider1.log"
+        ],
+        "2": [
+          "etcd-outage_r1_provider2.log"
+        ]
+      },
+      "summary": {
+        "faultSec": 10.5,
+        "events": [
+          {
+            "action": "kill-etcd",
+            "sec": 10.5,
+            "commandMs": 591
+          },
+          {
+            "action": "start-etcd",
+            "sec": 30.5,
+            "commandMs": 286
+          }
+        ],
+        "failedBeforeFault": 0,
+        "failedAfterFault": 51276,
+        "failedPctAfterFault": 51.276,
+        "unhealthySecondsAfterFault": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          25,
+          26,
+          27,
+          28
+        ],
+        "recoverySec": 29,
+        "baselineP99Ms": 0.4155,
+        "peakP99Ms": 10015.998,
+        "peakP99Sec": 3,
+        "postFaultMedianP99Ms": 0.46199999999999997,
+        "firstError": null,
+        "reregisteredSecAfterEtcdStart": 1.43,
+        "finalRegistered": 3,
+        "staleFallbackLogLines": 20000,
+        "watchFailedLogLines": 1
+      }
+    },
+    {
+      "scenario": "etcd-outage",
+      "round": 2,
+      "file": "runs/etcd-outage_r2.json",
+      "freeMemoryMbBefore": 4861,
+      "lowMemory": false,
+      "status": "ok",
+      "windowStartEpochMs": 1795859459058,
+      "events": [
+        {
+          "at": 10.5,
+          "action": "kill-etcd",
+          "startedEpochMs": 1795859469558.016,
+          "doneEpochMs": 1795859470201.2317
+        },
+        {
+          "at": 30.5,
+          "action": "start-etcd",
+          "startedEpochMs": 1795859489558.1477,
+          "doneEpochMs": 1795859489876.1165
+        }
+      ],
+      "reregisteredEpochMs": 1795859491424.6816,
+      "finalRegistered": 3,
+      "providerLogs": {
+        "0": [
+          "etcd-outage_r2_provider0.log"
+        ],
+        "1": [
+          "etcd-outage_r2_provider1.log"
+        ],
+        "2": [
+          "etcd-outage_r2_provider2.log"
+        ]
+      },
+      "summary": {
+        "faultSec": 10.5,
+        "events": [
+          {
+            "action": "kill-etcd",
+            "sec": 10.5,
+            "commandMs": 643
+          },
+          {
+            "action": "start-etcd",
+            "sec": 30.5,
+            "commandMs": 318
+          }
+        ],
+        "failedBeforeFault": 0,
+        "failedAfterFault": 51797,
+        "failedPctAfterFault": 51.797,
+        "unhealthySecondsAfterFault": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28
+        ],
+        "recoverySec": 29,
+        "baselineP99Ms": 0.425,
+        "peakP99Ms": 10015.998,
+        "peakP99Sec": 15,
+        "postFaultMedianP99Ms": 8.954,
+        "firstError": null,
+        "reregisteredSecAfterEtcdStart": 1.87,
+        "finalRegistered": 3,
+        "staleFallbackLogLines": 20000,
+        "watchFailedLogLines": 1
+      }
+    },
+    {
+      "scenario": "restart-failFast",
+      "round": 2,
+      "file": "runs/restart-failFast_r2.json",
+      "freeMemoryMbBefore": 4863,
+      "lowMemory": false,
+      "status": "ok",
+      "windowStartEpochMs": 1795859529574,
+      "events": [
+        {
+          "at": 10.5,
+          "action": "kill-provider",
+          "index": 0,
+          "startedEpochMs": 1795859540074.0098,
+          "doneEpochMs": 1795859540074.8599
+        },
+        {
+          "at": 20.5,
+          "action": "start-provider",
+          "index": 0,
+          "startedEpochMs": 1795859550073.914,
+          "doneEpochMs": 1795859550077.7952
+        }
+      ],
+      "reregisteredEpochMs": null,
+      "finalRegistered": 3,
+      "providerLogs": {
+        "0": [
+          "restart-failFast_r2_provider0.log",
+          "restart-failFast_r2_provider0_start1.log"
+        ],
+        "1": [
+          "restart-failFast_r2_provider1.log"
+        ],
+        "2": [
+          "restart-failFast_r2_provider2.log"
+        ]
+      },
+      "summary": {
+        "faultSec": 10.5,
+        "events": [
+          {
+            "action": "kill-provider",
+            "sec": 10.5,
+            "commandMs": 1
+          },
+          {
+            "action": "start-provider",
+            "sec": 20.5,
+            "commandMs": 4
+          }
+        ],
+        "failedBeforeFault": 0,
+        "failedAfterFault": 7222,
+        "failedPctAfterFault": 7.222,
+        "unhealthySecondsAfterFault": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11
+        ],
+        "recoverySec": 12,
+        "baselineP99Ms": 0.4355,
+        "peakP99Ms": 130.023,
+        "peakP99Sec": 11,
+        "postFaultMedianP99Ms": 0.3815,
+        "firstError": "java.lang.RuntimeException: Service call failed",
+        "rejoinSec": 1,
+        "restartedShareBySec": {
+          "0": 0.0,
+          "1": 0.257,
+          "2": 0.335,
+          "3": 0.334,
+          "4": 0.334,
+          "5": 0.334,
+          "6": 0.335,
+          "7": 0.334,
+          "8": 0.335,
+          "9": 0.334,
+          "10": 0.251,
+          "11": 0.334,
+          "12": 0.335,
+          "13": 0.335,
+          "14": 0.334,
+          "15": 0.335,
+          "16": 0.334,
+          "17": 0.335,
+          "18": 0.335,
+          "19": 0.334,
+          "20": 0.335,
+          "21": 0.334,
+          "22": 0.334,
+          "23": 0.334,
+          "24": 0.335,
+          "25": 0.334,
+          "26": 0.334,
+          "27": 0.334,
+          "28": 0.335,
+          "29": 0.334,
+          "30": 0.334,
+          "31": 0.335,
+          "32": 0.335,
+          "33": 0.334,
+          "34": 0.334,
+          "35": 0.334,
+          "36": 0.335,
+          "37": 0.334,
+          "38": 0.334,
+          "39": 0.335
+        }
+      }
+    },
+    {
+      "scenario": "restart-failOver+ejection",
+      "round": 2,
+      "file": "runs/restart-failOver+ejection_r2.json",
+      "freeMemoryMbBefore": 4885,
+      "lowMemory": false,
+      "status": "ok",
+      "windowStartEpochMs": 1795859600058,
+      "events": [
+        {
+          "at": 10.5,
+          "action": "kill-provider",
+          "index": 0,
+          "startedEpochMs": 1795859610557.9897,
+          "doneEpochMs": 1795859610558.5925
+        },
+        {
+          "at": 20.5,
+          "action": "start-provider",
+          "index": 0,
+          "startedEpochMs": 1795859620558.0596,
+          "doneEpochMs": 1795859620561.8057
+        }
+      ],
+      "reregisteredEpochMs": null,
+      "finalRegistered": 3,
+      "providerLogs": {
+        "0": [
+          "restart-failOver+ejection_r2_provider0.log",
+          "restart-failOver+ejection_r2_provider0_start1.log"
+        ],
+        "1": [
+          "restart-failOver+ejection_r2_provider1.log"
+        ],
+        "2": [
+          "restart-failOver+ejection_r2_provider2.log"
+        ]
+      },
+      "summary": {
+        "faultSec": 10.5,
+        "events": [
+          {
+            "action": "kill-provider",
+            "sec": 10.5,
+            "commandMs": 1
+          },
+          {
+            "action": "start-provider",
+            "sec": 20.5,
+            "commandMs": 4
+          }
+        ],
+        "failedBeforeFault": 0,
+        "failedAfterFault": 0,
+        "failedPctAfterFault": 0.0,
+        "unhealthySecondsAfterFault": [],
+        "recoverySec": 0,
+        "baselineP99Ms": 0.4105,
+        "peakP99Ms": 111.804,
+        "peakP99Sec": 15,
+        "postFaultMedianP99Ms": 0.366,
+        "firstError": null,
+        "rejoinSec": 5,
+        "restartedShareBySec": {
+          "0": 0.0,
+          "1": 0.0,
+          "2": 0.0,
+          "3": 0.0,
+          "4": 0.0,
+          "5": 0.183,
+          "6": 0.334,
+          "7": 0.335,
+          "8": 0.334,
+          "9": 0.335,
+          "10": 0.334,
+          "11": 0.334,
+          "12": 0.334,
+          "13": 0.334,
+          "14": 0.335,
+          "15": 0.334,
+          "16": 0.334,
+          "17": 0.335,
+          "18": 0.335,
+          "19": 0.334,
+          "20": 0.334,
+          "21": 0.335,
+          "22": 0.335,
+          "23": 0.334,
+          "24": 0.334,
+          "25": 0.334,
+          "26": 0.251,
+          "27": 0.335,
+          "28": 0.334,
+          "29": 0.335,
+          "30": 0.335,
+          "31": 0.335,
+          "32": 0.335,
+          "33": 0.334,
+          "34": 0.334,
+          "35": 0.334,
+          "36": 0.335,
+          "37": 0.335,
+          "38": 0.334,
+          "39": 0.334
+        }
+      }
+    }
+  ],
+  "finishedAt": "2026-11-28T09:54:22.894144+00:00"
+}

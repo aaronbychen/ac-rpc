@@ -1,0 +1,643 @@
+{
+    "labels": {
+        "scenario": "etcd-outage",
+        "round": "2"
+    },
+    "config": {
+        "rate": 2000,
+        "warmupSec": 5,
+        "durationSec": 60,
+        "timeoutSec": 5,
+        "payloadBytes": 64,
+        "maxInFlight": 10000,
+        "maxThreads": 2000,
+        "system": "acrpc",
+        "serializer": "kryo",
+        "connections": "default",
+        "transport": "vertx",
+        "tolerant": "failOver",
+        "retry": "no",
+        "leaseTtlSec": 30,
+        "outlierEjection": "true"
+    },
+    "environment": {
+        "timestamp": "2026-11-28T09:51:59.119186700Z",
+        "javaVersion": "25.0.5.1",
+        "javaVendor": "Eclipse Adoptium",
+        "vmName": "OpenJDK 64-Bit Server VM",
+        "osName": "Windows 11",
+        "osArch": "amd64",
+        "availableProcessors": 32,
+        "maxHeapMb": 512,
+        "gc": [
+            "G1 Young Generation",
+            "G1 Concurrent GC",
+            "G1 Old Generation"
+        ],
+        "jvmArgs": [
+            "-Xms512m",
+            "-Xmx512m",
+            "--sun-misc-unsafe-memory-access=allow"
+        ]
+    },
+    "counts": {
+        "issued": 120000,
+        "ok": 68203,
+        "slow": 26523,
+        "errors": 0,
+        "dropped": 25274,
+        "incomplete": 0
+    },
+    "latencyMs": {
+        "count": 94726,
+        "p50": 0.252,
+        "p90": 10007.609,
+        "p99": 10007.609,
+        "p999": 10007.609,
+        "max": 10015.998,
+        "mean": 2705.685
+    },
+    "throughputOkPerSec": 1136.717,
+    "errorRate": 0.211,
+    "percentilesReliable": false,
+    "aborted": false,
+    "abortReason": null,
+    "peakThreads": 170,
+    "peakCommittedMb": 908,
+    "maxSchedulerLagMs": 86.028,
+    "firstError": null,
+    "histogram": "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",
+    "windowStartEpochMs": 1795859459058,
+    "timeline": [
+        {
+            "sec": 0,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "slow": 0,
+            "p50": 0.274,
+            "p99": 0.582,
+            "max": 4.698
+        },
+        {
+            "sec": 1,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "slow": 0,
+            "p50": 0.239,
+            "p99": 0.504,
+            "max": 0.857
+        },
+        {
+            "sec": 2,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "slow": 0,
+            "p50": 0.237,
+            "p99": 0.473,
+            "max": 0.614
+        },
+        {
+            "sec": 3,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "slow": 0,
+            "p50": 0.228,
+            "p99": 0.413,
+            "max": 0.62
+        },
+        {
+            "sec": 4,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "slow": 0,
+            "p50": 0.218,
+            "p99": 0.435,
+            "max": 0.987
+        },
+        {
+            "sec": 5,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "slow": 0,
+            "p50": 0.205,
+            "p99": 0.415,
+            "max": 0.62
+        },
+        {
+            "sec": 6,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "slow": 0,
+            "p50": 0.203,
+            "p99": 0.413,
+            "max": 0.734
+        },
+        {
+            "sec": 7,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "slow": 0,
+            "p50": 0.215,
+            "p99": 0.477,
+            "max": 5.988
+        },
+        {
+            "sec": 8,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "slow": 0,
+            "p50": 0.206,
+            "p99": 0.414,
+            "max": 0.978
+        },
+        {
+            "sec": 9,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "slow": 0,
+            "p50": 0.204,
+            "p99": 0.392,
+            "max": 0.842
+        },
+        {
+            "sec": 10,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "slow": 791,
+            "p50": 0.274,
+            "p99": 10007.609,
+            "max": 10007.609
+        },
+        {
+            "sec": 11,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "slow": 2000,
+            "p50": 10007.609,
+            "p99": 10007.609,
+            "max": 10007.609
+        },
+        {
+            "sec": 12,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "slow": 2000,
+            "p50": 10007.609,
+            "p99": 10007.609,
+            "max": 10007.609
+        },
+        {
+            "sec": 13,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "slow": 2000,
+            "p50": 10007.609,
+            "p99": 10007.609,
+            "max": 10015.998
+        },
+        {
+            "sec": 14,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "slow": 2000,
+            "p50": 10007.609,
+            "p99": 10007.609,
+            "max": 10007.609
+        },
+        {
+            "sec": 15,
+            "issued": 2000,
+            "ok": 1209,
+            "errors": 791,
+            "slow": 1209,
+            "p50": 10007.609,
+            "p99": 10007.609,
+            "max": 10007.609
+        },
+        {
+            "sec": 16,
+            "issued": 2000,
+            "ok": 0,
+            "errors": 2000,
+            "slow": 0
+        },
+        {
+            "sec": 17,
+            "issued": 2000,
+            "ok": 0,
+            "errors": 2000,
+            "slow": 0
+        },
+        {
+            "sec": 18,
+            "issued": 2000,
+            "ok": 0,
+            "errors": 2000,
+            "slow": 0
+        },
+        {
+            "sec": 19,
+            "issued": 2000,
+            "ok": 0,
+            "errors": 2000,
+            "slow": 0
+        },
+        {
+            "sec": 20,
+            "issued": 2000,
+            "ok": 784,
+            "errors": 1216,
+            "slow": 784,
+            "p50": 10007.609,
+            "p99": 10007.609,
+            "max": 10007.609
+        },
+        {
+            "sec": 21,
+            "issued": 2000,
+            "ok": 1999,
+            "errors": 1,
+            "slow": 1999,
+            "p50": 10007.609,
+            "p99": 10007.609,
+            "max": 10007.609
+        },
+        {
+            "sec": 22,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "slow": 2000,
+            "p50": 10007.609,
+            "p99": 10007.609,
+            "max": 10015.998
+        },
+        {
+            "sec": 23,
+            "issued": 2000,
+            "ok": 1978,
+            "errors": 22,
+            "slow": 1978,
+            "p50": 10007.609,
+            "p99": 10007.609,
+            "max": 10007.609
+        },
+        {
+            "sec": 24,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "slow": 2000,
+            "p50": 10007.609,
+            "p99": 10007.609,
+            "max": 10007.609
+        },
+        {
+            "sec": 25,
+            "issued": 2000,
+            "ok": 1239,
+            "errors": 761,
+            "slow": 1239,
+            "p50": 10007.609,
+            "p99": 10015.998,
+            "max": 10015.998
+        },
+        {
+            "sec": 26,
+            "issued": 2000,
+            "ok": 0,
+            "errors": 2000,
+            "slow": 0
+        },
+        {
+            "sec": 27,
+            "issued": 2000,
+            "ok": 0,
+            "errors": 2000,
+            "slow": 0
+        },
+        {
+            "sec": 28,
+            "issued": 2000,
+            "ok": 0,
+            "errors": 2000,
+            "slow": 0
+        },
+        {
+            "sec": 29,
+            "issued": 2000,
+            "ok": 0,
+            "errors": 2000,
+            "slow": 0
+        },
+        {
+            "sec": 30,
+            "issued": 2000,
+            "ok": 780,
+            "errors": 1220,
+            "slow": 780,
+            "p50": 7629.439,
+            "p99": 7864.32,
+            "max": 8573.157
+        },
+        {
+            "sec": 31,
+            "issued": 2000,
+            "ok": 1996,
+            "errors": 4,
+            "slow": 1996,
+            "p50": 6945.767,
+            "p99": 7453.278,
+            "max": 8002.732
+        },
+        {
+            "sec": 32,
+            "issued": 2000,
+            "ok": 1991,
+            "errors": 9,
+            "slow": 1991,
+            "p50": 6136.267,
+            "p99": 6585.057,
+            "max": 7092.568
+        },
+        {
+            "sec": 33,
+            "issued": 2000,
+            "ok": 1991,
+            "errors": 9,
+            "slow": 1721,
+            "p50": 5335.155,
+            "p99": 5913.969,
+            "max": 6077.546
+        },
+        {
+            "sec": 34,
+            "issued": 2000,
+            "ok": 1996,
+            "errors": 4,
+            "slow": 35,
+            "p50": 4399.825,
+            "p99": 5041.553,
+            "max": 5129.634
+        },
+        {
+            "sec": 35,
+            "issued": 2000,
+            "ok": 1246,
+            "errors": 754,
+            "slow": 0,
+            "p50": 3699.376,
+            "p99": 4160.75,
+            "max": 4177.527
+        },
+        {
+            "sec": 36,
+            "issued": 2000,
+            "ok": 0,
+            "errors": 2000,
+            "slow": 0
+        },
+        {
+            "sec": 37,
+            "issued": 2000,
+            "ok": 0,
+            "errors": 2000,
+            "slow": 0
+        },
+        {
+            "sec": 38,
+            "issued": 2000,
+            "ok": 1517,
+            "errors": 483,
+            "slow": 0,
+            "p50": 0.446,
+            "p99": 131.531,
+            "max": 652.739
+        },
+        {
+            "sec": 39,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "slow": 0,
+            "p50": 0.236,
+            "p99": 17.416,
+            "max": 27.41
+        },
+        {
+            "sec": 40,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "slow": 0,
+            "p50": 0.209,
+            "p99": 0.391,
+            "max": 0.561
+        },
+        {
+            "sec": 41,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "slow": 0,
+            "p50": 0.24,
+            "p99": 0.483,
+            "max": 0.763
+        },
+        {
+            "sec": 42,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "slow": 0,
+            "p50": 0.203,
+            "p99": 0.39,
+            "max": 0.495
+        },
+        {
+            "sec": 43,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "slow": 0,
+            "p50": 0.201,
+            "p99": 0.365,
+            "max": 0.435
+        },
+        {
+            "sec": 44,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "slow": 0,
+            "p50": 0.197,
+            "p99": 0.386,
+            "max": 0.531
+        },
+        {
+            "sec": 45,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "slow": 0,
+            "p50": 0.203,
+            "p99": 0.492,
+            "max": 9.29
+        },
+        {
+            "sec": 46,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "slow": 0,
+            "p50": 0.211,
+            "p99": 0.383,
+            "max": 0.686
+        },
+        {
+            "sec": 47,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "slow": 0,
+            "p50": 0.22,
+            "p99": 0.395,
+            "max": 0.49
+        },
+        {
+            "sec": 48,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "slow": 0,
+            "p50": 0.203,
+            "p99": 0.372,
+            "max": 0.52
+        },
+        {
+            "sec": 49,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "slow": 0,
+            "p50": 0.206,
+            "p99": 0.402,
+            "max": 0.575
+        },
+        {
+            "sec": 50,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "slow": 0,
+            "p50": 0.205,
+            "p99": 0.413,
+            "max": 0.632
+        },
+        {
+            "sec": 51,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "slow": 0,
+            "p50": 0.204,
+            "p99": 0.44,
+            "max": 0.645
+        },
+        {
+            "sec": 52,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "slow": 0,
+            "p50": 0.222,
+            "p99": 0.473,
+            "max": 0.789
+        },
+        {
+            "sec": 53,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "slow": 0,
+            "p50": 0.235,
+            "p99": 0.424,
+            "max": 0.567
+        },
+        {
+            "sec": 54,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "slow": 0,
+            "p50": 0.212,
+            "p99": 0.436,
+            "max": 0.55
+        },
+        {
+            "sec": 55,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "slow": 0,
+            "p50": 0.194,
+            "p99": 0.387,
+            "max": 0.494
+        },
+        {
+            "sec": 56,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "slow": 0,
+            "p50": 0.214,
+            "p99": 0.416,
+            "max": 0.571
+        },
+        {
+            "sec": 57,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "slow": 0,
+            "p50": 0.202,
+            "p99": 0.394,
+            "max": 0.458
+        },
+        {
+            "sec": 58,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "slow": 0,
+            "p50": 0.191,
+            "p99": 0.384,
+            "max": 0.518
+        },
+        {
+            "sec": 59,
+            "issued": 2000,
+            "ok": 2000,
+            "errors": 0,
+            "slow": 0,
+            "p50": 0.196,
+            "p99": 0.492,
+            "max": 8.446
+        }
+    ]
+}
