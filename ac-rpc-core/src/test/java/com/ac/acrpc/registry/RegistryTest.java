@@ -114,6 +114,31 @@ public class RegistryTest {
     }
 
     @Test
+    public void discoveryDoesNotWaitOnAnUnresponsiveEtcd() throws Exception {
+        EtcdRegistry provider = registry(30);
+        provider.register(node("a", 1001));
+        try (FreezableProxy proxy = new FreezableProxy("localhost", 2379)) {
+            EtcdRegistry consumer = registry(30, "http://127.0.0.1:" + proxy.port());
+            assertEquals(1, consumer.serviceDiscovery(key("a")).size());
+
+            // etcd stops answering without closing connections; the entry is invalidated as a failed watch would
+            proxy.freeze();
+            consumer.registryServiceCacheForTest().invalidate(key("a"));
+            long start = System.nanoTime();
+            for (int i = 0; i < 1000; i++) {
+                assertEquals(List.of(1001), ports(consumer.serviceDiscovery(key("a"))));
+            }
+            long elapsedMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start);
+            // The previous implementation blocked each call for up to the registry timeout (3 s here)
+            assertTrue("discovery waited on etcd for " + elapsedMs + " ms", elapsedMs < 500);
+
+            proxy.thaw();
+            provider.register(node("a", 1002));
+            await("refreshed once etcd answers again", () -> consumer.serviceDiscovery(key("a")).size() == 2);
+        }
+    }
+
+    @Test
     public void twoRegistriesCanRunInOneJvm() throws Exception {
         // The old implementation started a global cron scheduler in init(), so a second init threw
         registry(30).register(node("a", 1001));
@@ -122,8 +147,12 @@ public class RegistryTest {
     }
 
     private EtcdRegistry registry(long ttlSeconds) {
+        return registry(ttlSeconds, ETCD);
+    }
+
+    private EtcdRegistry registry(long ttlSeconds, String address) {
         RegistryConfig config = new RegistryConfig();
-        config.setAddress(ETCD);
+        config.setAddress(address);
         config.setTimeout(3000L);
         config.setLeaseTtlSeconds(ttlSeconds);
         EtcdRegistry registry = new EtcdRegistry();

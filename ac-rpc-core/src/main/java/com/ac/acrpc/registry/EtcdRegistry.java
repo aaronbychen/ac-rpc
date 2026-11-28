@@ -8,7 +8,6 @@ import io.etcd.jetcd.Client;
 import io.etcd.jetcd.KV;
 import io.etcd.jetcd.Lease;
 import io.etcd.jetcd.Watch;
-import io.etcd.jetcd.kv.GetResponse;
 import io.etcd.jetcd.lease.LeaseKeepAliveResponse;
 import io.etcd.jetcd.options.GetOption;
 import io.etcd.jetcd.options.PutOption;
@@ -21,8 +20,10 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -35,13 +36,16 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *
  * <p>Consumers watch each discovered service's key prefix, starting at the revision of the
  * lookup, so no change between the lookup and the watch is missed. Any change invalidates that
- * service's cache entry. If etcd is unreachable, discovery falls back to the last known
- * providers rather than failing.
+ * service's cache entry. Once a service has been seen, discovery never waits on etcd: an
+ * invalidated entry is served as is while a single background lookup refreshes it, so an etcd
+ * outage leaves callers on the last known providers instead of blocking them.
  */
 @Slf4j
 public class EtcdRegistry implements Registry {
 
     private static final String ETCD_ROOT_PATH = "/rpc/";
+    private static final long REFRESH_BACKOFF_MIN_MS = 500;
+    private static final long REFRESH_BACKOFF_MAX_MS = 5000;
 
     private Client client;
     private KV kvClient;
@@ -62,6 +66,7 @@ public class EtcdRegistry implements Registry {
 
     private final RegistryServiceCache registryServiceCache = new RegistryServiceCache();
     private final ConcurrentMap<String, Watch.Watcher> watchers = new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, Refresh> refreshes = new ConcurrentHashMap<>();
     private volatile boolean destroyed;
 
     @Override
@@ -101,33 +106,88 @@ public class EtcdRegistry implements Registry {
         }
     }
 
+    /**
+     * Fresh providers if the cache has them. Otherwise, if providers were seen before, returns
+     * them immediately and refreshes in the background, so callers never wait on etcd once a
+     * service is known. Only the very first lookup of a service blocks.
+     */
     @Override
     public List<ServiceMetaInfo> serviceDiscovery(String serviceKey) {
         List<ServiceMetaInfo> cached = registryServiceCache.read(serviceKey);
         if (cached != null) {
             return cached;
         }
-        long generation = registryServiceCache.generation(serviceKey);
+        List<ServiceMetaInfo> stale = registryServiceCache.readStale(serviceKey);
+        if (stale != null) {
+            refresh(serviceKey, false);
+            return stale;
+        }
         try {
-            GetResponse response = kvClient.get(bytes(prefix(serviceKey)), GetOption.builder().isPrefix(true).build())
-                    .get(timeoutMs, TimeUnit.MILLISECONDS);
-            List<ServiceMetaInfo> nodes = response.getKvs().stream()
-                    .map(kv -> JSONUtil.toBean(kv.getValue().toString(StandardCharsets.UTF_8), ServiceMetaInfo.class))
-                    .toList();
-            watchService(serviceKey, response.getHeader().getRevision() + 1);
-            registryServiceCache.write(serviceKey, nodes, generation);
-            return nodes;
+            return refresh(serviceKey, true).get(timeoutMs, TimeUnit.MILLISECONDS);
         } catch (Exception e) {
             if (e instanceof InterruptedException) {
                 Thread.currentThread().interrupt();
             }
-            List<ServiceMetaInfo> stale = registryServiceCache.readStale(serviceKey);
-            if (stale != null) {
-                log.warn("Registry lookup for {} failed, using last known providers: {}", serviceKey, e.toString());
-                return stale;
-            }
-            throw new RuntimeException("Failed to get service list for " + serviceKey, e);
+            Throwable cause = e instanceof ExecutionException && e.getCause() != null ? e.getCause() : e;
+            throw new RuntimeException("Failed to get service list for " + serviceKey, cause);
         }
+    }
+
+    /**
+     * Starts a lookup of the service unless one is already running, and returns it. After a
+     * failed lookup, background refreshes back off (0.5 s doubling to 5 s) so an etcd outage does
+     * not turn into a request per call; returns null when a refresh is not due yet.
+     */
+    private CompletableFuture<List<ServiceMetaInfo>> refresh(String serviceKey, boolean force) {
+        Refresh state = refreshes.computeIfAbsent(serviceKey, key -> new Refresh());
+        synchronized (state) {
+            if (state.inFlight != null) {
+                return state.inFlight;
+            }
+            if (!force && System.nanoTime() < state.retryAtNs) {
+                return null;
+            }
+            long generation = registryServiceCache.generation(serviceKey);
+            CompletableFuture<List<ServiceMetaInfo>> lookup;
+            try {
+                lookup = kvClient.get(bytes(prefix(serviceKey)), GetOption.builder().isPrefix(true).build())
+                        .orTimeout(timeoutMs, TimeUnit.MILLISECONDS)
+                        .thenApply(response -> {
+                            List<ServiceMetaInfo> nodes = response.getKvs().stream()
+                                    .map(kv -> JSONUtil.toBean(kv.getValue().toString(StandardCharsets.UTF_8),
+                                            ServiceMetaInfo.class))
+                                    .toList();
+                            watchService(serviceKey, response.getHeader().getRevision() + 1);
+                            registryServiceCache.write(serviceKey, nodes, generation);
+                            return nodes;
+                        });
+            } catch (RuntimeException e) {
+                // A closed client throws instead of returning a failed future
+                lookup = CompletableFuture.failedFuture(e);
+            }
+            state.inFlight = lookup;
+            lookup.whenComplete((nodes, error) -> {
+                synchronized (state) {
+                    state.inFlight = null;
+                    if (error == null) {
+                        state.backoffMs = REFRESH_BACKOFF_MIN_MS;
+                        state.retryAtNs = 0;
+                    } else {
+                        state.retryAtNs = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(state.backoffMs);
+                        log.warn("Registry lookup for {} failed, using last known providers; retrying in {} ms: {}",
+                                serviceKey, state.backoffMs, error.toString());
+                        state.backoffMs = Math.min(state.backoffMs * 2, REFRESH_BACKOFF_MAX_MS);
+                    }
+                }
+            });
+            return lookup;
+        }
+    }
+
+    private static final class Refresh {
+        CompletableFuture<List<ServiceMetaInfo>> inFlight;
+        long retryAtNs;
+        long backoffMs = REFRESH_BACKOFF_MIN_MS;
     }
 
     /**
