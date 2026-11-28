@@ -129,8 +129,8 @@ public class RegistryTest {
                 assertEquals(List.of(1001), ports(consumer.serviceDiscovery(key("a"))));
             }
             long elapsedMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start);
-            // The previous implementation blocked each call for up to the registry timeout (3 s here)
-            assertTrue("discovery waited on etcd for " + elapsedMs + " ms", elapsedMs < 500);
+            // At most one bounded wait (0.5 s) for the hung lookup; the previous implementation blocked every call for up to the registry timeout (3 s here)
+            assertTrue("discovery waited on etcd for " + elapsedMs + " ms", elapsedMs < 1500);
 
             proxy.thaw();
             provider.register(node("a", 1002));

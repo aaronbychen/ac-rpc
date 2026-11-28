@@ -25,6 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -36,9 +37,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *
  * <p>Consumers watch each discovered service's key prefix, starting at the revision of the
  * lookup, so no change between the lookup and the watch is missed. Any change invalidates that
- * service's cache entry. Once a service has been seen, discovery never waits on etcd: an
- * invalidated entry is served as is while a single background lookup refreshes it, so an etcd
- * outage leaves callers on the last known providers instead of blocking them.
+ * service's cache entry. Once a service has been seen, an invalidated entry is refreshed by a
+ * single shared lookup that callers wait on for at most 0.5 s; if it is slow or failing, they get
+ * the last known providers, so an etcd outage does not block traffic.
  */
 @Slf4j
 public class EtcdRegistry implements Registry {
@@ -46,6 +47,7 @@ public class EtcdRegistry implements Registry {
     private static final String ETCD_ROOT_PATH = "/rpc/";
     private static final long REFRESH_BACKOFF_MIN_MS = 500;
     private static final long REFRESH_BACKOFF_MAX_MS = 5000;
+    private static final long STALE_WAIT_MS = 500;
 
     private Client client;
     private KV kvClient;
@@ -107,9 +109,11 @@ public class EtcdRegistry implements Registry {
     }
 
     /**
-     * Fresh providers if the cache has them. Otherwise, if providers were seen before, returns
-     * them immediately and refreshes in the background, so callers never wait on etcd once a
-     * service is known. Only the very first lookup of a service blocks.
+     * Fresh providers if the cache has them. Otherwise, if providers were seen before, waits at
+     * most {@link #STALE_WAIT_MS} for a single shared lookup and then falls back to the last known
+     * list, and does not wait at all while lookups are failing. A membership change is therefore
+     * picked up at once while etcd answers, and an outage costs callers at most one short wait.
+     * Only the very first lookup of a service waits for the full registry timeout.
      */
     @Override
     public List<ServiceMetaInfo> serviceDiscovery(String serviceKey) {
@@ -119,11 +123,25 @@ public class EtcdRegistry implements Registry {
         }
         List<ServiceMetaInfo> stale = registryServiceCache.readStale(serviceKey);
         if (stale != null) {
-            refresh(serviceKey, false);
-            return stale;
+            Pending pending = refresh(serviceKey, false);
+            if (pending == null || pending.afterFailure()) {
+                return stale;
+            }
+            long remainingNs = pending.startedNs() + TimeUnit.MILLISECONDS.toNanos(STALE_WAIT_MS) - System.nanoTime();
+            if (remainingNs <= 0) {
+                return stale;
+            }
+            try {
+                return pending.lookup().get(remainingNs, TimeUnit.NANOSECONDS);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                return stale;
+            } catch (ExecutionException | TimeoutException e) {
+                return stale;
+            }
         }
         try {
-            return refresh(serviceKey, true).get(timeoutMs, TimeUnit.MILLISECONDS);
+            return refresh(serviceKey, true).lookup().get(timeoutMs, TimeUnit.MILLISECONDS);
         } catch (Exception e) {
             if (e instanceof InterruptedException) {
                 Thread.currentThread().interrupt();
@@ -135,10 +153,10 @@ public class EtcdRegistry implements Registry {
 
     /**
      * Starts a lookup of the service unless one is already running, and returns it. After a
-     * failed lookup, background refreshes back off (0.5 s doubling to 5 s) so an etcd outage does
-     * not turn into a request per call; returns null when a refresh is not due yet.
+     * failed lookup, further lookups back off (0.5 s doubling to 5 s) so an etcd outage does not
+     * turn into a request per call; returns null when a lookup is not due yet.
      */
-    private CompletableFuture<List<ServiceMetaInfo>> refresh(String serviceKey, boolean force) {
+    private Pending refresh(String serviceKey, boolean force) {
         Refresh state = refreshes.computeIfAbsent(serviceKey, key -> new Refresh());
         synchronized (state) {
             if (state.inFlight != null) {
@@ -165,10 +183,12 @@ public class EtcdRegistry implements Registry {
                 // A closed client throws instead of returning a failed future
                 lookup = CompletableFuture.failedFuture(e);
             }
-            state.inFlight = lookup;
+            Pending pending = new Pending(lookup, System.nanoTime(), state.failing);
+            state.inFlight = pending;
             lookup.whenComplete((nodes, error) -> {
                 synchronized (state) {
                     state.inFlight = null;
+                    state.failing = error != null;
                     if (error == null) {
                         state.backoffMs = REFRESH_BACKOFF_MIN_MS;
                         state.retryAtNs = 0;
@@ -180,12 +200,19 @@ public class EtcdRegistry implements Registry {
                     }
                 }
             });
-            return lookup;
+            return pending;
         }
     }
 
+    /**
+     * A lookup in flight, when it started, and whether the lookup before it failed.
+     */
+    private record Pending(CompletableFuture<List<ServiceMetaInfo>> lookup, long startedNs, boolean afterFailure) {
+    }
+
     private static final class Refresh {
-        CompletableFuture<List<ServiceMetaInfo>> inFlight;
+        Pending inFlight;
+        boolean failing;
         long retryAtNs;
         long backoffMs = REFRESH_BACKOFF_MIN_MS;
     }
