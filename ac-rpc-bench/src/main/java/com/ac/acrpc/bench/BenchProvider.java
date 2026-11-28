@@ -18,11 +18,31 @@ final class BenchProvider {
 
     static void run(Options options) throws Exception {
         switch (Main.system(options)) {
-            case "acrpc" -> ProviderBootstrap.init(Main.rpcConfig(options),
-                    List.of(new ServiceRegisterInfo<>(EchoService.class.getName(), EchoServiceImpl.class)));
+            case "acrpc" -> {
+                ProviderBootstrap.init(Main.rpcConfig(options),
+                        List.of(new ServiceRegisterInfo<>(EchoService.class.getName(), EchoServiceImpl.class)));
+                logServed();
+            }
             case "grpc" -> startGrpc(options.getInt("port", 8080), options.get("grpc-executor", "virtual"));
             default -> throw new IllegalArgumentException("Unknown --system " + Main.system(options));
         }
+    }
+
+    /**
+     * Prints the cumulative call count with a wall-clock timestamp four times a second.
+     */
+    private static void logServed() {
+        Thread.ofPlatform().daemon().name("bench-served").start(() -> {
+            while (true) {
+                System.out.println("served " + System.currentTimeMillis() + " " + EchoServiceImpl.SERVED.sum());
+                System.out.flush();
+                try {
+                    Thread.sleep(250);
+                } catch (InterruptedException e) {
+                    return;
+                }
+            }
+        });
     }
 
     /**

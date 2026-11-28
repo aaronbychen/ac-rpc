@@ -89,6 +89,7 @@ final class LoadGenerator {
         final AtomicLongArray issued;
         final AtomicLongArray ok;
         final AtomicLongArray errors;
+        final AtomicLongArray slow;
         final Histogram[] latency;
         final long startNs;
 
@@ -96,6 +97,7 @@ final class LoadGenerator {
             issued = new AtomicLongArray(seconds);
             ok = new AtomicLongArray(seconds);
             errors = new AtomicLongArray(seconds);
+            slow = new AtomicLongArray(seconds);
             latency = new Histogram[seconds];
             for (int i = 0; i < seconds; i++) {
                 latency[i] = new ConcurrentHistogram(3);
@@ -116,6 +118,7 @@ final class LoadGenerator {
                 row.put("issued", issued.get(i));
                 row.put("ok", ok.get(i));
                 row.put("errors", errors.get(i));
+                row.put("slow", slow.get(i));
                 Histogram h = latency[i];
                 if (h.getTotalCount() > 0) {
                     row.put("p50", ms(h.getValueAtPercentile(50)));
@@ -201,6 +204,10 @@ final class LoadGenerator {
         if (timeline != null) {
             timeline = new Timeline((int) Math.ceil(durationSec), measureStart);
         }
+        // Lets an outside harness schedule faults relative to the measured window
+        long windowStartEpochMs = System.currentTimeMillis() + (measureStart - System.nanoTime()) / 1_000_000;
+        System.out.println("window-start-epoch-ms " + windowStartEpochMs);
+        System.out.flush();
         if (killPid > 0) {
             scheduleKill(measureStart + secondsToNanos(killAtSec));
         }
@@ -266,6 +273,7 @@ final class LoadGenerator {
                 fault.put("killedAtSec", killedAtNs == 0 ? null : round((killedAtNs - measureStart) / 1e9));
                 result.put("fault", fault);
             }
+            result.put("windowStartEpochMs", windowStartEpochMs);
             if (timeline != null) {
                 result.put("timeline", timeline.toJson());
             }
@@ -342,6 +350,9 @@ final class LoadGenerator {
             if (bucket >= 0) {
                 timeline.ok.incrementAndGet(bucket);
                 timeline.latency[bucket].recordValue(latency);
+                if (latency > timeoutNs) {
+                    timeline.slow.incrementAndGet(bucket);
+                }
             }
             if (latency > timeoutNs) {
                 slow.increment();

@@ -1,0 +1,35 @@
+{
+  "name": "faults",
+  "java": "D:/jdk-25",
+  "jvmArgs": ["-Xms512m", "-Xmx512m", "--sun-misc-unsafe-memory-access=allow"],
+  "registry": "http://localhost:2379",
+  "etcdContainer": "ac-rpc-etcd",
+  "serializer": "kryo",
+  "providers": 3,
+  "basePort": 18081,
+  "leaseTtlSec": 30,
+  "rate": 2000,
+  "payload": 64,
+  "warmupSec": 5,
+  "durationSec": 60,
+  "timeoutSec": 5,
+  "settleSec": 2,
+  "rounds": 3,
+  "scenarios": [
+    {
+      "label": "etcd-outage",
+      "args": ["--tolerant", "failOver", "--outlier-ejection", "true"],
+      "events": [{"at": 10.5, "action": "kill-etcd"}, {"at": 30.5, "action": "start-etcd"}]
+    },
+    {
+      "label": "restart-failFast",
+      "args": ["--tolerant", "failFast", "--outlier-ejection", "false"],
+      "events": [{"at": 10.5, "action": "kill-provider", "index": 0}, {"at": 20.5, "action": "start-provider", "index": 0}]
+    },
+    {
+      "label": "restart-failOver+ejection",
+      "args": ["--tolerant", "failOver", "--outlier-ejection", "true"],
+      "events": [{"at": 10.5, "action": "kill-provider", "index": 0}, {"at": 20.5, "action": "start-provider", "index": 0}]
+    }
+  ]
+}
