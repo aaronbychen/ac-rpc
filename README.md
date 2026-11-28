@@ -17,7 +17,7 @@ All numbers are measured with the open-loop harness in `ac-rpc-bench` on a singl
 - Custom binary protocol with TCP framing (Vert.x `RecordParser`) for sticky/half packets
 - Two interchangeable clients behind one contract: Vert.x event loops, or blocking sockets on virtual threads (`rpc.transport`)
 - JDK dynamic-proxy invocation on the consumer side, reflective dispatch on the provider side
-- Service registry SPI with etcd and ZooKeeper backends: per-service discovery cache invalidated by prefix watches (no gap between lookup and watch), last-known providers served when the registry is unreachable, and on etcd one kept-alive lease per provider that is re-granted, with every key rewritten, if it is lost
+- Service registry SPI with etcd and ZooKeeper backends: per-service discovery cache invalidated by prefix watches (no gap between lookup and watch), last-known providers served when etcd is unreachable (after at most one 0.5 s wait), and on etcd one kept-alive lease per provider that is re-granted, with every key rewritten, if it is lost
 - Pluggable serializers: JDK / JSON / Kryo / Hessian
 - Pluggable load balancers: round-robin / random / consistent hashing (MurmurHash3 ring rebuilt when providers change)
 - Retry strategies (`no`, `fixedInterval`) and fault-tolerance strategies: `failFast`, `failSafe`, `failOver` (each other provider once, in random order), `failBack` (default value). Exceptions thrown by the service reach the caller with their original type and never trigger failover
@@ -220,11 +220,29 @@ Fault experiments from here on report recovery time with this definition, writte
 - Recovery time is the time from the fault's first action (for example, killing etcd) to the start of the first healthy second that begins 10 consecutive healthy seconds. Seconds are measured from the bucket that contains the fault, so the value has 1 s resolution. If the second that contains the fault starts such a run, recovery time is 0. If no such run exists before the window ends, the run did not recover.
 - For a provider that is restarted, rejoin time is the time from its restart to the first second in which it serves at least 10% of all requests.
 
+### Restarting a provider and losing etcd
+
+Same setup as above (three providers, 2,000 rps, lease TTL 30 s), 60 s window, 3 rounds per scenario. `bench/faults.py` performs each fault at a fixed offset into the window: it kills provider 0 at 10.5 s and starts it again on the same port at 20.5 s, or kills the etcd container (`docker kill`) at 10.5 s and starts it again at 30.5 s. Pre-fault p99 was 0.41–0.47 ms in every run ([data before the fix](bench/results/faults-20261128T094346Z/summary.md), [etcd outage after the fix](bench/results/faults-registry-fix-20261128T101416Z/summary.md); `python bench/faults.py bench/configs/faults.json`):
+
+| fault | client | failed after fault | recovery time | worst per-second p99 | notes |
+|---|---|---|---|---|---|
+| provider killed, restarted 10 s later | `failFast`, no ejection | 7,236 [7,222, 7,302] (7.2%) | 12 s | 126 ms | rejoins 1 s after restart |
+| provider killed, restarted 10 s later | `failOver` + ejection | 0 | 0 s | 129 ms [112, 152] | rejoins 5 s after restart |
+| etcd down for 20 s, before the fix | `failOver` + ejection | 51,276 [40,051, 51,797] (51%) | 29 s [24, 29] | 10 s | |
+| etcd down for 20 s, after the fix | `failOver` + ejection | 0 | 0 s | 507 ms | providers re-registered 1.6–2.1 s after etcd returned |
+
+**Provider restart.** With `failFast`, a third of the calls fail until the provider is back, and the restarted provider takes traffic again within a second. With ejection and `failOver`, no call fails, but the restarted provider waits out its current ejection (backoff 1, 2, 4 s…) and rejoins only 5 s after it starts. In both cases p99 jumps to 110–150 ms in the provider's first second back, most likely because its JVM is cold; this was not investigated further. Without ejection, p99 of the calls that succeed also stays near 10 ms during the outage, the Vert.x reconnect effect described above.
+
+**etcd outage, before the fix.** etcd's failure ends the consumer's watch, which invalidates its cache entry. Every call then made its own synchronous etcd lookup and waited out the full registry timeout (10 s) before falling back to the last known providers. No call returned an error, but half of them were slower than the load generator's 5 s timeout or were shed at its in-flight cap. The backlog took about 8 s to clear after etcd came back. The "last known providers" fallback existed, but only after a 10 s wait per call.
+
+**The fix.** For a service seen before, an invalidated entry is now refreshed by a single shared lookup. Callers wait for it at most 0.5 s and then use the last known providers. Once a lookup has failed, they do not wait at all, and further lookups back off from 0.5 s to 5 s. The short wait matters: a first version that served the stale list immediately failed `FailoverIntegrationTest`, because after every listed provider had left, the first calls went only to dead nodes. With the fix, the outage costs one 0.5 s wait for calls in its first second, and no call fails. A test reproduces a hung etcd with a proxy that stops forwarding without closing connections. The old code blocks there for 3 s per call; the new code passes 1,000 calls in under 0.7 s.
+
 ## Known Limitations
 
 - `failOver` resends a request that may already have run on the failed provider, so it is only safe for idempotent methods; there is no per-method opt-in yet
 - Outlier ejection counts only transport failures and deadlines. A provider that answers quickly with errors, or is slow but within the deadline, stays in rotation
 - Registry integration tests run against etcd only; the ZooKeeper backend shares the cache logic but has no tests
+- `ZooKeeperRegistry` still looks up providers synchronously on every call after its cache is invalidated, so it probably has the same outage problem that was fixed for etcd; this is untested
 - Benchmarks so far run client and server on a single host
 
 ## Roadmap
