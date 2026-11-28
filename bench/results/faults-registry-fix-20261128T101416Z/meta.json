@@ -1,0 +1,300 @@
+{
+  "config": {
+    "name": "faults-registry-fix",
+    "java": "D:/jdk-25",
+    "jvmArgs": [
+      "-Xms512m",
+      "-Xmx512m",
+      "--sun-misc-unsafe-memory-access=allow"
+    ],
+    "registry": "http://localhost:2379",
+    "etcdContainer": "ac-rpc-etcd",
+    "serializer": "kryo",
+    "providers": 3,
+    "basePort": 18081,
+    "leaseTtlSec": 30,
+    "rate": 2000,
+    "payload": 64,
+    "warmupSec": 5,
+    "durationSec": 60,
+    "timeoutSec": 5,
+    "settleSec": 2,
+    "rounds": 3,
+    "scenarios": [
+      {
+        "label": "etcd-outage",
+        "args": [
+          "--tolerant",
+          "failOver",
+          "--outlier-ejection",
+          "true"
+        ],
+        "events": [
+          {
+            "at": 10.5,
+            "action": "kill-etcd"
+          },
+          {
+            "at": 30.5,
+            "action": "start-etcd"
+          }
+        ]
+      },
+      {
+        "label": "restart-failFast",
+        "args": [
+          "--tolerant",
+          "failFast",
+          "--outlier-ejection",
+          "false"
+        ],
+        "events": [
+          {
+            "at": 10.5,
+            "action": "kill-provider",
+            "index": 0
+          },
+          {
+            "at": 20.5,
+            "action": "start-provider",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "label": "restart-failOver+ejection",
+        "args": [
+          "--tolerant",
+          "failOver",
+          "--outlier-ejection",
+          "true"
+        ],
+        "events": [
+          {
+            "at": 10.5,
+            "action": "kill-provider",
+            "index": 0
+          },
+          {
+            "at": 20.5,
+            "action": "start-provider",
+            "index": 0
+          }
+        ]
+      }
+    ]
+  },
+  "sha": "43f458f2f6230d5177830c10dcd08c8edd4b3211",
+  "dirty": false,
+  "host": {
+    "platform": "Windows-11-10.0.26200-SP0",
+    "machine": "AMD64",
+    "processor": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+    "cpuCount": 32,
+    "cpuModel": "13th Gen Intel(R) Core(TM) i9-13980HX",
+    "memoryGb": 16
+  },
+  "javaVersion": [
+    "openjdk version \"25.0.5.1\" 2026-11-17 LTS",
+    "OpenJDK Runtime Environment Temurin-25.0.5.1+2 (build 25.0.5.1+2-LTS)",
+    "OpenJDK 64-Bit Server VM Temurin-25.0.5.1+2 (build 25.0.5.1+2-LTS, mixed mode, sharing)"
+  ],
+  "results": [
+    {
+      "scenario": "etcd-outage",
+      "round": 0,
+      "file": "runs/etcd-outage_r0.json",
+      "freeMemoryMbBefore": 4942,
+      "lowMemory": false,
+      "status": "ok",
+      "windowStartEpochMs": 1795860866324,
+      "events": [
+        {
+          "at": 10.5,
+          "action": "kill-etcd",
+          "startedEpochMs": 1795860876824.0454,
+          "doneEpochMs": 1795860877417.6663
+        },
+        {
+          "at": 30.5,
+          "action": "start-etcd",
+          "startedEpochMs": 1795860896823.9077,
+          "doneEpochMs": 1795860897101.8
+        }
+      ],
+      "reregisteredEpochMs": 1795860898635.1943,
+      "finalRegistered": 3,
+      "providerLogs": {
+        "0": [
+          "etcd-outage_r0_provider0.log"
+        ],
+        "1": [
+          "etcd-outage_r0_provider1.log"
+        ],
+        "2": [
+          "etcd-outage_r0_provider2.log"
+        ]
+      },
+      "summary": {
+        "faultSec": 10.5,
+        "events": [
+          {
+            "action": "kill-etcd",
+            "sec": 10.5,
+            "commandMs": 594
+          },
+          {
+            "action": "start-etcd",
+            "sec": 30.5,
+            "commandMs": 278
+          }
+        ],
+        "failedBeforeFault": 0,
+        "failedAfterFault": 0,
+        "failedPctAfterFault": 0.0,
+        "unhealthySecondsAfterFault": [],
+        "recoverySec": 0,
+        "baselineP99Ms": 0.4115,
+        "peakP99Ms": 507.773,
+        "peakP99Sec": 0,
+        "postFaultMedianP99Ms": 0.397,
+        "firstError": null,
+        "reregisteredSecAfterEtcdStart": 1.81,
+        "finalRegistered": 3,
+        "staleFallbackLogLines": 2,
+        "watchFailedLogLines": 1
+      }
+    },
+    {
+      "scenario": "etcd-outage",
+      "round": 1,
+      "file": "runs/etcd-outage_r1.json",
+      "freeMemoryMbBefore": 5025,
+      "lowMemory": false,
+      "status": "ok",
+      "windowStartEpochMs": 1795860936824,
+      "events": [
+        {
+          "at": 10.5,
+          "action": "kill-etcd",
+          "startedEpochMs": 1795860947324.2483,
+          "doneEpochMs": 1795860947938.919
+        },
+        {
+          "at": 30.5,
+          "action": "start-etcd",
+          "startedEpochMs": 1795860967323.9556,
+          "doneEpochMs": 1795860967586.5273
+        }
+      ],
+      "reregisteredEpochMs": 1795860968927.454,
+      "finalRegistered": 3,
+      "providerLogs": {
+        "0": [
+          "etcd-outage_r1_provider0.log"
+        ],
+        "1": [
+          "etcd-outage_r1_provider1.log"
+        ],
+        "2": [
+          "etcd-outage_r1_provider2.log"
+        ]
+      },
+      "summary": {
+        "faultSec": 10.5,
+        "events": [
+          {
+            "action": "kill-etcd",
+            "sec": 10.5,
+            "commandMs": 615
+          },
+          {
+            "action": "start-etcd",
+            "sec": 30.5,
+            "commandMs": 263
+          }
+        ],
+        "failedBeforeFault": 0,
+        "failedAfterFault": 0,
+        "failedPctAfterFault": 0.0,
+        "unhealthySecondsAfterFault": [],
+        "recoverySec": 0,
+        "baselineP99Ms": 0.405,
+        "peakP99Ms": 506.724,
+        "peakP99Sec": 0,
+        "postFaultMedianP99Ms": 0.3935,
+        "firstError": null,
+        "reregisteredSecAfterEtcdStart": 1.6,
+        "finalRegistered": 3,
+        "staleFallbackLogLines": 2,
+        "watchFailedLogLines": 1
+      }
+    },
+    {
+      "scenario": "etcd-outage",
+      "round": 2,
+      "file": "runs/etcd-outage_r2.json",
+      "freeMemoryMbBefore": 5057,
+      "lowMemory": false,
+      "status": "ok",
+      "windowStartEpochMs": 1795861007215,
+      "events": [
+        {
+          "at": 10.5,
+          "action": "kill-etcd",
+          "startedEpochMs": 1795861017714.8884,
+          "doneEpochMs": 1795861018259.8447
+        },
+        {
+          "at": 30.5,
+          "action": "start-etcd",
+          "startedEpochMs": 1795861037715.081,
+          "doneEpochMs": 1795861037971.6555
+        }
+      ],
+      "reregisteredEpochMs": 1795861039811.5403,
+      "finalRegistered": 3,
+      "providerLogs": {
+        "0": [
+          "etcd-outage_r2_provider0.log"
+        ],
+        "1": [
+          "etcd-outage_r2_provider1.log"
+        ],
+        "2": [
+          "etcd-outage_r2_provider2.log"
+        ]
+      },
+      "summary": {
+        "faultSec": 10.5,
+        "events": [
+          {
+            "action": "kill-etcd",
+            "sec": 10.5,
+            "commandMs": 545
+          },
+          {
+            "action": "start-etcd",
+            "sec": 30.5,
+            "commandMs": 257
+          }
+        ],
+        "failedBeforeFault": 0,
+        "failedAfterFault": 0,
+        "failedPctAfterFault": 0.0,
+        "unhealthySecondsAfterFault": [],
+        "recoverySec": 0,
+        "baselineP99Ms": 0.4275,
+        "peakP99Ms": 506.2,
+        "peakP99Sec": 0,
+        "postFaultMedianP99Ms": 0.3945,
+        "firstError": null,
+        "reregisteredSecAfterEtcdStart": 2.1,
+        "finalRegistered": 3,
+        "staleFallbackLogLines": 2,
+        "watchFailedLogLines": 1
+      }
+    }
+  ],
+  "finishedAt": "2026-11-28T10:17:49.957975+00:00"
+}
