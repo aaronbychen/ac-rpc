@@ -210,6 +210,16 @@ Pre-kill p99 is 0.41–0.49 ms in every run. Without ejection, round robin keeps
 
 The p99 of calls to the *healthy* providers also rose to about 11 ms without ejection under `failFast`. This happens with the Vert.x client but not with the blocking client (p99 stayed at 0.45–0.51 ms in a smoke test), and it disappears once ejection stops the reconnect attempts. The client's CPU was idle according to a JFR profile, and a non-blocking connect to the closed port returns in under 1 ms, so the event loop is not blocked in the call itself. The exact mechanism inside Vert.x/Netty has not been identified.
 
+### Recovery time (definition)
+
+Fault experiments from here on report recovery time with this definition, written down before the runs and not changed afterwards:
+
+- Requests are bucketed into one-second intervals by their intended send time, starting at the beginning of the measured window.
+- A request succeeds if it returns the correct reply within the load generator's timeout (5 s). Errors, requests shed at the in-flight cap, slower replies and requests still outstanding at the end count as failures.
+- A second is healthy if at least 99% of the requests issued in it succeed.
+- Recovery time is the time from the fault's first action (for example, killing etcd) to the start of the first healthy second that begins 10 consecutive healthy seconds. Seconds are measured from the bucket that contains the fault, so the value has 1 s resolution. If the second that contains the fault starts such a run, recovery time is 0. If no such run exists before the window ends, the run did not recover.
+- For a provider that is restarted, rejoin time is the time from its restart to the first second in which it serves at least 10% of all requests.
+
 ## Known Limitations
 
 - `failOver` resends a request that may already have run on the failed provider, so it is only safe for idempotent methods; there is no per-method opt-in yet
